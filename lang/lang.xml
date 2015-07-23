@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<lang>
+	<item name="cmd_member_expire_module">
+		<value xml:lang="ko"><![CDATA[휴면계정 정리 모듈]]></value>
+	</item>
+</lang>

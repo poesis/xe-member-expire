@@ -1,0 +1,182 @@
+<load target="css/config.css" />
+<load target="js/config.js" />
+
+<div class="x_page-header">
+	<h1>{$lang->cmd_member_expire_module}</h1>
+</div>
+
+<form class="x_form-horizontal" action="./" method="post">
+	<input type="hidden" name="module" value="member_expire" />
+	<input type="hidden" name="act" value="procMember_expireAdminInsertConfig" />
+	<input type="hidden" name="success_return_url" value="{getRequestUriByServerEnviroment()}" />
+
+	<section class="section">
+		<div class="encryption_description">
+			<p>{$lang->msg_encryption_general_introduction_1}</p>
+			<p>{$lang->msg_encryption_general_introduction_2}</p>
+			<p>{$lang->msg_encryption_general_introduction_3}</p>
+		</div>
+	</section>
+	
+	<section class="section">
+	
+		<h2>{$lang->cmd_encryption_symmetric}</h2>
+		
+		<!--@if($encryption_aes_enabled)-->
+		
+		<div class="encryption_description">{$lang->msg_encryption_symmetric_help}</div>
+		
+		<div class="x_control-group">
+			<label class="x_control-label" for="encryption_aes_bits">{$lang->cmd_encryption_bits}</label>
+			<div class="x_controls">
+				<select name="aes_bits" id="encryption_aes_bits">
+					<option value="128" selected="selected"|cond="$encryption_config->aes_bits == 128">128{$lang->cmd_encryption_bit_suffix}</option>
+					<option value="192" selected="selected"|cond="$encryption_config->aes_bits == 192">192{$lang->cmd_encryption_bit_suffix}</option>
+					<option value="256" selected="selected"|cond="$encryption_config->aes_bits == 256">256{$lang->cmd_encryption_bit_suffix}</option>
+				</select>
+			</div>
+		</div>
+		
+		<div class="x_control-group">
+			<label class="x_control-label" for="encryption_aes_hmac_bits">{$lang->cmd_encryption_hmac_bits}</label>
+			<div class="x_controls">
+				<select name="aes_hmac_bits" id="encryption_aes_hmac_bits">
+					<option value="128" selected="selected"|cond="$encryption_config->aes_hmac_bits == 128">128{$lang->cmd_encryption_bit_suffix}</option>
+					<option value="192" selected="selected"|cond="$encryption_config->aes_hmac_bits == 192">192{$lang->cmd_encryption_bit_suffix}</option>
+					<option value="256" selected="selected"|cond="$encryption_config->aes_hmac_bits == 256">256{$lang->cmd_encryption_bit_suffix}</option>
+				</select>
+			</div>
+		</div>
+		
+		<div class="x_control-group">
+			<label class="x_control-label" for="encryption_aes_key">{$lang->cmd_encryption_key}</label>
+			<div class="x_controls">
+				<textarea name="aes_key" id="encryption_aes_key" readonly="readonly">{htmlspecialchars($encryption_config->aes_key, ENT_COMPAT, 'UTF-8', true)}</textarea>
+				<!--@if($encryption_config->aes_key === null)-->
+				<button id="encryption_aes_keygen">{$lang->cmd_encryption_keygen}</button>
+				<!--@end-->
+			</div>
+		</div>
+		
+		<div class="x_control-group">
+			<label class="x_control-label">{$lang->cmd_encryption_store}</label>
+			<div class="x_controls">
+				<label class="x_inline" for="encryption_aes_store_db"><input type="radio" name="aes_store" id="encryption_aes_store_db" value="db" checked="checked"|cond="$encryption_config->aes_store === 'DB'" /> {$lang->cmd_encryption_store_db}</label>
+				<label class="x_inline" for="encryption_aes_store_file"><input type="radio" name="aes_store" id="encryption_aes_store_file" value="file" checked="checked"|cond="$encryption_config->aes_store !== 'DB'" /> {$lang->cmd_encryption_store_file}</label>
+			</div>
+		</div>
+		
+		<div class="x_control-group">
+			<label class="x_control-label" for="encryption_aes_store_filename">{$lang->cmd_encryption_store_filename}</label>
+			<div class="x_controls">
+				<input type="text" name="aes_store_filename" id="encryption_aes_store_filename"
+					value="{htmlspecialchars($encryption_config->aes_store === 'DB' ? '' : $encryption_config->aes_store, ENT_COMPAT, 'UTF-8', true)}"
+					disabled="disabled"|cond="$encryption_config->aes_store === 'DB'" />
+				<p class="x_help-block">{$lang->msg_encryption_file_storage}</p>
+			</div>
+		</div>
+		
+		<!--@else-->
+		
+		<div class="encryption_description">{$lang->msg_encryption_symmetric_unavailable}</div>
+		
+		<!--@end-->
+		
+	</section>
+
+	<section class="section">
+	
+		<h2>{$lang->cmd_encryption_asymmetric}</h2>
+		
+		<!--@if($encryption_rsa_enabled)-->
+		
+		<div class="encryption_description">{$lang->msg_encryption_asymmetric_help}</div>
+		
+		<div class="x_control-group">
+			<label class="x_control-label" for="encryption_rsa_bits">{$lang->cmd_encryption_bits}</label>
+			<div class="x_controls">
+				<select id="encryption_rsa_bits" disabled="disabled"|cond="$encryption_config->rsa_privkey !== null">
+					<option value="1024" selected="selected"|cond="$encryption_config->rsa_bits == 1024">1024{$lang->cmd_encryption_bit_suffix}</option>
+					<option value="2048" selected="selected"|cond="$encryption_config->rsa_bits == 2048">2048{$lang->cmd_encryption_bit_suffix}</option>
+					<option value="3072" selected="selected"|cond="$encryption_config->rsa_bits == 3072">3072{$lang->cmd_encryption_bit_suffix}</option>
+					<option value="4096" selected="selected"|cond="$encryption_config->rsa_bits == 4096">4096{$lang->cmd_encryption_bit_suffix}</option>
+				</select>
+				<input type="hidden" name="rsa_bits" id="encryption_rsa_bits_hidden" value="{$encryption_config->rsa_bits}" />
+			</div>
+		</div>
+		
+		<div class="x_control-group">
+			<label class="x_control-label" for="encryption_rsa_hmac_bits">{$lang->cmd_encryption_hmac_bits}</label>
+			<div class="x_controls">
+				<select name="rsa_hmac_bits" id="encryption_rsa_hmac_bits">
+					<option value="128" selected="selected"|cond="$encryption_config->rsa_hmac_bits == 128">128{$lang->cmd_encryption_bit_suffix}</option>
+					<option value="192" selected="selected"|cond="$encryption_config->rsa_hmac_bits == 192">192{$lang->cmd_encryption_bit_suffix}</option>
+					<option value="256" selected="selected"|cond="$encryption_config->rsa_hmac_bits == 256">256{$lang->cmd_encryption_bit_suffix}</option>
+				</select>
+			</div>
+		</div>
+		
+		<div class="x_control-group">
+			<label class="x_control-label" for="encryption_rsa_privkey">{$lang->cmd_encryption_privkey}</label>
+			<div class="x_controls">
+				<textarea name="rsa_privkey" id="encryption_rsa_privkey" readonly="readonly">{htmlspecialchars($encryption_config->rsa_privkey, ENT_COMPAT, 'UTF-8', true)}</textarea>
+				<!--@if($encryption_config->rsa_privkey === null)-->
+				<button id="encryption_rsa_keygen">{$lang->cmd_encryption_keygen}</button>
+				<!--@end-->
+			</div>
+		</div>
+		
+		<div class="x_control-group">
+			<label class="x_control-label" for="encryption_rsa_pubkey">{$lang->cmd_encryption_pubkey}</label>
+			<div class="x_controls">
+				<textarea name="rsa_pubkey" id="encryption_rsa_pubkey" readonly="readonly">{htmlspecialchars($encryption_config->rsa_pubkey, ENT_COMPAT, 'UTF-8', true)}</textarea>
+				<!--@if($encryption_config->rsa_privkey === null)-->
+				<div id="encryption_rsa_keygen_needed">{$lang->cmd_encryption_keygen_needed}</div>
+				<!--@end-->
+			</div>
+		</div>
+		
+		<div class="x_control-group">
+			<label class="x_control-label">{$lang->cmd_encryption_store}</label>
+			<div class="x_controls">
+				<label class="x_inline" for="encryption_rsa_store_db"><input type="radio" name="rsa_store" id="encryption_rsa_store_db" value="db" checked="checked"|cond="$encryption_config->rsa_store === 'DB'" /> {$lang->cmd_encryption_store_db}</label>
+				<label class="x_inline" for="encryption_rsa_store_file"><input type="radio" name="rsa_store" id="encryption_rsa_store_file" value="file" checked="checked"|cond="$encryption_config->rsa_store !== 'DB'" /> {$lang->cmd_encryption_store_file}</label>
+			</div>
+		</div>
+		
+		<div class="x_control-group">
+			<label class="x_control-label" for="encryption_rsa_store_filename">{$lang->cmd_encryption_store_filename}</label>
+			<div class="x_controls">
+				<input type="text" name="rsa_store_filename" id="encryption_rsa_store_filename"
+					value="{$encryption_config->rsa_store === 'DB' ? '' : $encryption_config->rsa_store}"
+					disabled="disabled"|cond="$encryption_config->rsa_store === 'DB'" />
+				<p class="x_help-block">{$lang->msg_encryption_file_storage}</p>
+			</div>
+		</div>
+		
+		<!--@else-->
+		
+		<div class="encryption_description">{$lang->msg_encryption_asymmetric_unavailable}</div>
+		
+		<!--@end-->
+		
+	</section>
+
+	<section class="section">
+	
+		<h2>{$lang->cmd_encryption_delete_key}</h2>
+		
+		<div class="encryption_description">{$lang->msg_encryption_delete_key}</div>
+		
+		<div>
+			<button id="encryption_delete_aes_key" data-confirm="{$lang->cmd_encryption_confirm_delete_symmetric_key}">{$lang->cmd_encryption_delete_symmetric_key}</button>
+			<button id="encryption_delete_rsa_key" data-confirm="{$lang->cmd_encryption_confirm_delete_asymmetric_key}">{$lang->cmd_encryption_delete_asymmetric_key}</button>
+		</div>
+		
+	</section>
+	
+	<div class="btnArea x_clearfix">
+		<button type="submit" class="x_btn x_btn-primary x_pull-right">{$lang->cmd_registration}</button>
+	</div>
+	
+</form>

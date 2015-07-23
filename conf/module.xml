@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<module>
+	<grants />
+	<permissions />
+	<actions>
+		<action name="dispMember_expireAdminConfig" type="view" admin_index="true" menu_name="member_expire" />
+		<action name="procMember_expireAdminInsertConfig" type="controller" />
+	</actions>
+	<menus>
+		<menu name="member_expire" type="all">
+			<title xml:lang="ko">휴면계정 정리 모듈</title>
+		</menu>
+	</menus>
+</module>
