@@ -55,12 +55,15 @@ class Member_ExpireAdminController extends Member_Expire
 	/**
 	 * 휴면계정을 실제 정리하는 메소드. member_srl만 넣을 경우 개별 회원만 정리할 수도 있다.
 	 */
-	public function procMember_ExpireAdminDoCleanup()
+	public function procMember_ExpireAdminDoCleanup($member_srl = null)
 	{
 		// 정리 설정을 가져온다.
 		$config = $this->getConfig();
 		$request_vars = Context::getRequestVars();
-		$member_srl = $request_vars->member_srl ? $request_vars->member_srl : 0;
+		if ($member_srl === null)
+		{
+			$member_srl = $request_vars->member_srl ? $request_vars->member_srl : 0;
+		}
 		$threshold = $request_vars->threshold ? $request_vars->threshold : $config->expire_threshold;
 		$method = $request_vars->method ? $request_vars->method : $config->expire_method;
 		$total_count = $request_vars->total_count ? $request_vars->total_count : 10;
@@ -172,7 +175,12 @@ class Member_ExpireAdminController extends Member_Expire
 					$output = executeQuery('member_expire.insertMovedMember', $member);
 					if (!$output->toBool())
 					{
-						$oDB->rollback(); $this->add('count', -7); return;
+						$output = executeQuery('member_expire.deleteMovedMember', $member);
+						$output = executeQuery('member_expire.insertMovedMember', $member);
+						if (!$output->toBool())
+						{
+							$oDB->rollback(); $this->add('count', -7); return;
+						}
 					}
 					$output = executeQuery('member.deleteAuthMail', $member);
 					if (!$output->toBool())
@@ -205,13 +213,16 @@ class Member_ExpireAdminController extends Member_Expire
 	/**
 	 * 개별 휴면계정을 복원하는 메소드.
 	 */
-	public function procMember_ExpireAdminRestoreMember()
+	public function procMember_ExpireAdminRestoreMember($member_srl = null)
 	{
 		// 회원번호를 파악한다.
-		$member_srl = Context::get('member_srl');
-		if (!$member_srl)
+		if ($member_srl === null)
 		{
-			$this->add('restored', -1); return;
+			$member_srl = Context::get('member_srl');
+			if (!$member_srl)
+			{
+				$this->add('restored', -1); return;
+			}
 		}
 		
 		// 이동되어 있는지 확인한다.
@@ -232,7 +243,12 @@ class Member_ExpireAdminController extends Member_Expire
 		$output = executeQuery('member_expire.insertRestoredMember', $member);
 		if (!$output->toBool())
 		{
-			$oDB->rollback(); $this->add('restored', -3); return;
+			$output = executeQuery('member.deleteMember', $member);
+			$output = executeQuery('member_expire.insertRestoredMember', $member);
+			if (!$output->toBool())
+			{
+				$oDB->rollback(); $this->add('restored', -3); return;
+			}
 		}
 		
 		// member_expire 테이블에서 삭제한다.
