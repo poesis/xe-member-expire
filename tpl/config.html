@@ -39,13 +39,25 @@
 		</div>
 		
 		<div class="x_control-group">
+			<label class="x_control-label">앞으로도 자동 정리</label>
+			<div class="x_controls">
+				<label for="auto_expire_Y" class="x_inline"><input type="radio" name="auto_expire" id="auto_expire_Y" value="Y" checked="checked"|cond="$mex_config->auto_expire == 'Y'" /> 예</label>
+				<label for="auto_expire_N" class="x_inline"><input type="radio" name="auto_expire" id="auto_expire_N" value="N" checked="checked"|cond="$mex_config->auto_expire != 'Y'" /> 아니오</label>
+				<p class="x_help-block">관리자가 직접 정리하지 않아도 위의 조건에 해당하는 휴면계정을 그때그때 자동으로 정리합니다.<br />
+					반드시 대부분의 휴면계정을 먼저 정리한 후에 이 옵션을 사용하시기 바랍니다.<br />
+					정리할 계정이 많은 경우 사이트 로딩이 느려지거나 정리가 다소 지연될 수 있습니다.</p>
+			</div>
+		</div>
+		
+		<div class="x_control-group">
 			<label class="x_control-label">재인증시 자동 복원</label>
 			<div class="x_controls">
 				<label for="auto_restore_Y" class="x_inline"><input type="radio" name="auto_restore" id="auto_restore_Y" value="Y" checked="checked"|cond="$mex_config->auto_restore == 'Y'" /> 예</label>
 				<label for="auto_restore_N" class="x_inline"><input type="radio" name="auto_restore" id="auto_restore_N" value="N" checked="checked"|cond="$mex_config->auto_restore != 'Y'" /> 아니오</label>
 				<p class="x_help-block">별도의 저장공간으로 이동된 회원이 로그인, 아이디/비번찾기 등 다시 인증을 거치면 자동으로 복원합니다.<br />
-					이 옵션을 선택하지 않을 경우, 휴면계정이라는 안내문만 출력되고 로그인을 허락하지 않습니다.<br />
-					휴면계정을 모두 삭제하도록 선택한 경우에는 이 옵션을 사용할 수 없습니다.</p>
+					이 옵션을 선택하지 않을 경우 휴면계정이라는 안내문만 출력되고 로그인을 허락하지 않습니다.<br />
+					서드파티 모듈을 사용하여 인증을 시도하는 경우에는 정상 작동하지 않을 수도 있습니다.<br />
+					휴면계정을 삭제하도록 설정한 경우에는 이 옵션을 사용할 수 없고, 삭제된 계정은 복원되지 않습니다.</p>
 			</div>
 		</div>
 		

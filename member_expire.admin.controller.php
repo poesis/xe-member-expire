@@ -29,6 +29,7 @@ class Member_ExpireAdminController extends Member_Expire
 		$new_config = new stdClass;
 		$new_config->expire_threshold = $request_vars->expire_threshold;
 		$new_config->expire_method = $request_vars->expire_method;
+		$new_config->auto_expire = $request_vars->auto_expire === 'Y' ? 'Y' : 'N';
 		$new_config->auto_restore = $request_vars->auto_restore === 'Y' ? 'Y' : 'N';
 		
 		// 새 모듈 설정을 저장한다.

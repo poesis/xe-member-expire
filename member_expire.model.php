@@ -80,6 +80,38 @@ class Member_ExpireModel extends Member_Expire
 	}
 	
 	/**
+	 * 회원 로그아웃 트리거.
+	 * 로그아웃과는 무관하고, 적당한 간격으로 자동 정리를 실행하는 데 쓰인다.
+	 * 로그아웃 트리거를 사용하는 이유는 그나마 다른 작업에 영향을 적게 미치면서
+	 * 호출 빈도가 실제 회원수에 비례할 가능성이 높기 때문이다.
+	 */
+	public function triggerAutoExpire()
+	{
+		// 자동 정리 옵션을 사용하지 않는다면 종료한다.
+		$config = $this->getConfig();
+		if ($config->auto_expire !== 'Y')
+		{
+			return;
+		}
+		
+		// 정리할 휴면계정이 있는지 확인한다.
+		$obj = new stdClass();
+		$obj->is_admin = 'N';
+		$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + zgap());
+		$obj->list_count = $obj->page_count = $obj->page = 1;
+		$obj->orderby = 'asc';
+		$member_srls_query = executeQuery('member_expire.getExpiredMemberSrlOnly', $obj);
+		if ($member_srls_query->toBool() && count($member_srls_query->data))
+		{
+			$oAdminController = getAdminController('member_expire');
+			foreach ($member_srls_query->data as $member_srls_item)
+			{
+				$oAdminController->procMember_ExpireAdminDoCleanup($member_srls_item->member_srl);
+			}
+		}
+	}
+	
+	/**
 	 * 모듈 실행 전 트리거.
 	 * 로그인, 아이디/비번찾기 등 휴면계정을 다시 활성화시키기 위해 꼭 필요한 작업을 할 때
 	 * 코어에서 회원정보에 접근할 수 있도록 임시로 member 테이블에 레코드를 옮겨 준다.

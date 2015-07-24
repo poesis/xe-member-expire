@@ -51,6 +51,10 @@ class Member_Expire extends ModuleObject
 		{
 			return false;
 		}
+		if(!$oModuleModel->getTrigger('member.doLogout', 'member_expire', 'model', 'triggerAutoExpire', 'after'))
+		{
+			return false;
+		}
 		if(!$oModuleModel->getTrigger('moduleObject.proc', 'member_expire', 'model', 'triggerBeforeModuleProc', 'before'))
 		{
 			return false;
@@ -76,6 +80,10 @@ class Member_Expire extends ModuleObject
 		if(!$oModuleModel->getTrigger('member.updateMember', 'member_expire', 'model', 'triggerBlockDuplicates', 'before'))
 		{
 			$oModuleController->insertTrigger('member.updateMember', 'member_expire', 'model', 'triggerBlockDuplicates', 'before');
+		}
+		if(!$oModuleModel->getTrigger('member.doLogout', 'member_expire', 'model', 'triggerAutoExpire', 'after'))
+		{
+			$oModuleController->insertTrigger('member.doLogout', 'member_expire', 'model', 'triggerAutoExpire', 'after');
 		}
 		if(!$oModuleModel->getTrigger('moduleObject.proc', 'member_expire', 'model', 'triggerBeforeModuleProc', 'before'))
 		{
