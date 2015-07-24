@@ -1,0 +1,66 @@
+<include target="./header.html" />
+<load target="css/config.css" />
+<load target="js/config.js" />
+
+<p>
+	지난 {$expire_threshold} 동안 로그인하지 않은 회원은 {number_format($paging->total_count)}명입니다.
+	최근 로그인순으로 표시합니다.
+</p>
+
+<table id="member_expire_log" class="x_table x_table-striped x_table-hover">
+	<thead>
+		<tr>
+			<th scope="col" class="nowr">이메일</th>
+			<th scope="col" class="nowr">아이디</th>
+			<th scope="col" class="nowr">이름</th>
+			<th scope="col" class="nowr">닉네임</th>
+			<th scope="col" class="nowr">가입일</th>
+			<th scope="col" class="nowr">최근 로그인</th>
+			<th scope="col" class="nowr">정리</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr loop="$expired_members => $member">
+			<td class="nowr">
+				<a href="#popup_menu_area" class="member_{$member->member_srl}" title="Info">{getEncodeEmailAddress($member->email_address)}</a>
+			</td>
+			<td class="nowr">{$member->user_id}</td>
+			<td class="nowr">{$member->user_name}</td>
+			<td class="nowr">{$member->nick_name}</td>
+			<td class="nowr">
+				<!--@if($member->regdate)-->
+					{zdate($member->regdate, 'Y-m-d')}
+				<!--@else-->
+					<span class="graytext">기록 없음</span>
+				<!--@endif-->
+			</td>
+			<td class="nowr">
+				<!--@if($member->last_login)-->
+					{zdate($member->last_login, 'Y-m-d')}&nbsp;
+					({round((time() - ztime($member->last_login)) / 86400)}일 전)
+				<!--@else-->
+					<span class="graytext">로그인 기록 없음</span>
+				<!--@endif-->
+			</td>
+			<td clas="nowr">
+				<a href="#" id="do_expire_{$member->member_srl}" class="do_expire_member" data-member-srl="{$member->member_srl}">정리</a>
+			</td>
+		</tr>
+		<tr cond="!$expired_members">
+			<td>해당되는 회원이 없습니다.</td>
+		</tr>
+	</tbody>
+</table>
+
+<div class="x_clearfix">
+	<form class="x_pagination x_pull-left" style="margin-top:8px" action="{Context::getUrl('')}" method="post" no-error-return-url="true">
+		<input loop="$param => $key, $val" cond="!in_array($key, array('mid', 'vid', 'act'))" type="hidden" name="{$key}" value="{$val}" />
+		<ul>
+			<li class="x_disabled"|cond="$page == 1"><a href="{getUrl('page', '')}">&laquo; {$lang->first_page}</a></li>
+			<!--@while($page_no = $paging->page_navigation->getNextPage())-->
+				<li class="x_active"|cond="$page_no == $page"><a href="{getUrl('page', $page_no)}">{$page_no}</a></li>
+			<!--@end-->
+			<li class="x_disabled"|cond="$page == $paging->page_navigation->last_page"><a href="{getUrl('page', $paging->page_navigation->last_page)}">{$lang->last_page} &raquo;</a></li>
+		</ul>
+	</form>
+</div>

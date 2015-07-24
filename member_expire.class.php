@@ -29,7 +29,11 @@ class Member_Expire extends ModuleObject
 		{
 			$config = new stdClass();
 		}
-		
+		if (!$config->expire_threshold) $config->expire_threshold = 365;
+		if (!$config->expire_method) $config->expire_method = 'delete';
+		if (!$config->auto_expire) $config->auto_expire = 'N';
+		if (!$config->auto_restore) $config->auto_restore = 'N';
+		if (!$config->email_notify) $config->email_notify = 'N';
 		return $config;
 	}
 	

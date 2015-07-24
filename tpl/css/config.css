@@ -1,1 +1,8 @@
 
+p.cleanup_notice { margin-bottom: 16px !important; }
+span.graytext { color: #999; }
+
+#cleanup_progress_area { clear: both; margin-right: 4px; display: none; }
+#cleanup_progress_container { width: 100%; border: 1px solid #bbb; padding: 1px; box-sizing: border-box; margin-bottom: 8px; }
+#cleanup_progress_bar { width: 0%; height: 24px; background-color: #08c; }
+#cleanup_progress_finish_area { display: none; }

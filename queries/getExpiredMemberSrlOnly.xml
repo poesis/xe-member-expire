@@ -1,0 +1,25 @@
+<query id="getExpiredMemberSrlOnly" action="select">
+    <tables>
+        <table name="member" />
+    </tables>
+    <columns>
+        <column name="member_srl" />
+    </columns>
+    <conditions>
+        <condition operation="equal" column="is_admin" var="is_admin" />
+        <group pipe="and">
+            <condition operation="less" column="regdate" var="threshold" />
+            <condition operation="null" column="regdate" pipe="or" />
+        </group>
+        <group pipe="and">
+            <condition operation="less" column="last_login" var="threshold" />
+            <condition operation="null" column="last_login" pipe="or" />
+        </group>
+    </conditions>
+    <navigation>
+        <index var="sort_index" default="last_login" order="orderby" />
+        <list_count var="list_count" default="10" />
+        <page_count var="page_count" default="10" />
+        <page var="page" default="1" />
+    </navigation>
+</query>
