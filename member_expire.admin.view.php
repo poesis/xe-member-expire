@@ -28,6 +28,7 @@ class Member_ExpireAdminView extends Member_Expire
 		Context::set('mex_config', $this->getConfig());
 		
 		// 템플릿을 지정한다.
+		Context::setBrowserTitle('휴면계정 설정 - XE Admin');
 		$this->setTemplatePath($this->module_path.'tpl');
 		$this->setTemplateFile('config');
 	}
@@ -52,6 +53,7 @@ class Member_ExpireAdminView extends Member_Expire
 		Context::set('expired_members_count', $expired_members_count);
 		
 		// 템플릿을 지정한다.
+		Context::setBrowserTitle('휴면계정 정리 - XE Admin');
 		$this->setTemplatePath($this->module_path.'tpl');
 		$this->setTemplateFile('cleanup');
 	}
@@ -89,6 +91,7 @@ class Member_ExpireAdminView extends Member_Expire
 		Context::set('page', $page);
 		
 		// 템플릿을 지정한다.
+		Context::setBrowserTitle('정리대상 회원 목록 - XE Admin');
 		$this->setTemplatePath($this->module_path.'tpl');
 		$this->setTemplateFile('list_targets');
 	}
@@ -124,6 +127,7 @@ class Member_ExpireAdminView extends Member_Expire
 		Context::set('page', $page);
 		
 		// 템플릿을 지정한다.
+		Context::setBrowserTitle('별도저장 회원 목록 - XE Admin');
 		$this->setTemplatePath($this->module_path.'tpl');
 		$this->setTemplateFile('list_moved');
 	}
