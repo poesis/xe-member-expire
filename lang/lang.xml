@@ -3,4 +3,7 @@
 	<item name="cmd_member_expire_module">
 		<value xml:lang="ko"><![CDATA[휴면계정 정리 모듈]]></value>
 	</item>
+	<item name="cmd_member_expire_message">
+		<value xml:lang="ko"><![CDATA[장기간 로그인하지 않아 휴면계정으로 전환되었습니다. 관리자에게 문의해 주시기 바랍니다.]]></value>
+	</item>
 </lang>

@@ -38,10 +38,62 @@ class Member_Expire extends ModuleObject
 	}
 	
 	/**
+	 * 트리거가 정상적으로 등록되어 있는지 확인하는 메소드.
+	 */
+	public function checkTriggers()
+	{
+		$oModuleModel = getModel('module');
+		if(!$oModuleModel->getTrigger('member.insertMember', 'member_expire', 'model', 'triggerBlockDuplicates', 'before'))
+		{
+			return false;
+		}
+		if(!$oModuleModel->getTrigger('member.updateMember', 'member_expire', 'model', 'triggerBlockDuplicates', 'before'))
+		{
+			return false;
+		}
+		if(!$oModuleModel->getTrigger('moduleObject.proc', 'member_expire', 'model', 'triggerBeforeModuleProc', 'before'))
+		{
+			return false;
+		}
+		if(!$oModuleModel->getTrigger('moduleObject.proc', 'member_expire', 'model', 'triggerAfterModuleProc', 'after'))
+		{
+			return false;
+		}
+		return true;
+	}
+	
+	/**
+	 * 모듈에서 사용하는 트리거를 등록하는 메소드.
+	 */
+	public function registerTriggers()
+	{
+		$oModuleModel = getModel('module');
+		$oModuleController = getController('module');
+		if(!$oModuleModel->getTrigger('member.insertMember', 'member_expire', 'model', 'triggerBlockDuplicates', 'before'))
+		{
+			$oModuleController->insertTrigger('member.insertMember', 'member_expire', 'model', 'triggerBlockDuplicates', 'before');
+		}
+		if(!$oModuleModel->getTrigger('member.updateMember', 'member_expire', 'model', 'triggerBlockDuplicates', 'before'))
+		{
+			$oModuleController->insertTrigger('member.updateMember', 'member_expire', 'model', 'triggerBlockDuplicates', 'before');
+		}
+		if(!$oModuleModel->getTrigger('moduleObject.proc', 'member_expire', 'model', 'triggerBeforeModuleProc', 'before'))
+		{
+			$oModuleController->insertTrigger('moduleObject.proc', 'member_expire', 'model', 'triggerBeforeModuleProc', 'before');
+		}
+		if(!$oModuleModel->getTrigger('moduleObject.proc', 'member_expire', 'model', 'triggerAfterModuleProc', 'after'))
+		{
+			$oModuleController->insertTrigger('moduleObject.proc', 'member_expire', 'model', 'triggerAfterModuleProc', 'after');
+		}
+		return true;
+	}
+	
+	/**
 	 * 모듈 설치 메소드.
 	 */
 	public function moduleInstall()
 	{
+		$this->registerTriggers();
 		return new Object();
 	}
 	
@@ -50,7 +102,7 @@ class Member_Expire extends ModuleObject
 	 */
 	public function checkUpdate()
 	{
-		return false;
+		return !$this->checkTriggers();
 	}
 	
 	/**
@@ -58,6 +110,7 @@ class Member_Expire extends ModuleObject
 	 */
 	public function moduleUpdate()
 	{
+		$this->registerTriggers();
 		return new Object(0, 'success_updated');
 	}
 	

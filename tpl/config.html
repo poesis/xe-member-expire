@@ -32,9 +32,20 @@
 				<p class="x_help-block">휴면계정으로 판단된 회원정보를 모두 삭제합니다. 탈퇴한 것과 같은 효과입니다.</p>
 				<div style="clear:both; margin:8px"></div>
 				<label for="expire_method_move" class="x_inline"><input type="radio" name="expire_method" id="expire_method_move" value="move" checked="checked"|cond="$mex_config->expire_method == 'move'" /> 별도의 저장공간으로 이동</label>
-				<p class="x_help-block">휴면계정으로 판단된 회원정보를 다른 테이블로 이동하고, 다시 로그인할 경우 원상복구합니다.<br />
-					이동된 회원은 회원 목록에 나타나지 않으며, 다른 회원들이 회원정보 보기를 클릭할 경우 탈퇴된 회원처럼 보입니다.<br />
+				<p class="x_help-block">휴면계정으로 판단된 회원정보를 다른 테이블로 이동합니다.<br />
+					이동된 회원은 회원 목록에 나타나지 않으며, 다른 회원들에게는 마치 탈퇴된 회원처럼 보입니다.<br />
 					필요할 경우 <a href="{getUrl('', 'module', 'admin', 'act', 'dispMember_expireAdminListMoved')}">별도저장 회원 목록</a> 메뉴에서 조회 및 복구할 수 있습니다.</p>
+			</div>
+		</div>
+		
+		<div class="x_control-group">
+			<label class="x_control-label">재인증시 자동 복원</label>
+			<div class="x_controls">
+				<label for="auto_restore_Y" class="x_inline"><input type="radio" name="auto_restore" id="auto_restore_Y" value="Y" checked="checked"|cond="$mex_config->auto_restore == 'Y'" /> 예</label>
+				<label for="auto_restore_N" class="x_inline"><input type="radio" name="auto_restore" id="auto_restore_N" value="N" checked="checked"|cond="$mex_config->auto_restore != 'Y'" /> 아니오</label>
+				<p class="x_help-block">별도의 저장공간으로 이동된 회원이 로그인, 아이디/비번찾기 등 다시 인증을 거치면 자동으로 복원합니다.<br />
+					이 옵션을 선택하지 않을 경우, 휴면계정이라는 안내문만 출력되고 로그인을 허락하지 않습니다.<br />
+					휴면계정을 모두 삭제하도록 선택한 경우에는 이 옵션을 사용할 수 없습니다.</p>
 			</div>
 		</div>
 		
