@@ -169,7 +169,7 @@ class Member_ExpireModel extends Member_Expire
 		$config = $this->getConfig();
 		if ($config->auto_restore !== 'Y')
 		{
-			return new Object(-1, 'cmd_member_expire_message');
+			return new Object(-1, 'msg_your_membership_has_expired');
 		}
 		
 		// 회원정보를 member 테이블로 복사한다.

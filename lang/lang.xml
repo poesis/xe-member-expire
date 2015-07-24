@@ -3,7 +3,10 @@
 	<item name="cmd_member_expire_module">
 		<value xml:lang="ko"><![CDATA[휴면계정 정리 모듈]]></value>
 	</item>
-	<item name="cmd_member_expire_message">
+	<item name="msg_your_membership_has_expired">
 		<value xml:lang="ko"><![CDATA[장기간 로그인하지 않아 휴면계정으로 전환되었습니다. 관리자에게 문의해 주시기 바랍니다.]]></value>
+	</item>
+	<item name="msg_too_many_expired_members">
+		<value xml:lang="ko"><![CDATA[현재 휴면계정 수가 너무 많습니다. 일단 정리한 후에 자동 정리 옵션을 사용해 주십시오.]]></value>
 	</item>
 </lang>

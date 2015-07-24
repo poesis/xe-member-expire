@@ -32,6 +32,20 @@ class Member_ExpireAdminController extends Member_Expire
 		$new_config->auto_expire = $request_vars->auto_expire === 'Y' ? 'Y' : 'N';
 		$new_config->auto_restore = $request_vars->auto_restore === 'Y' ? 'Y' : 'N';
 		
+		// 자동 정리 옵션을 선택한 경우, 현재 남아 있는 휴면계정 수를 구한다.
+		if ($new_config->auto_expire === 'Y')
+		{
+			$obj = new stdClass();
+			$obj->is_admin = 'N';
+			$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + zgap());
+			$expired_members_count = executeQuery('member_expire.countExpiredMembers', $obj);
+			$expired_members_count = $expired_members_count->toBool() ? $expired_members_count->data->count : 0;
+			if ($expired_members_count > 50)
+			{
+				return new Object(-1, 'msg_too_many_expired_members');
+			}
+		}
+		
 		// 새 모듈 설정을 저장한다.
 		$output = getController('module')->insertModuleConfig('member_expire', $new_config);
 		if ($output->toBool())
