@@ -114,7 +114,7 @@ class Member_ExpireModel extends Member_Expire
 			$oAdminController = getAdminController('member_expire');
 			foreach ($member_srls_query->data as $member_srls_item)
 			{
-				$oAdminController->procMember_ExpireAdminDoCleanup($member_srls_item->member_srl);
+				$oAdminController->procMember_ExpireAdminDoCleanup($member_srls_item->member_srl, true);
 			}
 		}
 	}
@@ -183,7 +183,7 @@ class Member_ExpireModel extends Member_Expire
 		// 회원정보를 member 테이블로 복사한다.
 		$member = reset($output->data);
 		$oAdminController = getAdminController('member_expire');
-		$output = $oAdminController->procMember_ExpireAdminRestoreMember($member->member_srl);
+		$output = $oAdminController->procMember_ExpireAdminRestoreMember($member->member_srl, false);
 		if (!$output)
 		{
 			return;
@@ -208,6 +208,6 @@ class Member_ExpireModel extends Member_Expire
 		
 		// 그 밖의 경우, 회원정보를 원위치시킨다.
 		$oAdminController = getAdminController('member_expire');
-		$oAdminController->procMember_ExpireAdminDoCleanup($member->member_srl);
+		$oAdminController->procMember_ExpireAdminDoCleanup($member->member_srl, false);
 	}
 }

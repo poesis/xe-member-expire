@@ -71,7 +71,7 @@ class Member_ExpireAdminController extends Member_Expire
 	/**
 	 * 휴면계정을 실제 정리하는 메소드. member_srl만 넣을 경우 개별 회원만 정리할 수도 있다.
 	 */
-	public function procMember_ExpireAdminDoCleanup($member_srl = null)
+	public function procMember_ExpireAdminDoCleanup($member_srl = null, $call_triggers = null)
 	{
 		// 정리 설정을 가져온다.
 		$config = $this->getConfig();
@@ -84,6 +84,10 @@ class Member_ExpireAdminController extends Member_Expire
 		$method = $request_vars->method ? $request_vars->method : $config->expire_method;
 		$total_count = $request_vars->total_count ? $request_vars->total_count : 10;
 		$batch_count = $request_vars->batch_count ? $request_vars->batch_count : 10;
+		if ($call_triggers === null)
+		{
+			$call_triggers = $request_vars->call_triggers === 'Y' ? true : false;
+		}
 		$done_count = 0;
 		
 		// 트랜잭션을 시작한다.
@@ -129,6 +133,14 @@ class Member_ExpireAdminController extends Member_Expire
 				{
 					$args = new stdClass();
 					$args->member_srl = $member_srl;
+					if ($call_triggers)
+					{
+						$output = ModuleHandler::triggerCall('member.deleteMember', 'before', $args);
+						if (!$output->toBool())
+						{
+							$oDB->rollback(); $this->add('count', -11); return;
+						}
+					}
 					$output = executeQuery('member.deleteAuthMail', $args);
 					if (!$output->toBool())
 					{
@@ -143,6 +155,14 @@ class Member_ExpireAdminController extends Member_Expire
 					if (!$output->toBool())
 					{
 						$oDB->rollback(); $this->add('count', -4); return;
+					}
+					if ($call_triggers)
+					{
+						$output = ModuleHandler::triggerCall('member.deleteMember', 'after', $args);
+						if (!$output->toBool())
+						{
+							$oDB->rollback(); $this->add('count', -12); return;
+						}
 					}
 					$oMemberController->procMemberDeleteImageName($member_srl);
 					$oMemberController->procMemberDeleteImageMark($member_srl);

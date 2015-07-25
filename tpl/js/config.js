@@ -22,7 +22,8 @@
 				"threshold": $("#cleanup_progress_area").data("threshold"),
 				"method": $("#cleanup_progress_area").data("method"),
 				"batch_count": $("#cleanup_progress_area").data("method") == "delete" ? 10 : 10,
-				"total_count": total_count
+				"total_count": total_count,
+				"call_triggers": "Y"
 			};
 			ajax_callback = function() {
 				$.exec_json(
@@ -59,6 +60,7 @@
 			$.exec_json(
 				"member_expire.procMember_expireAdminDoCleanup", {
 					"member_srl": member_srl,
+					"call_triggers": "Y"
 				},
 				function(response) {
 					if (response.count > 0) {
@@ -86,6 +88,7 @@
 			$.exec_json(
 				"member_expire.procMember_expireAdminRestoreMember", {
 					"member_srl": member_srl,
+					"call_triggers": "Y"
 				},
 				function(response) {
 					if (response.restored > 0) {
