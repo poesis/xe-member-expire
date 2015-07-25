@@ -35,6 +35,42 @@ class Member_ExpireModel extends Member_Expire
 	}
 	
 	/**
+	 * 휴면 안내메일을 발송하는 메소드.
+	 */
+	public function sendEmail($member_srl, $config = null, $resend = true, $use_transaction = true)
+	{
+		// 회원 오브젝트를 통째로 받은 경우 member_srl을 추출한다.
+		if (is_object($member_srl) && isset($member_srl->member_srl))
+		{
+			$member = $member_srl;
+			$member_srl = $member_srl->member_srl;
+		}
+		else
+		{
+			$member = null;
+		}
+		
+		// 모듈 설정이 로딩되지 않은 경우 지금 로딩한다.
+		if (!$config)
+		{
+			$config = $this->getConfig();
+		}
+		
+		// 트랜잭션을 시작한다.
+		if ($use_transaction)
+		{
+			$this->oDB->begin();
+		}
+		
+		// 트랜잭션을 커밋한다.
+		if ($use_transaction)
+		{
+			$this->oDB->commit();
+		}
+		return true;
+	}
+	
+	/**
 	 * 회원 계정을 삭제하는 메소드.
 	 */
 	public function deleteMember($member_srl, $call_triggers = true, $use_transaction = true)

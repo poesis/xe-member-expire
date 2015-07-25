@@ -3,7 +3,7 @@
 	$(function() {
 		
 		/**
-		 * 휴면회원 정리 루틴.
+		 * 휴면회원 일괄 정리.
 		 */
 		$("#start_cleanup").click(function() {
 			var ajax_callback;
@@ -15,7 +15,7 @@
 				alert($("#notice_agree").data("nocheck"));
 				return;
 			}
-			$("#start_cleanup").hide();
+			$("#cleanup_button_area").hide();
 			$("#cleanup_progress_area").show();
 			$("#cleanup_progress_bar").css("width", "0%");
 			ajax_data = {
@@ -28,6 +28,53 @@
 			ajax_callback = function() {
 				$.exec_json(
 					"member_expire.procMember_expireAdminDoCleanup", ajax_data,
+					function(response) {
+						ajax_count += response.count;
+						if (response.count < 1 || ajax_count >= total_count) {
+							$("#cleanup_progress_bar").css("width", "100%");
+							$("#cleanup_progress_number_area").hide();
+							$("#cleanup_progress_finish_area").show();
+						} else {
+							total_percentage = ((ajax_count / total_count) * 100).toFixed(1);
+							$("#cleanup_progress_bar").css("width", total_percentage + "%");
+							$("#cleanup_progress_number").text(total_percentage);
+							setTimeout(ajax_callback, 20);
+						}
+					},
+					function(response) {
+						alert("오류가 발생했습니다.");
+					}
+				);
+			};
+			ajax_callback();
+		});
+		
+		/**
+		 * 안내메일 일괄 발송.
+		 */
+		$("#start_email_send").click(function() {
+			var ajax_callback;
+			var ajax_data;
+			var ajax_count = 0;
+			var total_count = $("#cleanup_progress_area").data("count");
+			var total_percentage = 0;
+			if (!($("#notice_agree").is(':checked'))) {
+				alert($("#notice_agree").data("nocheck"));
+				return;
+			}
+			$("#cleanup_button_area").hide();
+			$("#cleanup_progress_area").show();
+			$("#cleanup_progress_bar").css("width", "0%");
+			ajax_data = {
+				"threshold": $("#cleanup_progress_area").data("threshold"),
+				"method": $("#cleanup_progress_area").data("method"),
+				"batch_count": 3,
+				"total_count": total_count,
+				"call_triggers": "Y"
+			};
+			ajax_callback = function() {
+				$.exec_json(
+					"member_expire.procMember_expireAdminDoSendEmail", ajax_data,
 					function(response) {
 						ajax_count += response.count;
 						if (response.count < 1 || ajax_count >= total_count) {

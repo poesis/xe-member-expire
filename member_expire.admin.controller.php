@@ -107,7 +107,65 @@ class Member_ExpireAdminController extends Member_Expire
 	 */
 	public function procMember_ExpireAdminDoSendEmail()
 	{
+		// 정리 설정을 가져온다.
+		$config = $this->getConfig();
+		$request_vars = Context::getRequestVars();
+		$member_srl = $request_vars->member_srl ? $request_vars->member_srl : 0;
+		$config->expire_threshold = $request_vars->threshold ? $request_vars->threshold : $config->expire_threshold;
+		$config->expire_method = $request_vars->method ? $request_vars->method : $config->expire_method;
+		$total_count = $request_vars->total_count ? $request_vars->total_count : 3;
+		$batch_count = $request_vars->batch_count ? $request_vars->batch_count : 3;
+		$done_count = 0;
 		
+		// 트랜잭션을 시작한다.
+		$oDB = DB::getInstance();
+		$oDB->begin();
+		
+		// 모델을 불러온다.
+		$oModel = getModel('member_expire');
+		
+		// 발송 대상 회원정보 전체를 불러온다.
+		if ($member_srl)
+		{
+			$args = new stdClass();
+			$args->member_srl = $member_srl;
+			$members_query = executeQuery('member.getMemberInfoByMemberSrl', $args);
+			if (!$members_query->toBool())
+			{
+				$oDB->rollback(); $this->add('count', -3); return;
+			}
+			$members = $members_query->data ? $members_query->data : array();
+			if (is_object($members)) $members = array($members);
+		}
+		else
+		{
+			$args = new stdClass();
+			$obj->is_admin = 'N';
+			$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + zgap());
+			$obj->list_count = $batch_count;
+			$obj->page = 1;
+			$obj->orderby = 'asc';
+			$members_query = executeQuery('member_expire.getExpiredMembers', $obj);
+			if (!$members_query->toBool())
+			{
+				$oDB->rollback(); $this->add('count', -4); return;
+			}
+			$members = $members_query->data ? $members_query->data : array();
+		}
+		
+		// 각 회원에게 메일을 발송한다.
+		foreach ($members as $member)
+		{
+			$oModel->sendEmail($member, $config, true, false);
+			$done_count++;
+		}
+		
+		// 트랜잭션을 커밋한다.
+		$oDB->commit();
+		
+		// 발송된 결과 수를 반환한다.
+		$this->add('count', $done_count);
+		return true;
 	}
 	
 	/**
