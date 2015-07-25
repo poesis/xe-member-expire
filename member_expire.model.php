@@ -62,7 +62,15 @@ class Member_ExpireModel extends Member_Expire
 			$output = executeQuery('member_expire.getMovedMembers', $obj);
 			if ($output->toBool() && count($output->data))
 			{
-				return new Object(-1,'msg_exists_email_address');
+				$config = $this->getConfig();
+				if ($config->auto_restore === 'Y')
+				{
+					return new Object(-1, 'msg_exists_expired_email_address_auto_restore');
+				}
+				else
+				{
+					return new Object(-1,'msg_exists_expired_email_address');
+				}
 			}
 		}
 		

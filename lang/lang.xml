@@ -3,6 +3,12 @@
 	<item name="cmd_member_expire_module">
 		<value xml:lang="ko"><![CDATA[휴면계정 정리 모듈]]></value>
 	</item>
+	<item name="msg_exists_expired_email_address_auto_restore">
+		<value xml:lang="ko"><![CDATA[이미 존재하는 메일 주소입니다. (휴면계정입니다. 로그인하거나 ID/PW 찾기 기능을 사용해 주시기 바랍니다.)]]></value>
+	</item>
+	<item name="msg_exists_expired_email_address">
+		<value xml:lang="ko"><![CDATA[이미 존재하는 메일 주소입니다. (휴면계정입니다. 관리자에게 문의 바랍니다.)]]></value>
+	</item>
 	<item name="msg_your_membership_has_expired">
 		<value xml:lang="ko"><![CDATA[장기간 로그인하지 않아 휴면계정으로 전환되었습니다. 관리자에게 문의해 주시기 바랍니다.]]></value>
 	</item>
