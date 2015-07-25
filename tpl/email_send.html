@@ -3,7 +3,8 @@
 <load target="js/config.js" />
 
 <p class="cleanup_notice">
-	지난 {$expire_threshold} 동안 로그인하지 않은 회원은 {number_format($expired_members_count)}명입니다.<br />
+	지난 {$expire_threshold} 동안 로그인하지 않은 회원은 {number_format($expired_members_count)}명이며,
+	그 중 아직 안내메일을 발송하지 않은 회원은 {number_format($unnotified_members_count)}명입니다.<br />
 	정리 대상 회원 목록을 보려면 <a href="{getUrl('', 'module', 'admin', 'act', 'dispMember_expireAdminList')}">여기</a>를 클릭하십시오.
 </p>
 
@@ -28,6 +29,11 @@
 
 <p class="cleanup_notice">
 	<label for="notice_agree"><input id="notice_agree" type="checkbox" data-nocheck="동의하지 않으면 진행할 수 없습니다." /> 위의 내용을 읽고 숙지하였으며, 진행에 동의합니다.</label>
+</p>
+
+<p class="cleanup_notice">
+	<label for="email_only100"><input id="email_only100" type="checkbox" /> 100명까지만 보내고 중지합니다. (한 번에 발송 가능한 메일 갯수에 제한이 있는 경우 선택하세요. 더 발송하려면 새로고침하면 됩니다.)</label>
+	<label for="email_resend"><input id="email_resend" type="checkbox" /> 이미 발송한 회원에게도 강제 재발송합니다. (여러 차례 나누어 보내는 경우에는 선택하지 마십시오.)</label>
 </p>
 
 <div class="btnArea x_clearfix" id="cleanup_button_area">

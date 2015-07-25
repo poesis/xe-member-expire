@@ -67,7 +67,7 @@ class Member_ExpireAdminView extends Member_Expire
 		$config = $this->getConfig();
 		Context::set('mex_config', $this->getConfig());
 		
-		// 메일 발송 대상 계정 수를 불러온다.
+		// 휴면계정 수를 불러온다.
 		$obj = new stdClass();
 		$obj->is_admin = 'N';
 		$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + zgap());
@@ -76,6 +76,15 @@ class Member_ExpireAdminView extends Member_Expire
 		$expired_members_count = $expired_members_count->toBool() ? $expired_members_count->data->count : 0;
 		Context::set('expire_threshold', $this->translateThreshold($config->expire_threshold));
 		Context::set('expired_members_count', $expired_members_count);
+		
+		// 아직 메일을 발송하지 않은 휴면계정 수를 불러온다.
+		$obj = new stdClass();
+		$obj->is_admin = 'N';
+		$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + zgap());
+		$obj->page = $page = Context::get('page') ?: 1;
+		$unnotified_members_count = executeQuery('member_expire.countUnnotifiedMembers', $obj);
+		$unnotified_members_count = $unnotified_members_count->toBool() ? $unnotified_members_count->data->count : 0;
+		Context::set('unnotified_members_count', $unnotified_members_count);
 		
 		// 템플릿을 지정한다.
 		Context::setBrowserTitle('안내메일 일괄 발송 - XE Admin');

@@ -1,0 +1,26 @@
+<query id="countUnnotifiedMembers" action="select">
+    <tables>
+        <table name="member" />
+        <table name="member_expired_notified" alias="notified" type="left join">
+		    <conditions>
+		        <condition operation="equal" column="member.member_srl" default="notified.member_srl" />
+		    </conditions>
+		</table>
+    </tables>
+    <columns>
+        <column name="count(*)" alias="count" />
+    </columns>
+    <conditions>
+        <condition operation="equal" column="member.is_admin" var="is_admin" />
+        <condition operation="equal" column="member.member_srl" var="member_srl" pipe="and" />
+		<condition operation="null" column="notified.notified_date" pipe="and" />
+        <group pipe="and">
+            <condition operation="less" column="regdate" var="threshold" />
+            <condition operation="null" column="regdate" pipe="or" />
+        </group>
+        <group pipe="and">
+            <condition operation="less" column="last_login" var="threshold" />
+            <condition operation="null" column="last_login" pipe="or" />
+        </group>
+    </conditions>
+</query>

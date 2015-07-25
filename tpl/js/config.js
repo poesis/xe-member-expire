@@ -62,9 +62,13 @@
 			var ajax_count = 0;
 			var total_count = $("#cleanup_progress_area").data("count");
 			var total_percentage = 0;
+			var resend = $("#email_resend").is(":checked");
 			if (!($("#notice_agree").is(':checked'))) {
 				alert($("#notice_agree").data("nocheck"));
 				return;
+			}
+			if ($("#email_only100").is(":checked")) {
+				total_count = Math.min(100, total_count);
 			}
 			$("#cleanup_button_area").hide();
 			$("#cleanup_progress_area").show();
@@ -74,7 +78,7 @@
 				"method": $("#cleanup_progress_area").data("method"),
 				"batch_count": 3,
 				"total_count": total_count,
-				"resend": "Y"
+				"resend": resend ? "Y" : "N"
 			};
 			ajax_callback = function() {
 				$.exec_json(
