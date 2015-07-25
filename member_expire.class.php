@@ -53,23 +53,23 @@ class Member_Expire extends ModuleObject
 	public function checkTriggers()
 	{
 		$oModuleModel = getModel('module');
-		if(!$oModuleModel->getTrigger('member.insertMember', 'member_expire', 'model', 'triggerBlockDuplicates', 'before'))
+		if(!$oModuleModel->getTrigger('member.insertMember', 'member_expire', 'controller', 'triggerBlockDuplicates', 'before'))
 		{
 			return false;
 		}
-		if(!$oModuleModel->getTrigger('member.updateMember', 'member_expire', 'model', 'triggerBlockDuplicates', 'before'))
+		if(!$oModuleModel->getTrigger('member.updateMember', 'member_expire', 'controller', 'triggerBlockDuplicates', 'before'))
 		{
 			return false;
 		}
-		if(!$oModuleModel->getTrigger('member.doLogout', 'member_expire', 'model', 'triggerAutoExpire', 'after'))
+		if(!$oModuleModel->getTrigger('member.doLogout', 'member_expire', 'controller', 'triggerAutoExpire', 'after'))
 		{
 			return false;
 		}
-		if(!$oModuleModel->getTrigger('moduleObject.proc', 'member_expire', 'model', 'triggerBeforeModuleProc', 'before'))
+		if(!$oModuleModel->getTrigger('moduleObject.proc', 'member_expire', 'controller', 'triggerBeforeModuleProc', 'before'))
 		{
 			return false;
 		}
-		if(!$oModuleModel->getTrigger('moduleObject.proc', 'member_expire', 'model', 'triggerAfterModuleProc', 'after'))
+		if(!$oModuleModel->getTrigger('moduleObject.proc', 'member_expire', 'controller', 'triggerAfterModuleProc', 'after'))
 		{
 			return false;
 		}
@@ -83,25 +83,25 @@ class Member_Expire extends ModuleObject
 	{
 		$oModuleModel = getModel('module');
 		$oModuleController = getController('module');
-		if(!$oModuleModel->getTrigger('member.insertMember', 'member_expire', 'model', 'triggerBlockDuplicates', 'before'))
+		if(!$oModuleModel->getTrigger('member.insertMember', 'member_expire', 'controller', 'triggerBlockDuplicates', 'before'))
 		{
-			$oModuleController->insertTrigger('member.insertMember', 'member_expire', 'model', 'triggerBlockDuplicates', 'before');
+			$oModuleController->insertTrigger('member.insertMember', 'member_expire', 'controller', 'triggerBlockDuplicates', 'before');
 		}
-		if(!$oModuleModel->getTrigger('member.updateMember', 'member_expire', 'model', 'triggerBlockDuplicates', 'before'))
+		if(!$oModuleModel->getTrigger('member.updateMember', 'member_expire', 'controller', 'triggerBlockDuplicates', 'before'))
 		{
-			$oModuleController->insertTrigger('member.updateMember', 'member_expire', 'model', 'triggerBlockDuplicates', 'before');
+			$oModuleController->insertTrigger('member.updateMember', 'member_expire', 'controller', 'triggerBlockDuplicates', 'before');
 		}
-		if(!$oModuleModel->getTrigger('member.doLogout', 'member_expire', 'model', 'triggerAutoExpire', 'after'))
+		if(!$oModuleModel->getTrigger('member.doLogout', 'member_expire', 'controller', 'triggerAutoExpire', 'after'))
 		{
-			$oModuleController->insertTrigger('member.doLogout', 'member_expire', 'model', 'triggerAutoExpire', 'after');
+			$oModuleController->insertTrigger('member.doLogout', 'member_expire', 'controller', 'triggerAutoExpire', 'after');
 		}
-		if(!$oModuleModel->getTrigger('moduleObject.proc', 'member_expire', 'model', 'triggerBeforeModuleProc', 'before'))
+		if(!$oModuleModel->getTrigger('moduleObject.proc', 'member_expire', 'controller', 'triggerBeforeModuleProc', 'before'))
 		{
-			$oModuleController->insertTrigger('moduleObject.proc', 'member_expire', 'model', 'triggerBeforeModuleProc', 'before');
+			$oModuleController->insertTrigger('moduleObject.proc', 'member_expire', 'controller', 'triggerBeforeModuleProc', 'before');
 		}
-		if(!$oModuleModel->getTrigger('moduleObject.proc', 'member_expire', 'model', 'triggerAfterModuleProc', 'after'))
+		if(!$oModuleModel->getTrigger('moduleObject.proc', 'member_expire', 'controller', 'triggerAfterModuleProc', 'after'))
 		{
-			$oModuleController->insertTrigger('moduleObject.proc', 'member_expire', 'model', 'triggerAfterModuleProc', 'after');
+			$oModuleController->insertTrigger('moduleObject.proc', 'member_expire', 'controller', 'triggerAfterModuleProc', 'after');
 		}
 		return true;
 	}

@@ -20,194 +20,249 @@
 class Member_ExpireModel extends Member_Expire
 {
 	/**
-	 * 임시 복원된 회원정보를 기억하는 변수.
+	 * member 컨트롤러와 DB 핸들을 캐싱해 둔다.
 	 */
-	protected static $_temp_member = array();
+	protected $oDB;
+	protected $oMemberController;
 	
 	/**
-	 * 임시 복원 처리가 필요한 act 목록.
+	 * 처음 생성하면 DB 오브젝트와 member 컨트롤러를 로딩한다.
 	 */
-	protected static $_acts_to_intercept = array(
-		'procMemberLogin',
-		'procMemberFindAccount',
-		'procMemberFindAccountByQuestion',
-		'procMemberResendAuthMail',
-		'procMemberAuthAccount',
-	);
-	
-	/**
-	 * 회원 추가 및 수정 전 트리거.
-	 * 별도의 저장공간으로 이동된 회원과 같은 아이디 등을 사용하여 가입하거나
-	 * 중복되는 내용으로 회원정보를 수정하는 것을 금지한다.
-	 */
-	public function triggerBlockDuplicates($args)
+	public function __construct()
 	{
-		// 별도 저장된 휴면회원과 같은 아이디로 가입하는 것을 금지한다.
-		if ($args->user_id)
-		{
-			$obj = new stdClass();
-			$obj->user_id = $args->user_id;
-			$output = executeQuery('member_expire.getMovedMembers', $obj);
-			if ($output->toBool() && count($output->data))
-			{
-				return new Object(-1,'msg_exists_user_id');
-			}
-		}
-		
-		// 별도 저장된 휴면회원과 같은 메일 주소로 가입하는 것을 금지한다.
-		if ($args->email_address)
-		{
-			$obj = new stdClass();
-			$obj->email_address = $args->email_address;
-			$output = executeQuery('member_expire.getMovedMembers', $obj);
-			if ($output->toBool() && count($output->data))
-			{
-				$config = $this->getConfig();
-				if ($config->auto_restore === 'Y')
-				{
-					return new Object(-1, 'msg_exists_expired_email_address_auto_restore');
-				}
-				else
-				{
-					return new Object(-1,'msg_exists_expired_email_address');
-				}
-			}
-		}
-		
-		// 별도 저장된 휴면회원과 같은 닉네임으로 가입하는 것을 금지한다.
-		if ($args->nick_name)
-		{
-			$obj = new stdClass();
-			$obj->nick_name = $args->nick_name;
-			$output = executeQuery('member_expire.getMovedMembers', $obj);
-			if ($output->toBool() && count($output->data))
-			{
-				return new Object(-1,'msg_exists_nick_name');
-			}
-		}
+		$this->oDB = DB::getInstance();
+		$this->oMemberController = getController('member');
 	}
 	
 	/**
-	 * 회원 로그아웃 트리거.
-	 * 로그아웃과는 무관하고, 적당한 간격으로 자동 정리를 실행하는 데 쓰인다.
-	 * 로그아웃 트리거를 사용하는 이유는 그나마 다른 작업에 영향을 적게 미치면서
-	 * 호출 빈도가 실제 회원수에 비례할 가능성이 높기 때문이다.
+	 * 회원 계정을 삭제하는 메소드.
 	 */
-	public function triggerAutoExpire()
+	public function deleteMember($member_srl, $call_triggers = true, $use_transaction = true)
 	{
-		// 자동 정리 옵션을 사용하지 않는다면 종료한다.
-		$config = $this->getConfig();
-		if ($config->auto_expire !== 'Y')
+		// 회원 오브젝트를 통째로 받은 경우 member_srl을 추출한다.
+		if (is_object($member_srl) && isset($member_srl->member_srl))
 		{
-			return;
-		}
-		
-		// 정리할 휴면계정이 있는지 확인한다.
-		$obj = new stdClass();
-		$obj->is_admin = 'N';
-		$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + zgap());
-		$obj->list_count = $obj->page_count = $obj->page = 1;
-		$obj->orderby = 'asc';
-		$member_srls_query = executeQuery('member_expire.getExpiredMemberSrlOnly', $obj);
-		if ($member_srls_query->toBool() && count($member_srls_query->data))
-		{
-			$oAdminController = getAdminController('member_expire');
-			foreach ($member_srls_query->data as $member_srls_item)
-			{
-				$oAdminController->procMember_ExpireAdminDoCleanup($member_srls_item->member_srl, true);
-			}
-		}
-	}
-	
-	/**
-	 * 모듈 실행 전 트리거.
-	 * 로그인, 아이디/비번찾기 등 휴면계정을 다시 활성화시키기 위해 꼭 필요한 작업을 할 때
-	 * 코어에서 회원정보에 접근할 수 있도록 임시로 member 테이블에 레코드를 옮겨 준다.
-	 * 필요없게 되면 모듈 실행 후 트리거에서 원위치시킨다.
-	 */
-	public function triggerBeforeModuleProc($oModule)
-	{
-		// 처리가 필요하지 않은 act인 경우 즉시 실행을 종료한다.
-		if (!in_array($oModule->act, self::$_acts_to_intercept)) return;
-		
-		// 로그인 및 인증을 위해 입력된 아이디, 메일 주소 또는 member_srl을 파악한다.
-		$user_id = Context::get('user_id');
-		$email_address = Context::get('email_address');
-		$member_srl = (!$user_id && !$email_address && Context::get('auth_key')) ? Context::get('member_srl') : null;
-		if (strpos($user_id, '@') !== false)
-		{
-			$email_address = $user_id;
-			$user_id = null;
-		}
-		if (!$user_id && !$email_address && !$member_srl)
-		{
-			return;
-		}
-		
-		// 주어진 정보와 일치하는 회원이 있는지 확인한다.
-		$obj = new stdClass();
-		if ($user_id)
-		{
-			$obj->user_id = $user_id;
-			$output = executeQuery('member.getMemberSrl', $obj);
-		}
-		elseif ($email_address)
-		{
-			$obj->email_address = $email_address;
-			$output = executeQuery('member.getMemberSrl', $obj);
+			$member = $member_srl;
+			$member_srl = $member_srl->member_srl;
 		}
 		else
 		{
-			$obj->member_srl = $member_srl;
-			$output = executeQuery('member.getMemberInfoByMemberSrl', $obj);
-		}
-		if ($output->toBool() && count($output->data))
-		{
-			return;
+			$member = null;
 		}
 		
-		// 별도의 저장공간으로 이동된 휴면회원 중 주어진 정보와 일치하는 경우가 있는지 확인한다.
-		$output = executeQuery('member_expire.getMovedMembers', $obj);
-		if (!$output->toBool() || !count($output->data))
+		// 트랜잭션을 시작한다.
+		if ($use_transaction)
 		{
-			return;
+			$this->oDB->begin();
 		}
 		
-		// 자동 복원 기능을 사용하지 않는 경우, 휴면 처리되었다는 메시지를 출력한다.
-		$config = $this->getConfig();
-		if ($config->auto_restore !== 'Y')
+		// 삭제에 필요한 $args를 작성한다.
+		$args = new stdClass();
+		$args->member_srl = $member_srl;
+		
+		// 삭제 전 트리거를 호출한다.
+		if ($call_triggers)
 		{
-			return new Object(-1, 'msg_your_membership_has_expired');
+			$output = ModuleHandler::triggerCall('member.deleteMember', 'before', $args);
+			if (!$output->toBool())
+			{
+				if ($use_transaction) $this->oDB->rollback();
+				return -11;
+			}
 		}
 		
-		// 회원정보를 member 테이블로 복사한다.
-		$member = reset($output->data);
-		$oAdminController = getAdminController('member_expire');
-		$output = $oAdminController->procMember_ExpireAdminRestoreMember($member->member_srl, false);
-		if (!$output)
+		// 이 회원과 관련된 인증 메일을 삭제한다.
+		$output = executeQuery('member.deleteAuthMail', $args);
+		if (!$output->toBool())
 		{
-			return;
+			if ($use_transaction) $this->oDB->rollback();
+			return -12;
 		}
 		
-		// 임시로 복원해 놓았음을 표시하여, 인증 실패시 되돌릴 수 있도록 한다.
-		self::$_temp_member = $member;
-		return;			
+		// 이 회원의 그룹 소속 정보를 삭제한다.
+		$output = executeQuery('member.deleteMemberGroupMember', $args);
+		if (!$output->toBool())
+		{
+			if ($use_transaction) $this->oDB->rollback();
+			return -13;
+		}
+		
+		// 회원 자체를 삭제한다.
+		$output = executeQuery('member.deleteMember', $args);
+		if (!$output->toBool())
+		{
+			if ($use_transaction) $this->oDB->rollback();
+			return -14;
+		}
+		
+		// 삭제 후 트리거를 호출한다.
+		if ($call_triggers)
+		{
+			$output = ModuleHandler::triggerCall('member.deleteMember', 'after', $args);
+			if (!$output->toBool())
+			{
+				if ($use_transaction) $this->oDB->rollback();
+				return -15;
+			}
+		}
+		
+		// 회원과 관련된 나머지 정보를 삭제한다.
+		$this->oMemberController->procMemberDeleteImageName($member_srl);
+		$this->oMemberController->procMemberDeleteImageMark($member_srl);
+		$this->oMemberController->procMemberDeleteProfileImage($member_srl);
+		$this->oMemberController->delSignature($member_srl);
+		$this->oMemberController->_clearMemberCache($member_srl);
+		
+		// 트랜잭션을 커밋한다.
+		if ($use_transaction)
+		{
+			$this->oDB->commit();
+		}
+		return true;
 	}
 	
 	/**
-	 * 모듈 실행 후 트리거.
-	 * 임시로 member 테이블에 옮겨놓은 레코드를 원위치시킨다.
+	 * 회원 계정을 별도의 테이블로 이동하는 메소드. 소속 그룹 정보, 이미지 등은 그대로 유지한다.
 	 */
-	public function triggerAfterModuleProc($oModule)
+	public function moveMember($member_srl, $use_transaction = true)
 	{
-		// 실행 전 트리거에서 임시로 복원해 둔 회원이 없다면 여기서도 할 일이 없다.
-		if (!self::$_temp_member) return;
+		// 회원 오브젝트를 통째로 받은 경우 member_srl을 추출한다.
+		if (is_object($member_srl) && isset($member_srl->member_srl))
+		{
+			$member = $member_srl;
+			$member_srl = $member_srl->member_srl;
+		}
+		else
+		{
+			$member = null;
+		}
 		
-		// 로그인에 성공했다면 원래대로 돌려놓을 필요가 없다.
-		if ($_SESSION['member_srl']) return;
+		// 트랜잭션을 시작한다.
+		if ($use_transaction)
+		{
+			$this->oDB->begin();
+		}
 		
-		// 그 밖의 경우, 회원정보를 원위치시킨다.
-		$oAdminController = getAdminController('member_expire');
-		$oAdminController->procMember_ExpireAdminDoCleanup($member->member_srl, false);
+		// 회원정보가 주어지지 않은 경우 지금 가져온다.
+		if (!$member)
+		{
+			$args = new stdClass();
+			$args->member_srl = $member_srl;
+			$member_query = executeQuery('member.getMemberInfoByMemberSrl', $args);
+			if (!$member_query->toBool() || !$member_query->data)
+			{
+				if ($use_transaction) $this->oDB->rollback();
+				return -21;
+			}
+			$member = is_object($member_query->data) ? $member_query->data : reset($member_query->data);
+			if (!$member)
+			{
+				if ($use_transaction) $this->oDB->rollback();
+				return -22;
+			}
+		}
+		
+		// 회원정보를 member_expire 테이블로 복사한다.
+		$output = executeQuery('member_expire.insertMovedMember', $member);
+		if (!$output->toBool())
+		{
+			$output = executeQuery('member_expire.deleteMovedMember', $member);
+			$output = executeQuery('member_expire.insertMovedMember', $member);
+			if (!$output->toBool())
+			{
+				if ($use_transaction) $this->oDB->rollback();
+				return -23;
+			}
+		}
+		
+		// 이 회원과 관련된 인증 메일을 삭제한다.
+		$output = executeQuery('member.deleteAuthMail', $member);
+		if (!$output->toBool())
+		{
+			if ($use_transaction) $this->oDB->rollback();
+			return -24;
+		}
+		
+		// member 테이블에서 회원정보를 삭제한다.
+		$output = executeQuery('member.deleteMember', $member);
+		if (!$output->toBool())
+		{
+			if ($use_transaction) $this->oDB->rollback();
+			return -25;
+		}
+		
+		// 회원정보 캐시를 비운다.
+		$this->oMemberController->_clearMemberCache($member->member_srl);
+		
+		// 트랜잭션을 커밋한다.
+		if ($use_transaction)
+		{
+			$this->oDB->commit();
+		}
+		return true;
+	}
+	
+	/**
+	 * 회원 계정을 원래의 위치로 복원하는 메소드.
+	 */
+	public function restoreMember($member_srl, $use_transaction = true)
+	{
+		// 회원 오브젝트를 통째로 받은 경우 member_srl을 추출한다.
+		if (is_object($member_srl) && isset($member_srl->member_srl))
+		{
+			$member = $member_srl;
+			$member_srl = $member_srl->member_srl;
+		}
+		else
+		{
+			$member = null;
+		}
+		
+		// 현재 별도의 테이블로 이동되어 있는지 확인한다.
+		if (!$member)
+		{
+			$obj = new stdClass();
+			$obj->member_srl = $member_srl;
+			$member = executeQuery('member_expire.getMovedMembers', $obj);
+			$member = $member->toBool() ? reset($member->data) : false;
+			if (!$member)
+			{
+				return -31;
+			}
+		}
+		
+		// 트랜잭션을 시작한다.
+		if ($use_transaction)
+		{
+			$this->oDB->begin();
+		}
+		
+		// 회원정보를 member 테이블로 복사한다.
+		$output = executeQuery('member_expire.insertRestoredMember', $member);
+		if (!$output->toBool())
+		{
+			$output = executeQuery('member.deleteMember', $member);
+			$output = executeQuery('member_expire.insertRestoredMember', $member);
+			if (!$output->toBool())
+			{
+				if ($use_transaction) $this->oDB->rollback();
+				return -32;
+			}
+		}
+		
+		// member_expire 테이블에서 삭제한다.
+		$output = executeQuery('member_expire.deleteMovedMember', $member);
+		if (!$output->toBool())
+		{
+			if ($use_transaction) $this->oDB->rollback();
+			return -33;
+		}
+		
+		// 트랜잭션을 커밋한다.
+		if ($use_transaction)
+		{
+			$this->oDB->commit();
+		}
+		return 1;
 	}
 }
