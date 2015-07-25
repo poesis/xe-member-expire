@@ -57,16 +57,16 @@
 			<label class="x_control-label" for="auto_notify">안내메일 자동 발송</label>
 			<div class="x_controls">
 				<select name="auto_notify" id="auto_notify">
-					<option value="7" selected="selected"|cond="!$mex_config->auto_notify">발송하지 않음</option>
-					<option value="7" selected="selected"|cond="$mex_config->auto_notify == 7">정리 7일 전</option>
-					<option value="15" selected="selected"|cond="$mex_config->auto_notify == 15">정리 15일 전</option>
-					<option value="30" selected="selected"|cond="$mex_config->auto_notify == 30">정리 30일 전</option>
-					<option value="45" selected="selected"|cond="$mex_config->auto_notify == 45">정리 45일 전</option>
-					<option value="60" selected="selected"|cond="$mex_config->auto_notify == 60">정리 60일 전</option>
-					<option value="90" selected="selected"|cond="$mex_config->auto_notify == 90">정리 90일 전</option>
+					<option value="7" selected="selected"|cond="!$mex_config->email_threshold">발송하지 않음</option>
+					<option value="7" selected="selected"|cond="$mex_config->email_threshold == 7">정리 7일 전</option>
+					<option value="15" selected="selected"|cond="$mex_config->email_threshold == 15">정리 15일 전</option>
+					<option value="30" selected="selected"|cond="$mex_config->email_threshold == 30">정리 30일 전</option>
+					<option value="45" selected="selected"|cond="$mex_config->email_threshold == 45">정리 45일 전</option>
+					<option value="60" selected="selected"|cond="$mex_config->email_threshold == 60">정리 60일 전</option>
+					<option value="90" selected="selected"|cond="$mex_config->email_threshold == 90">정리 90일 전</option>
 				</select>
-				<p class="x_help-block">휴면계정 자동 정리 옵션을 사용하는 경우, 정리하기 전에 자동으로 안내메일을 발송합니다.<br />
-					발송할 메일의 내용은 <a href="{getUrl('', 'module', 'admin', 'act', 'dispMember_expireAdminEmailTemplate')}">안내메일 내용 편집</a> 페이지에서 설정할 수 있습니다.</p>
+				<p class="x_help-block">정리 예정인 회원에게 안내메일을 발송합니다. (자동 정리 옵션과 별도로 이 기능만 사용할 수도 있습니다.)<br />
+					발송할 메일의 내용은 <a href="{getUrl('', 'module', 'admin', 'act', 'dispMember_expireAdminEmailTemplate')}">안내메일 내용 편집</a> 메뉴에서 편집할 수 있습니다.</p>
 			</div>
 		</div>
 		
