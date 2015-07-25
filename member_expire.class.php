@@ -33,7 +33,17 @@ class Member_Expire extends ModuleObject
 		if (!$config->expire_method) $config->expire_method = 'delete';
 		if (!$config->auto_expire) $config->auto_expire = 'N';
 		if (!$config->auto_restore) $config->auto_restore = 'N';
-		if (!$config->email_notify) $config->email_notify = 'N';
+		if (!$config->email_threshold) $config->email_threshold = 0;
+		if (!$config->email_subject)
+		{
+			$config->email_subject = strval(Context::getSiteTitle());
+			if ($config->email_subject !== '') $config->email_subject = '[' . $config->email_subject . ']';
+			$config->email_subject .= ' 휴면계정 전환 안내';
+		}
+		if (!$config->email_content)
+		{
+			$config->email_content = file_get_contents($this->module_path.'tpl/email_default.html');
+		}
 		return $config;
 	}
 	

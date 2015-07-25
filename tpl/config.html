@@ -43,13 +43,30 @@
 		</div>
 		
 		<div class="x_control-group">
-			<label class="x_control-label">앞으로도 자동 정리</label>
+			<label class="x_control-label">휴면계정 자동 정리</label>
 			<div class="x_controls">
 				<label for="auto_expire_Y" class="x_inline"><input type="radio" name="auto_expire" id="auto_expire_Y" value="Y" checked="checked"|cond="$mex_config->auto_expire == 'Y'" /> 예</label>
 				<label for="auto_expire_N" class="x_inline"><input type="radio" name="auto_expire" id="auto_expire_N" value="N" checked="checked"|cond="$mex_config->auto_expire != 'Y'" /> 아니오</label>
 				<p class="x_help-block">관리자가 직접 정리하지 않아도 위의 조건에 해당하는 휴면계정을 그때그때 자동으로 정리합니다.<br />
 					반드시 대부분의 휴면계정을 먼저 정리한 후에 이 옵션을 사용하시기 바랍니다.<br />
 					정리할 계정이 많은 경우 사이트 로딩이 느려지거나 정리가 다소 지연될 수 있습니다.</p>
+			</div>
+		</div>
+		
+		<div class="x_control-group">
+			<label class="x_control-label" for="auto_notify">안내메일 자동 발송</label>
+			<div class="x_controls">
+				<select name="auto_notify" id="auto_notify">
+					<option value="7" selected="selected"|cond="!$mex_config->auto_notify">발송하지 않음</option>
+					<option value="7" selected="selected"|cond="$mex_config->auto_notify == 7">정리 7일 전</option>
+					<option value="15" selected="selected"|cond="$mex_config->auto_notify == 15">정리 15일 전</option>
+					<option value="30" selected="selected"|cond="$mex_config->auto_notify == 30">정리 30일 전</option>
+					<option value="45" selected="selected"|cond="$mex_config->auto_notify == 45">정리 45일 전</option>
+					<option value="60" selected="selected"|cond="$mex_config->auto_notify == 60">정리 60일 전</option>
+					<option value="90" selected="selected"|cond="$mex_config->auto_notify == 90">정리 90일 전</option>
+				</select>
+				<p class="x_help-block">휴면계정 자동 정리 옵션을 사용하는 경우, 정리하기 전에 자동으로 안내메일을 발송합니다.<br />
+					발송할 메일의 내용은 <a href="{getUrl('', 'module', 'admin', 'act', 'dispMember_expireAdminEmailTemplate')}">안내메일 내용 편집</a> 페이지에서 설정할 수 있습니다.</p>
 			</div>
 		</div>
 		

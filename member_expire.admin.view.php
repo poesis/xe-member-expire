@@ -28,13 +28,13 @@ class Member_ExpireAdminView extends Member_Expire
 		Context::set('mex_config', $this->getConfig());
 		
 		// 템플릿을 지정한다.
-		Context::setBrowserTitle('휴면계정 설정 - XE Admin');
+		Context::setBrowserTitle('휴면계정 기본 설정 - XE Admin');
 		$this->setTemplatePath($this->module_path.'tpl');
 		$this->setTemplateFile('config');
 	}
 	
 	/**
-	 * 휴면 계정 정리 화면을 표시하는 메소드.
+	 * 휴면계정 일괄 정리 화면을 표시하는 메소드.
 	 */
 	public function dispMember_ExpireAdminCleanup()
 	{
@@ -53,9 +53,64 @@ class Member_ExpireAdminView extends Member_Expire
 		Context::set('expired_members_count', $expired_members_count);
 		
 		// 템플릿을 지정한다.
-		Context::setBrowserTitle('휴면계정 정리 - XE Admin');
+		Context::setBrowserTitle('휴면계정 일괄 정리 - XE Admin');
 		$this->setTemplatePath($this->module_path.'tpl');
 		$this->setTemplateFile('cleanup');
+	}
+	
+	/**
+	 * 안내메일 일괄 발송 화면을 표시하는 메소드.
+	 */
+	public function dispMember_ExpireAdminEmailSend()
+	{
+		// 현재 설정을 불러온다.
+		$config = $this->getConfig();
+		Context::set('mex_config', $this->getConfig());
+		
+		// 메일 발송 대상 계정 수를 불러온다.
+		$obj = new stdClass();
+		$obj->is_admin = 'N';
+		$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + zgap());
+		$obj->page = $page = Context::get('page') ?: 1;
+		$expired_members_count = executeQuery('member_expire.countExpiredMembers', $obj);
+		$expired_members_count = $expired_members_count->toBool() ? $expired_members_count->data->count : 0;
+		Context::set('expire_threshold', $this->translateThreshold($config->expire_threshold));
+		Context::set('expired_members_count', $expired_members_count);
+		
+		// 템플릿을 지정한다.
+		Context::setBrowserTitle('안내메일 일괄 발송 - XE Admin');
+		$this->setTemplatePath($this->module_path.'tpl');
+		$this->setTemplateFile('email_send');
+	}
+	
+	/**
+	 * 안내메일 내용 편집 화면을 표시하는 메소드.
+	 */
+	public function dispMember_ExpireAdminEmailTemplate()
+	{
+		// 현재 설정을 불러온다.
+		$config = $this->getConfig();
+		Context::set('mex_config', $this->getConfig());
+		Context::set('expire_threshold', $this->translateThreshold($config->expire_threshold));
+		
+		// 에디터를 생성한다.
+		$oEditorModel = getModel('editor');
+		$option = new stdClass();
+		$option->primary_key_name = 'temp_srl';
+		$option->content_key_name = 'email_content';
+		$option->allow_fileupload = false;
+		$option->enable_autosave = false;
+		$option->enable_default_component = true;
+		$option->enable_component = true;
+		$option->resizable = true;
+		$option->height = 300;
+		Context::set('editor', $oEditorModel->getEditor(0, $option));
+		Context::set('editor_skin_list', $oEditorModel->getEditorSkinList());
+		
+		// 템플릿을 지정한다.
+		Context::setBrowserTitle('안내메일 내용 편집 - XE Admin');
+		$this->setTemplatePath($this->module_path.'tpl');
+		$this->setTemplateFile('email_template');
 	}
 	
 	/**

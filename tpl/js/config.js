@@ -50,6 +50,33 @@
 		});
 		
 		/**
+		 * 안내메일 미리보기 작성.
+		 */
+		$("#email_preview").each(function() {
+			var subject = $("#email_subject");
+			var preview = $(this);
+			var editor_sequence = preview.data("editor-sequence");
+			if (!editor_sequence) return;
+			if (!editorGetContent) return;
+			var macros = {};
+			$("#cleanup_macro_table tr").each(function() {
+				var key = $(this).find("th").text();
+				var valuetd = $(this).find("td:last-child");
+				var value = valuetd.data("actual-value") ? valuetd.data("actual-value") : valuetd.text().replace("예: ", "");
+				macros[key] = value;
+			});
+			var replace_macros = function(content) {
+				return content.replace(/\{[A-Z_]+\}/g, function(match) {
+					return macros[match] ? macros[match] : match;
+				});
+			};
+			setInterval(function() {
+				var content = editorGetContent(editor_sequence);
+				preview.html('<p class="email_subject">' + replace_macros(subject.val()) + '</p>' + "\n\n" + replace_macros(content));
+			}, 1000);
+		});
+		
+		/**
 		 * 정리대상 개별 회원을 직접 정리한다.
 		 */
 		$("a.do_expire_member").click(function(event) {

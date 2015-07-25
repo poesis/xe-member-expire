@@ -1,8 +1,19 @@
 
-p.cleanup_notice { margin-bottom: 16px !important; }
+div.contains_full_width_input { margin-right: 14px !important; }
+input.full_width { width: 100% !important; }
+p.cleanup_notice { margin-bottom: 16px !important; margin-left: 12px !important; }
+span.email_macro { font-family: Consolas, monospace; }
 span.graytext { color: #999; }
+table.cleanup_table { border-collapse: collapse; width: 100%; box-sizing: border-box; margin-bottom: 16px !important; }
+table.cleanup_table th { border: 1px solid #ccc; background: #f4f4f4; padding: 4px 12px; text-align: left; }
+table.cleanup_table td { border: 1px solid #ccc; padding: 4px 12px; text-align: left; }
 
+#start_cleanup, #start_email_send { min-width: 132px; }
 #cleanup_progress_area { clear: both; margin-right: 4px; display: none; }
 #cleanup_progress_container { width: 100%; border: 1px solid #bbb; padding: 1px; box-sizing: border-box; margin-bottom: 8px; }
 #cleanup_progress_bar { width: 0%; height: 24px; background-color: #08c; }
 #cleanup_progress_finish_area { display: none; }
+
+#email_preview { padding: 12px; border: 1px solid #ccc; margin-bottom: 16px; min-height: 80px; box-shadow: 0 0 3px rgba(0, 0, 0, 0.15); }
+#email_preview p { margin: 0; }
+#email_preview p.email_subject { width: 100%; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #eee; font-weight: bold; }

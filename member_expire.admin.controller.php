@@ -26,7 +26,7 @@ class Member_ExpireAdminController extends Member_Expire
 	{
 		// 새로 저장하려는 설정을 가져온다.
 		$request_vars = Context::getRequestVars();
-		$new_config = new stdClass;
+		$new_config = $this->getConfig();
 		$new_config->expire_threshold = $request_vars->expire_threshold;
 		$new_config->expire_method = $request_vars->expire_method;
 		$new_config->auto_expire = $request_vars->auto_expire === 'Y' ? 'Y' : 'N';
@@ -66,6 +66,47 @@ class Member_ExpireAdminController extends Member_Expire
 		{
 			$this->setRedirectUrl(getNotEncodedUrl('', 'module', 'member_expire', 'act', 'dispMember_expireAdminConfig'));
 		}
+	}
+	
+	/**
+	 * 안내메일 내용 템플릿을 저장하는 메소드.
+	 */
+	public function procMember_ExpireAdminInsertEmailTemplate()
+	{
+		// 새로 저장하려는 설정을 가져온다.
+		$request_vars = Context::getRequestVars();
+		$new_config = $this->getConfig();
+		$new_config->email_subject = $request_vars->email_subject;
+		$new_config->email_content = $request_vars->email_content;
+		
+		// 새 모듈 설정을 저장한다.
+		$output = getController('module')->insertModuleConfig('member_expire', $new_config);
+		if ($output->toBool())
+		{
+			$this->setMessage('success_registed');
+		}
+		else
+		{
+			return $output;
+		}
+		
+		// 반환 URL로 돌려보낸다.
+		if (Context::get('success_return_url'))
+		{
+			$this->setRedirectUrl(Context::get('success_return_url'));
+		}
+		else
+		{
+			$this->setRedirectUrl(getNotEncodedUrl('', 'module', 'member_expire', 'act', 'dispMember_expireAdminConfig'));
+		}
+	}
+	
+	/**
+	 * 안내메일을 실제 발송하는 메소드.
+	 */
+	public function procMember_ExpireAdminDoSendEmail()
+	{
+		
 	}
 	
 	/**

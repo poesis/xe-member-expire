@@ -5,9 +5,13 @@
 	<actions>
 		<action name="dispMember_expireAdminConfig" type="view" admin_index="true" menu_name="member_expire" />
 		<action name="dispMember_expireAdminCleanup" type="view" />
+		<action name="dispMember_expireAdminEmailSend" type="view" />
+		<action name="dispMember_expireAdminEmailTemplate" type="view" />
 		<action name="dispMember_expireAdminListTargets" type="view" />
 		<action name="dispMember_expireAdminListMoved" type="view" />
 		<action name="procMember_expireAdminInsertConfig" type="controller" />
+		<action name="procMember_expireAdminInsertEmailTemplate" type="controller" />
+		<action name="procMember_expireAdminDoSendEmail" type="controller" />
 		<action name="procMember_expireAdminDoCleanup" type="controller" />
 		<action name="procMember_expireAdminRestoreMember" type="controller" />
 	</actions>
