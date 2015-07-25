@@ -43,7 +43,7 @@
 				<!--@endif-->
 			</td>
 			<td clas="nowr">
-				<a href="#" id="do_expire_{$member->member_srl}" class="do_expire_member" data-member-srl="{$member->member_srl}">{$mex_config->expire_method === 'delete' ? '삭제' : '별도저장'}</a>
+				<a href="#{$member->member_srl}" id="do_expire_{$member->member_srl}" class="do_expire_member" data-member-srl="{$member->member_srl}">{$mex_config->expire_method === 'delete' ? '삭제' : '별도저장'}</a>
 			</td>
 		</tr>
 		<tr cond="!$expired_members">

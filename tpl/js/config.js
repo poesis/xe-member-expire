@@ -29,8 +29,12 @@
 				$.exec_json(
 					"member_expire.procMember_expireAdminDoCleanup", ajax_data,
 					function(response) {
+						if (response.count < 0) {
+							alert("오류가 발생했습니다. (코드 " + response.count + ")");
+							return;
+						}
 						ajax_count += response.count;
-						if (response.count < 1 || ajax_count >= total_count) {
+						if (response.count == 0 || ajax_count >= total_count) {
 							$("#cleanup_progress_bar").css("width", "100%");
 							$("#cleanup_progress_number_area").hide();
 							$("#cleanup_progress_finish_area").show();
@@ -70,14 +74,18 @@
 				"method": $("#cleanup_progress_area").data("method"),
 				"batch_count": 3,
 				"total_count": total_count,
-				"call_triggers": "Y"
+				"resend": "Y"
 			};
 			ajax_callback = function() {
 				$.exec_json(
 					"member_expire.procMember_expireAdminDoSendEmail", ajax_data,
 					function(response) {
+						if (response.count < 0) {
+							alert("오류가 발생했습니다. (코드 " + response.count + ")");
+							return;
+						}
 						ajax_count += response.count;
-						if (response.count < 1 || ajax_count >= total_count) {
+						if (response.count == 0 || ajax_count >= total_count) {
 							$("#cleanup_progress_bar").css("width", "100%");
 							$("#cleanup_progress_number_area").hide();
 							$("#cleanup_progress_finish_area").show();

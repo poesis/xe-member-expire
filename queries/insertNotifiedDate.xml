@@ -1,0 +1,9 @@
+<query id="insertNotifiedDate" action="insert">
+    <tables>
+        <table name="member_expired_notified" />
+    </tables>
+    <columns>
+        <column name="member_srl" var="member_srl" notnull="notnull" />
+        <column name="notified_date" var="notified_date" default="curdate()" />
+    </columns>
+</query>

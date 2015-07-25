@@ -1,0 +1,32 @@
+<query id="getUnnotifiedMembers" action="select">
+    <tables>
+        <table name="member" />
+        <table name="member_expired_notified" alias="notified" type="left join">
+		    <conditions>
+		        <condition operation="equal" column="member.member_srl" default="notified.member_srl" />
+		    </conditions>
+		</table>
+    </tables>
+    <columns>
+        <column name="*" />
+    </columns>
+    <conditions>
+        <condition operation="equal" column="member.is_admin" var="is_admin" />
+        <condition operation="equal" column="member.member_srl" var="member_srl" pipe="and" />
+		<condition operation="null" column="notified.notified_date" pipe="and" />
+        <group pipe="and">
+            <condition operation="less" column="regdate" var="threshold" />
+            <condition operation="null" column="regdate" pipe="or" />
+        </group>
+        <group pipe="and">
+            <condition operation="less" column="last_login" var="threshold" />
+            <condition operation="null" column="last_login" pipe="or" />
+        </group>
+    </conditions>
+    <navigation>
+        <index var="sort_index" default="last_login" order="orderby" />
+        <list_count var="list_count" default="10" />
+        <page_count var="page_count" default="10" />
+        <page var="page" default="1" />
+    </navigation>
+</query>

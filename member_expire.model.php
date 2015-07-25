@@ -47,7 +47,21 @@ class Member_ExpireModel extends Member_Expire
 		}
 		else
 		{
-			$member = null;
+			$args = new stdClass();
+			$args->member_srl = $member_srl;
+			$member_query = executeQuery('member.getMemberInfoByMemberSrl', $args);
+			if (!$member_query->toBool() || !$member_query->data)
+			{
+				if ($use_transaction) $this->oDB->rollback();
+				return -41;
+			}
+			$member = is_object($member_query->data) ? $member_query->data : reset($member_query->data);
+			if (!$member)
+			{
+				if ($use_transaction) $this->oDB->rollback();
+				return -42;
+			}
+			$member_srl = $member->member_srl;
 		}
 		
 		// 모듈 설정이 로딩되지 않은 경우 지금 로딩한다.
@@ -56,10 +70,37 @@ class Member_ExpireModel extends Member_Expire
 			$config = $this->getConfig();
 		}
 		
+		// 이미 발송한 경우, $resend = true가 아니라면 재발송하지 않는다.
+		$args = new stdClass();
+		$args->member_srl = $member_srl;
+		$output = executeQuery('member_expire.getNotifiedDate', $args);
+		if (!$output->toBool())
+		{
+			return -43;
+		}
+		if (count($output->data))
+		{
+			return 2;
+		}
+		
 		// 트랜잭션을 시작한다.
 		if ($use_transaction)
 		{
 			$this->oDB->begin();
+		}
+		
+		// 발송한 메일을 기록한다.
+		$args = new stdClass();
+		$args->member_srl = $member_srl;
+		$output = executeQuery('member_expire.deleteNotifiedDate', $args);
+		if (!$output->toBool())
+		{
+			return -44;
+		}
+		$output = executeQuery('member_expire.insertNotifiedDate', $args);
+		if (!$output->toBool())
+		{
+			return -45;
 		}
 		
 		// 트랜잭션을 커밋한다.
@@ -67,7 +108,7 @@ class Member_ExpireModel extends Member_Expire
 		{
 			$this->oDB->commit();
 		}
-		return true;
+		return 1;
 	}
 	
 	/**
@@ -170,18 +211,6 @@ class Member_ExpireModel extends Member_Expire
 		}
 		else
 		{
-			$member = null;
-		}
-		
-		// 트랜잭션을 시작한다.
-		if ($use_transaction)
-		{
-			$this->oDB->begin();
-		}
-		
-		// 회원정보가 주어지지 않은 경우 지금 가져온다.
-		if (!$member)
-		{
 			$args = new stdClass();
 			$args->member_srl = $member_srl;
 			$member_query = executeQuery('member.getMemberInfoByMemberSrl', $args);
@@ -196,6 +225,13 @@ class Member_ExpireModel extends Member_Expire
 				if ($use_transaction) $this->oDB->rollback();
 				return -22;
 			}
+			$member_srl = $member->member_srl;
+		}
+		
+		// 트랜잭션을 시작한다.
+		if ($use_transaction)
+		{
+			$this->oDB->begin();
 		}
 		
 		// 회원정보를 member_expire 테이블로 복사한다.

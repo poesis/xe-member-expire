@@ -113,6 +113,7 @@ class Member_ExpireAdminController extends Member_Expire
 		$member_srl = $request_vars->member_srl ? $request_vars->member_srl : 0;
 		$config->expire_threshold = $request_vars->threshold ? $request_vars->threshold : $config->expire_threshold;
 		$config->expire_method = $request_vars->method ? $request_vars->method : $config->expire_method;
+		$resend = $request_vars->resend === 'Y' ? true : false;
 		$total_count = $request_vars->total_count ? $request_vars->total_count : 3;
 		$batch_count = $request_vars->batch_count ? $request_vars->batch_count : 3;
 		$done_count = 0;
@@ -145,7 +146,7 @@ class Member_ExpireAdminController extends Member_Expire
 			$obj->list_count = $batch_count;
 			$obj->page = 1;
 			$obj->orderby = 'asc';
-			$members_query = executeQuery('member_expire.getExpiredMembers', $obj);
+			$members_query = executeQuery('member_expire.getUnnotifiedMembers', $obj);
 			if (!$members_query->toBool())
 			{
 				$oDB->rollback(); $this->add('count', -4); return;
@@ -156,7 +157,11 @@ class Member_ExpireAdminController extends Member_Expire
 		// 각 회원에게 메일을 발송한다.
 		foreach ($members as $member)
 		{
-			$oModel->sendEmail($member, $config, true, false);
+			$result = $oModel->sendEmail($member, $config, $resend, false);
+			if ($result < 0)
+			{
+				$oDB->rollback(); $this->add('count', $result); return;
+			}
 			$done_count++;
 		}
 		
@@ -224,7 +229,11 @@ class Member_ExpireAdminController extends Member_Expire
 				// 각각의 member_srl 및 관련정보를 삭제한다.
 				foreach ($member_srls as $member_srl)
 				{
-					$oModel->deleteMember($member_srl, true, false);
+					$result = $oModel->deleteMember($member_srl, true, false);
+					if ($result < 0)
+					{
+						$oDB->rollback(); $this->add('count', $result); return;
+					}
 					$done_count++;
 				}
 				break;
@@ -264,7 +273,11 @@ class Member_ExpireAdminController extends Member_Expire
 				// 각 회원정보를 member_expired 테이블로 이동한다.
 				foreach ($members as $member)
 				{
-					$oModel->moveMember($member, false);
+					$result = $oModel->moveMember($member, false);
+					if ($result < 0)
+					{
+						$oDB->rollback(); $this->add('count', $result); return;
+					}
 					$done_count++;
 				}
 				break;
@@ -298,7 +311,7 @@ class Member_ExpireAdminController extends Member_Expire
 		// 복원한다.
 		$oModel = getModel('member_expire');
 		$result = $oModel->restoreMember($member_srl, true);
-		if ($result < 1)
+		if ($result < 0)
 		{
 			$this->add('restored', $result);
 			return;
