@@ -4,5 +4,6 @@
     </tables>
     <conditions>
         <condition operation="equal" column="member_srl" var="member_srl" />
+        <condition operation="less" column="notified_date" var="threshold" pipe="and" />
     </conditions>
 </query>

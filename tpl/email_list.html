@@ -14,8 +14,8 @@
 			<th scope="col" class="nowr">아이디</th>
 			<th scope="col" class="nowr">이름</th>
 			<th scope="col" class="nowr">닉네임</th>
-			<th scope="col" class="nowr">가입일</th>
 			<th scope="col" class="nowr">최근 로그인</th>
+			<th scope="col" class="nowr">정리 예정일</th>
 			<th scope="col" class="nowr">안내메일 발송일</th>
 		</tr>
 	</thead>
@@ -28,13 +28,6 @@
 			<td class="nowr">{$sent_email->user_name}</td>
 			<td class="nowr">{$sent_email->nick_name}</td>
 			<td class="nowr">
-				<!--@if($sent_email->regdate)-->
-					{zdate($sent_email->regdate, 'Y-m-d')}
-				<!--@else-->
-					<span class="graytext">가입 기록 없음</span>
-				<!--@endif-->
-			</td>
-			<td class="nowr">
 				<!--@if($sent_email->last_login)-->
 					{zdate($sent_email->last_login, 'Y-m-d')}
 				<!--@else-->
@@ -42,7 +35,10 @@
 				<!--@endif-->
 			</td>
 			<td clas="nowr">
-				{zdate($sent_email->notified_date, 'Y-m-d H:i')}
+				{zdate($sent_email->expire_date, 'Y-m-d')}
+			</td>
+			<td clas="nowr">
+				{zdate($sent_email->notified_date, 'Y-m-d H:i:s')}
 			</td>
 		</tr>
 		<tr cond="!$sent_emails">
@@ -61,5 +57,22 @@
 			<!--@end-->
 			<li class="x_disabled"|cond="$page == $paging->page_navigation->last_page"><a href="{getUrl('page', $paging->page_navigation->last_page)}">{$lang->last_page} &raquo;</a></li>
 		</ul>
+	</form>
+	<form class="x_pull-right x_input-append" style="margin-top:8px" action="{Context::getUrl('')}" method="post">
+		<input type="hidden" name="module" value="admin" />
+		<input type="hidden" name="act" value="procMember_expireAdminClearSentEmail" />
+		<select name="clear_threshold" style="width:180px">
+			<option value="0">모든 기록</option>
+			<option value="3">3일 이상 지난 기록</option>
+			<option value="7">7일 이상 지난 기록</option>
+			<option value="15">15일 이상 지난 기록</option>
+			<option value="30" selected="selected">30일 이상 지난 기록</option>
+			<option value="60">60일 이상 지난 기록</option>
+			<option value="90">90일 이상 지난 기록</option>
+			<option value="120">120일 이상 지난 기록</option>
+			<option value="180">180일 이상 지난 기록</option>
+			<option value="360">360일 이상 지난 기록</option>
+		</select>
+		<button class="x_btn" type="submit" disabled="disabled"|cond="!count($sent_emails)">삭제</button>
 	</form>
 </div>

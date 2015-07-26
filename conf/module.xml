@@ -12,6 +12,7 @@
 		<action name="dispMember_expireAdminListMoved" type="view" />
 		<action name="procMember_expireAdminInsertConfig" type="controller" />
 		<action name="procMember_expireAdminInsertEmailTemplate" type="controller" />
+		<action name="procMember_expireAdminClearSentEmail" type="controller" />
 		<action name="procMember_expireAdminDoSendEmail" type="controller" />
 		<action name="procMember_expireAdminDoCleanup" type="controller" />
 		<action name="procMember_expireAdminRestoreMember" type="controller" />

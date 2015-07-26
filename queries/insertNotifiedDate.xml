@@ -10,6 +10,7 @@
         <column name="nick_name" var="nick_name" />
         <column name="regdate" var="regdate" />
         <column name="last_login" var="last_login" />
+        <column name="expire_date" var="expire_date" />
         <column name="notified_date" var="notified_date" default="curdate()" />
     </columns>
 </query>

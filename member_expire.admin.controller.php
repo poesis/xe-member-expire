@@ -65,7 +65,7 @@ class Member_ExpireAdminController extends Member_Expire
 		}
 		else
 		{
-			$this->setRedirectUrl(getNotEncodedUrl('', 'module', 'member_expire', 'act', 'dispMember_expireAdminConfig'));
+			$this->setRedirectUrl(getNotEncodedUrl('', 'module', 'admin', 'act', 'dispMember_expireAdminConfig'));
 		}
 	}
 	
@@ -98,8 +98,30 @@ class Member_ExpireAdminController extends Member_Expire
 		}
 		else
 		{
-			$this->setRedirectUrl(getNotEncodedUrl('', 'module', 'member_expire', 'act', 'dispMember_expireAdminConfig'));
+			$this->setRedirectUrl(getNotEncodedUrl('', 'module', 'admin', 'act', 'dispMember_expireAdminConfig'));
 		}
+	}
+	
+	/**
+	 * 안내메일 발송 내역을 정리하는 메소드.
+	 */
+	public function procMember_ExpireAdminClearSentEmail()
+	{
+		// 정리 설정을 가져온다.
+		$request_vars = Context::getRequestVars();
+		$threshold = intval($request_vars->clear_threshold);
+		
+		// 정리한다.
+		if ($threshold >= 0)
+		{
+			$args = new stdClass();
+			$args->threshold = date('YmdHis', time() - ($threshold * 86400) + zgap());
+			$output = executeQuery('member_expire.deleteNotifiedDate', $args);
+		}
+		
+		// 목록 페이지로 돌려보낸다.
+		$this->setRedirectUrl(getNotEncodedUrl('', 'module', 'admin', 'act', 'dispMember_expireAdminEmailList'));
+		return;
 	}
 	
 	/**
@@ -141,12 +163,12 @@ class Member_ExpireAdminController extends Member_Expire
 		else
 		{
 			$args = new stdClass();
-			$obj->is_admin = 'N';
-			$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + zgap());
-			$obj->list_count = $batch_count;
-			$obj->page = 1;
-			$obj->orderby = 'asc';
-			$members_query = executeQuery('member_expire.getUnnotifiedMembers', $obj);
+			$args->is_admin = 'N';
+			$args->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + zgap());
+			$args->list_count = $batch_count;
+			$args->page = 1;
+			$args->orderby = 'asc';
+			$members_query = executeQuery('member_expire.getUnnotifiedMembers', $args);
 			if (!$members_query->toBool())
 			{
 				$oDB->rollback(); $this->add('count', -4); return;
@@ -209,12 +231,12 @@ class Member_ExpireAdminController extends Member_Expire
 				else
 				{
 					$args = new stdClass();
-					$obj->is_admin = 'N';
-					$obj->threshold = date('YmdHis', time() - ($threshold * 86400) + zgap());
-					$obj->list_count = $batch_count;
-					$obj->page = 1;
-					$obj->orderby = 'asc';
-					$member_srls_query = executeQuery('member_expire.getExpiredMemberSrlOnly', $obj);
+					$args->is_admin = 'N';
+					$args->threshold = date('YmdHis', time() - ($threshold * 86400) + zgap());
+					$args->list_count = $batch_count;
+					$args->page = 1;
+					$args->orderby = 'asc';
+					$member_srls_query = executeQuery('member_expire.getExpiredMemberSrlOnly', $args);
 					if (!$member_srls_query->toBool())
 					{
 						$oDB->rollback(); $this->add('count', -1); return;
@@ -257,12 +279,12 @@ class Member_ExpireAdminController extends Member_Expire
 				else
 				{
 					$args = new stdClass();
-					$obj->is_admin = 'N';
-					$obj->threshold = date('YmdHis', time() - ($threshold * 86400) + zgap());
-					$obj->list_count = $batch_count;
-					$obj->page = 1;
-					$obj->orderby = 'asc';
-					$members_query = executeQuery('member_expire.getExpiredMembers', $obj);
+					$args->is_admin = 'N';
+					$args->threshold = date('YmdHis', time() - ($threshold * 86400) + zgap());
+					$args->list_count = $batch_count;
+					$args->page = 1;
+					$args->orderby = 'asc';
+					$members_query = executeQuery('member_expire.getExpiredMembers', $args);
 					if (!$members_query->toBool())
 					{
 						$oDB->rollback(); $this->add('count', -6); return;

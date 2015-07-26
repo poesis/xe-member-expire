@@ -291,9 +291,9 @@ class Member_ExpireModel extends Member_Expire
 		// 현재 별도의 테이블로 이동되어 있는지 확인한다.
 		if (!$member)
 		{
-			$obj = new stdClass();
-			$obj->member_srl = $member_srl;
-			$member = executeQuery('member_expire.getMovedMembers', $obj);
+			$args = new stdClass();
+			$args->member_srl = $member_srl;
+			$member = executeQuery('member_expire.getMovedMembers', $args);
 			$member = $member->toBool() ? reset($member->data) : false;
 			if (!$member)
 			{
