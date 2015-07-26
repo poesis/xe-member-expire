@@ -15,16 +15,16 @@
         <condition operation="equal" column="member.member_srl" var="member_srl" pipe="and" />
 		<condition operation="null" column="notified.notified_date" pipe="and" />
         <group pipe="and">
-            <condition operation="less" column="regdate" var="threshold" />
-            <condition operation="null" column="regdate" pipe="or" />
+            <condition operation="less" column="member.regdate" var="threshold" />
+            <condition operation="null" column="member.regdate" pipe="or" />
         </group>
         <group pipe="and">
-            <condition operation="less" column="last_login" var="threshold" />
-            <condition operation="null" column="last_login" pipe="or" />
+            <condition operation="less" column="member.last_login" var="threshold" />
+            <condition operation="null" column="member.last_login" pipe="or" />
         </group>
     </conditions>
     <navigation>
-        <index var="sort_index" default="last_login" order="orderby" />
+        <index var="sort_index" default="member.last_login" order="orderby" />
         <list_count var="list_count" default="10" />
         <page_count var="page_count" default="10" />
         <page var="page" default="1" />

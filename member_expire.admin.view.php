@@ -123,6 +123,41 @@ class Member_ExpireAdminView extends Member_Expire
 	}
 	
 	/**
+	 * 안내메일 발송 내역 화면을 표시하는 메소드.
+	 */
+	public function dispMember_ExpireAdminEmailList()
+	{
+		// 현재 설정을 불러온다.
+		$config = $this->getConfig();
+		Context::set('mex_config', $config);
+		
+		// 발송 내역을 불러온다.
+		$obj = new stdClass();
+		$obj->page = $page = Context::get('page') ?: 1;
+		$obj->orderby = 'desc';
+		$sent_email_count = executeQuery('member_expire.countNotifiedDates', $obj);
+		$sent_email_count = $sent_email_count->toBool() ? $sent_email_count->data->count : 0;
+		$sent_emails = executeQuery('member_expire.getNotifiedDates', $obj);
+		$sent_emails = $sent_emails->toBool() ? $sent_emails->data : array();
+		Context::set('sent_email_count', $sent_email_count);
+		Context::set('sent_emails', $sent_emails);
+		
+		// 페이징을 처리한다.
+		$paging = new Object();
+		$paging->total_count = $sent_email_count;
+		$paging->total_page = max(1, ceil($sent_email_count / 10));
+		$paging->page = $page;
+		$paging->page_navigation = new PageHandler($paging->total_count, $paging->total_page, $page, 10);
+		Context::set('paging', $paging);
+		Context::set('page', $page);
+		
+		// 템플릿을 지정한다.
+		Context::setBrowserTitle('안내메일 발송 내역 - XE Admin');
+		$this->setTemplatePath($this->module_path.'tpl');
+		$this->setTemplateFile('email_list');
+	}
+	
+	/**
 	 * 정리대상 회원 목록을 표시하는 메소드.
 	 */
 	public function dispMember_ExpireAdminListTargets()

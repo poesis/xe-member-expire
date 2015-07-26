@@ -4,6 +4,12 @@
     </tables>
     <columns>
         <column name="member_srl" var="member_srl" notnull="notnull" />
+        <column name="user_id" var="user_id" notnull="notnull" />
+        <column name="email_address" var="email_address" notnull="notnull" />
+        <column name="user_name" var="user_name" />
+        <column name="nick_name" var="nick_name" />
+        <column name="regdate" var="regdate" />
+        <column name="last_login" var="last_login" />
         <column name="notified_date" var="notified_date" default="curdate()" />
     </columns>
 </query>

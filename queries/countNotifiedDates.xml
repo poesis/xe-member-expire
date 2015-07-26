@@ -1,0 +1,8 @@
+<query id="countNotifiedDates" action="select">
+    <tables>
+        <table name="member_expired_notified" />
+    </tables>
+    <columns>
+        <column name="count(*)" alias="count" />
+    </columns>
+</query>

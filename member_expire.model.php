@@ -78,7 +78,7 @@ class Member_ExpireModel extends Member_Expire
 		{
 			return -43;
 		}
-		if (count($output->data))
+		if (count($output->data) && !$resend)
 		{
 			return 2;
 		}
@@ -90,14 +90,12 @@ class Member_ExpireModel extends Member_Expire
 		}
 		
 		// 발송한 메일을 기록한다.
-		$args = new stdClass();
-		$args->member_srl = $member_srl;
-		$output = executeQuery('member_expire.deleteNotifiedDate', $args);
+		$output = executeQuery('member_expire.deleteNotifiedDate', $member);
 		if (!$output->toBool())
 		{
 			return -44;
 		}
-		$output = executeQuery('member_expire.insertNotifiedDate', $args);
+		$output = executeQuery('member_expire.insertNotifiedDate', $member);
 		if (!$output->toBool())
 		{
 			return -45;
