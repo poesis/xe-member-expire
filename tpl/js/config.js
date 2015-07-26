@@ -117,12 +117,21 @@
 			var editor_sequence = preview.data("editor-sequence");
 			if (!editor_sequence) return;
 			if (!editorGetContent) return;
+			var escapes = {
+				'&': '&amp;',
+				'<': '&lt;',
+				'>': '&gt;',
+				'"': '&quot;',
+				"'": '&#039;'
+			};
 			var macros = {};
 			$("#cleanup_macro_table tr").each(function() {
 				var key = $(this).find("th").text();
 				var valuetd = $(this).find("td:last-child");
 				var value = valuetd.data("actual-value") ? valuetd.data("actual-value") : valuetd.text().replace("예: ", "");
-				macros[key] = value;
+				macros[key] = value.replace(/[&<>"']/g, function(match) {
+					return escapes[match];
+				});
 			});
 			var replace_macros = function(content) {
 				return content.replace(/\{[A-Z_]+\}/g, function(match) {
