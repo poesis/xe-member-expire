@@ -104,11 +104,12 @@ class Member_ExpireController extends Member_Expire
 		}
 		
 		// 이번에 처리할 일을 결정한다.
-		if ($config->auto_expire === 'Y' && $config->email_threshold <= 0)
+		$expire_enabled = $config->auto_expire === 'Y' && (time() > (strtotime($config->auto_start) + zgap()));
+		if ($expire_enabled && $config->email_threshold <= 0)
 		{
 			$task = 'expire';
 		}
-		elseif ($config->auto_expire !== 'Y' && $config->email_threshold > 0)
+		elseif (!$expire_enabled && $config->email_threshold > 0)
 		{
 			$task = 'notify';
 		}

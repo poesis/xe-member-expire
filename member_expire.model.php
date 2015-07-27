@@ -83,12 +83,12 @@ class Member_ExpireModel extends Member_Expire
 		
 		// 정리 예정일을 계산한다.
 		
-		$default_date = time(); //strtotime('2015-08-18 12:00:00 +0900');
+		$start_date = strtotime($config->auto_start) + zgap();
 		$base_date = $member->last_login ? $member->last_login : $member->regdate;
 		$base_date = $base_date ? ztime($base_date) : 0;
 		$expire_date = $base_date + (86400 * $config->expire_threshold);
-		if ($expire_date < $default_date) $expire_date = $default_date;
-		$member->expire_date = date('YmdHis', $expire_date) + zgap();
+		if ($expire_date < $start_date) $expire_date = $start_date;
+		$member->expire_date = date('YmdHis', $expire_date);
 		
 		// 매크로를 변환한다.
 		

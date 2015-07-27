@@ -3,6 +3,26 @@
 	$(function() {
 		
 		/**
+		 * 설정 화면 날짜 선택.
+		 */
+		if ($("#auto_start").size()) {
+			$("#auto_start_picker").datepicker({
+				changeMonth: true,
+				changeYear: true,
+				gotoCurrent: false,
+				yearRange: 'c:+10',
+				dateFormat: 'yy-mm-dd',
+				onSelect: function() {
+					$("#auto_start").val($("#auto_start_picker").val());
+				}
+			});
+			$(".dateRemover").click(function(e) {
+				e.preventDefault();
+				$(this).prevAll("input").val("");
+			});
+		}
+		
+		/**
 		 * 휴면회원 일괄 정리.
 		 */
 		$("#start_cleanup").click(function() {

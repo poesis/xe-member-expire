@@ -43,7 +43,19 @@
 		</div>
 		
 		<div class="x_control-group">
-			<label class="x_control-label">휴면계정 자동 정리</label>
+			<label class="x_control-label">재인증시 자동 복원</label>
+			<div class="x_controls">
+				<label for="auto_restore_Y" class="x_inline"><input type="radio" name="auto_restore" id="auto_restore_Y" value="Y" checked="checked"|cond="$mex_config->auto_restore == 'Y'" /> 예</label>
+				<label for="auto_restore_N" class="x_inline"><input type="radio" name="auto_restore" id="auto_restore_N" value="N" checked="checked"|cond="$mex_config->auto_restore != 'Y'" /> 아니오</label>
+				<p class="x_help-block">별도의 저장공간으로 이동된 회원이 로그인, 아이디/비번찾기 등 다시 인증을 거치면 자동으로 복원합니다.<br />
+					이 옵션을 선택하지 않을 경우 휴면계정이라는 안내문만 출력되고 로그인을 허락하지 않습니다.<br />
+					서드파티 모듈을 사용하여 인증을 시도하는 경우에는 정상 작동하지 않을 수도 있습니다.<br />
+					휴면계정을 삭제하도록 설정한 경우에는 이 옵션을 사용할 수 없고, 삭제된 계정은 복원되지 않습니다.</p>
+			</div>
+		</div>
+		
+		<div class="x_control-group">
+			<label class="x_control-label">앞으로도 자동 정리</label>
 			<div class="x_controls">
 				<label for="auto_expire_Y" class="x_inline"><input type="radio" name="auto_expire" id="auto_expire_Y" value="Y" checked="checked"|cond="$mex_config->auto_expire == 'Y'" /> 예</label>
 				<label for="auto_expire_N" class="x_inline"><input type="radio" name="auto_expire" id="auto_expire_N" value="N" checked="checked"|cond="$mex_config->auto_expire != 'Y'" /> 아니오</label>
@@ -54,31 +66,30 @@
 		</div>
 		
 		<div class="x_control-group">
+			<label class="x_control-label">자동 정리 시작일자</label>
+			<div class="x_controls">
+				<input type="hidden" name="auto_start" id="auto_start" value="{$mex_config->auto_start}" />
+				<input type="text" readonly placeholder="{date('Y-m-d', time() + zgap())}" id="auto_start_picker" value="{$mex_config->auto_start}" />
+				<input type="button" value="오늘" class="x_btn dateRemover" />
+				<p class="x_help-block">자동 정리 옵션을 선택한 경우, 위의 날짜까지는 자동 정리를 시작하지 않습니다.<br />
+					오랫동안 로그인하지 않은 회원이라도 안내메일 발송과 동시에 자동 정리되어 버리는 일을 막을 수 있습니다.</p>
+			</div>
+		</div>
+			
+		<div class="x_control-group">
 			<label class="x_control-label" for="auto_notify">안내메일 자동 발송</label>
 			<div class="x_controls">
 				<select name="auto_notify" id="auto_notify">
 					<option value="7" selected="selected"|cond="!$mex_config->email_threshold">발송하지 않음</option>
-					<option value="7" selected="selected"|cond="$mex_config->email_threshold == 7">정리 7일 전</option>
-					<option value="15" selected="selected"|cond="$mex_config->email_threshold == 15">정리 15일 전</option>
-					<option value="30" selected="selected"|cond="$mex_config->email_threshold == 30">정리 30일 전</option>
-					<option value="45" selected="selected"|cond="$mex_config->email_threshold == 45">정리 45일 전</option>
-					<option value="60" selected="selected"|cond="$mex_config->email_threshold == 60">정리 60일 전</option>
-					<option value="90" selected="selected"|cond="$mex_config->email_threshold == 90">정리 90일 전</option>
+					<option value="7" selected="selected"|cond="$mex_config->email_threshold == 7">정리 예정일 7일 이내</option>
+					<option value="15" selected="selected"|cond="$mex_config->email_threshold == 15">정리 예정일 15일 이내</option>
+					<option value="30" selected="selected"|cond="$mex_config->email_threshold == 30">정리 예정일 30일 이내</option>
+					<option value="45" selected="selected"|cond="$mex_config->email_threshold == 45">정리 예정일 45일 이내</option>
+					<option value="60" selected="selected"|cond="$mex_config->email_threshold == 60">정리 예정일 60일 이내</option>
+					<option value="90" selected="selected"|cond="$mex_config->email_threshold == 90">정리 예정일 90일 이내</option>
 				</select>
 				<p class="x_help-block">정리 예정인 회원에게 안내메일을 발송합니다. (자동 정리 옵션과 별도로 이 기능만 사용할 수도 있습니다.)<br />
 					발송할 메일의 내용은 <a href="{getUrl('', 'module', 'admin', 'act', 'dispMember_expireAdminEmailTemplate')}">안내메일 내용 편집</a> 메뉴에서 편집할 수 있습니다.</p>
-			</div>
-		</div>
-		
-		<div class="x_control-group">
-			<label class="x_control-label">재인증시 자동 복원</label>
-			<div class="x_controls">
-				<label for="auto_restore_Y" class="x_inline"><input type="radio" name="auto_restore" id="auto_restore_Y" value="Y" checked="checked"|cond="$mex_config->auto_restore == 'Y'" /> 예</label>
-				<label for="auto_restore_N" class="x_inline"><input type="radio" name="auto_restore" id="auto_restore_N" value="N" checked="checked"|cond="$mex_config->auto_restore != 'Y'" /> 아니오</label>
-				<p class="x_help-block">별도의 저장공간으로 이동된 회원이 로그인, 아이디/비번찾기 등 다시 인증을 거치면 자동으로 복원합니다.<br />
-					이 옵션을 선택하지 않을 경우 휴면계정이라는 안내문만 출력되고 로그인을 허락하지 않습니다.<br />
-					서드파티 모듈을 사용하여 인증을 시도하는 경우에는 정상 작동하지 않을 수도 있습니다.<br />
-					휴면계정을 삭제하도록 설정한 경우에는 이 옵션을 사용할 수 없고, 삭제된 계정은 복원되지 않습니다.</p>
 			</div>
 		</div>
 		
