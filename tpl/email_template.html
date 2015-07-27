@@ -42,12 +42,12 @@
 	<tr>
 		<th><span class="email_macro">{LOGIN_DATE}</span></th>
 		<td>최근 로그인 날짜 (한국어)</td>
-		<td>예: 2014년 7월 29일</td>
+		<td>예: 2014년 3월 29일</td>
 	</tr>
 	<tr>
 		<th><span class="email_macro">{EXPIRE_DATE}</span></th>
 		<td>정리 예정 날짜 (한국어)</td>
-		<td>예: 2015년 8월 18일</td>
+		<td>예: {date('Y년 n월 j일', strtotime($mex_config->auto_start) + zgap())}</td>
 	</tr>
 	<tr>
 		<th><span class="email_macro">{TIME_LIMIT}</span></th>
