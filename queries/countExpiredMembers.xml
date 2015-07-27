@@ -6,7 +6,7 @@
         <column name="count(*)" alias="count" />
     </columns>
     <conditions>
-        <condition operation="equal" column="is_admin" var="is_admin" />
+        <condition operation="equal" column="is_admin" var="is_admin" default="N" />
         <group pipe="and">
             <condition operation="less" column="regdate" var="threshold" />
             <condition operation="null" column="regdate" pipe="or" />

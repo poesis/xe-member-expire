@@ -6,7 +6,7 @@
         <column name="member_srl" />
     </columns>
     <conditions>
-        <condition operation="equal" column="is_admin" var="is_admin" />
+        <condition operation="equal" column="is_admin" var="is_admin" default="N" />
         <group pipe="and">
             <condition operation="less" column="regdate" var="threshold" />
             <condition operation="null" column="regdate" pipe="or" />
@@ -18,6 +18,7 @@
     </conditions>
     <navigation>
         <index var="sort_index" default="last_login" order="orderby" />
+        <index var="sort_index" default="regdate" order="orderby" />
         <list_count var="list_count" default="10" />
         <page_count var="page_count" default="10" />
         <page var="page" default="1" />

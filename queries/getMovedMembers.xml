@@ -13,6 +13,7 @@
     </conditions>
     <navigation>
         <index var="sort_index" default="last_login" order="orderby" />
+        <index var="sort_index" default="regdate" order="orderby" />
         <list_count var="list_count" default="10" />
         <page_count var="page_count" default="10" />
         <page var="page" default="1" />

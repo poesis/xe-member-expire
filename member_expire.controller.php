@@ -123,7 +123,6 @@ class Member_ExpireController extends Member_Expire
 		{
 			// 정리할 휴면계정이 있는지 확인한다.
 			$obj = new stdClass();
-			$obj->is_admin = 'N';
 			$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + zgap());
 			$obj->list_count = $obj->page_count = $obj->page = 1;
 			$obj->orderby = 'asc';
@@ -157,7 +156,6 @@ class Member_ExpireController extends Member_Expire
 		{
 			// 안내할 회원이 있는지 확인한다.
 			$obj = new stdClass();
-			$obj->is_admin = 'N';
 			$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + ($config->email_threshold * 86400) + zgap());
 			$obj->list_count = $obj->page_count = $obj->page = 1;
 			$obj->orderby = 'asc';

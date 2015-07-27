@@ -44,7 +44,6 @@ class Member_ExpireAdminView extends Member_Expire
 		
 		// 휴면계정 수를 불러온다.
 		$obj = new stdClass();
-		$obj->is_admin = 'N';
 		$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + zgap());
 		$obj->page = $page = Context::get('page') ? Context::get('page') : 1;
 		$expired_members_count = executeQuery('member_expire.countExpiredMembers', $obj);
@@ -69,7 +68,6 @@ class Member_ExpireAdminView extends Member_Expire
 		
 		// 휴면계정 수를 불러온다.
 		$obj = new stdClass();
-		$obj->is_admin = 'N';
 		$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + ($config->email_threshold * 86400) + zgap());
 		$obj->page = $page = Context::get('page') ? Context::get('page') : 1;
 		$expired_members_count = executeQuery('member_expire.countExpiredMembers', $obj);
@@ -78,7 +76,6 @@ class Member_ExpireAdminView extends Member_Expire
 		
 		// 아직 메일을 발송하지 않은 휴면계정 수를 불러온다.
 		$obj = new stdClass();
-		$obj->is_admin = 'N';
 		$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + ($config->email_threshold * 86400) + zgap());
 		$obj->page = $page = Context::get('page') ? Context::get('page') : 1;
 		$unnotified_members_count = executeQuery('member_expire.countUnnotifiedMembers', $obj);
@@ -167,7 +164,6 @@ class Member_ExpireAdminView extends Member_Expire
 		
 		// 휴면계정 목록을 불러온다.
 		$obj = new stdClass();
-		$obj->is_admin = 'N';
 		$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + zgap());
 		$obj->page = $page = Context::get('page') ? Context::get('page') : 1;
 		$obj->orderby = 'desc';

@@ -71,7 +71,7 @@ class Member_ExpireModel extends Member_Expire
 		// 이미 발송한 경우, $resend = true가 아니라면 재발송하지 않는다.
 		$args = new stdClass();
 		$args->member_srl = $member_srl;
-		$output = executeQuery('member_expire.getNotifiedDate', $args);
+		$output = executeQuery('member_expire.getNotifiedDates', $args);
 		if (!$output->toBool())
 		{
 			return -43;
@@ -99,7 +99,7 @@ class Member_ExpireModel extends Member_Expire
 			'{USER_NAME}' => htmlspecialchars($member->user_name, ENT_QUOTES, 'UTF-8', false),
 			'{NICK_NAME}' => htmlspecialchars($member->nick_name, ENT_QUOTES, 'UTF-8', false),
 			'{EMAIL}' => htmlspecialchars($member->email_address, ENT_QUOTES, 'UTF-8', false),
-			'{LOGIN_DATE}' => date('Y년 n월 j일', $base_date),
+			'{LOGIN_DATE}' => $base_date ? date('Y년 n월 j일', $base_date) : '(로그인 기록 없음)',
 			'{EXPIRE_DATE}' => date('Y년 n월 j일', $expire_date),
 			'{TIME_LIMIT}' => $this->translateThreshold($config->expire_threshold),
 			'{CLEAN_METHOD}' => $config->expire_method === 'delete' ? '삭제' : '별도의 저장공간으로 이동',

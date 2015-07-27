@@ -38,7 +38,6 @@ class Member_ExpireAdminController extends Member_Expire
 		if ($new_config->auto_expire === 'Y' || $new_config->email_threshold)
 		{
 			$obj = new stdClass();
-			$obj->is_admin = 'N';
 			$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + zgap());
 			$expired_members_count = executeQuery('member_expire.countExpiredMembers', $obj);
 			$expired_members_count = $expired_members_count->toBool() ? $expired_members_count->data->count : 0;
@@ -164,7 +163,6 @@ class Member_ExpireAdminController extends Member_Expire
 		else
 		{
 			$args = new stdClass();
-			$args->is_admin = 'N';
 			$args->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + ($config->email_threshold * 86400) + zgap());
 			$args->list_count = $batch_count;
 			$args->page = 1;
@@ -232,7 +230,6 @@ class Member_ExpireAdminController extends Member_Expire
 				else
 				{
 					$args = new stdClass();
-					$args->is_admin = 'N';
 					$args->threshold = date('YmdHis', time() - ($threshold * 86400) + zgap());
 					$args->list_count = $batch_count;
 					$args->page = 1;
@@ -280,7 +277,6 @@ class Member_ExpireAdminController extends Member_Expire
 				else
 				{
 					$args = new stdClass();
-					$args->is_admin = 'N';
 					$args->threshold = date('YmdHis', time() - ($threshold * 86400) + zgap());
 					$args->list_count = $batch_count;
 					$args->page = 1;
