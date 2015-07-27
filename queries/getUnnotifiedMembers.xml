@@ -2,18 +2,18 @@
     <tables>
         <table name="member" />
         <table name="member_expired_notified" alias="notified" type="left join">
-		    <conditions>
-		        <condition operation="equal" column="member.member_srl" default="notified.member_srl" />
-		    </conditions>
-		</table>
+            <conditions>
+                <condition operation="equal" column="member.member_srl" default="notified.member_srl" />
+            </conditions>
+        </table>
     </tables>
     <columns>
-        <column name="*" />
+        <column name="member.*" />
     </columns>
     <conditions>
         <condition operation="equal" column="member.is_admin" var="is_admin" />
         <condition operation="equal" column="member.member_srl" var="member_srl" pipe="and" />
-		<condition operation="null" column="notified.notified_date" pipe="and" />
+        <condition operation="null" column="notified.notified_date" pipe="and" />
         <group pipe="and">
             <condition operation="less" column="member.regdate" var="threshold" />
             <condition operation="null" column="member.regdate" pipe="or" />
