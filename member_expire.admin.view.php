@@ -70,17 +70,16 @@ class Member_ExpireAdminView extends Member_Expire
 		// 휴면계정 수를 불러온다.
 		$obj = new stdClass();
 		$obj->is_admin = 'N';
-		$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + zgap());
+		$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + ($config->email_threshold * 86400) + zgap());
 		$obj->page = $page = Context::get('page') ?: 1;
 		$expired_members_count = executeQuery('member_expire.countExpiredMembers', $obj);
 		$expired_members_count = $expired_members_count->toBool() ? $expired_members_count->data->count : 0;
-		Context::set('expire_threshold', $this->translateThreshold($config->expire_threshold));
 		Context::set('expired_members_count', $expired_members_count);
 		
 		// 아직 메일을 발송하지 않은 휴면계정 수를 불러온다.
 		$obj = new stdClass();
 		$obj->is_admin = 'N';
-		$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + zgap());
+		$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + ($config->email_threshold * 86400) + zgap());
 		$obj->page = $page = Context::get('page') ?: 1;
 		$unnotified_members_count = executeQuery('member_expire.countUnnotifiedMembers', $obj);
 		$unnotified_members_count = $unnotified_members_count->toBool() ? $unnotified_members_count->data->count : 0;
@@ -229,20 +228,5 @@ class Member_ExpireAdminView extends Member_Expire
 		Context::setBrowserTitle('별도저장 회원 목록 - XE Admin');
 		$this->setTemplatePath($this->module_path.'tpl');
 		$this->setTemplateFile('list_moved');
-	}
-	
-	/**
-	 * 숫자로 지정된 기간을 사람이 이해하기 쉬운 표현으로 변경하는 메소드.
-	 */
-	protected function translateThreshold($days)
-	{
-		if ($days < 360)
-		{
-			return round($days / 30.25) . '개월';
-		}
-		else
-		{
-			return round($days / 365) . '년';
-		}
 	}
 }

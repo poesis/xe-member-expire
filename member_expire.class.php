@@ -48,6 +48,21 @@ class Member_Expire extends ModuleObject
 	}
 	
 	/**
+	 * 숫자로 지정된 기간을 사람이 이해하기 쉬운 표현으로 변경하는 메소드.
+	 */
+	protected function translateThreshold($days)
+	{
+		if ($days < 360)
+		{
+			return round($days / 30.25) . '개월';
+		}
+		else
+		{
+			return round($days / 365) . '년';
+		}
+	}
+	
+	/**
 	 * 트리거가 정상적으로 등록되어 있는지 확인하는 메소드.
 	 */
 	public function checkTriggers()

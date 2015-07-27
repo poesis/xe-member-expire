@@ -164,7 +164,7 @@ class Member_ExpireAdminController extends Member_Expire
 		{
 			$args = new stdClass();
 			$args->is_admin = 'N';
-			$args->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + zgap());
+			$args->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + ($config->email_threshold * 86400) + zgap());
 			$args->list_count = $batch_count;
 			$args->page = 1;
 			$args->orderby = 'asc';

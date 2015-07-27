@@ -52,13 +52,11 @@ class Member_ExpireModel extends Member_Expire
 			$member_query = executeQuery('member.getMemberInfoByMemberSrl', $args);
 			if (!$member_query->toBool() || !$member_query->data)
 			{
-				if ($use_transaction) $this->oDB->rollback();
 				return -41;
 			}
 			$member = is_object($member_query->data) ? $member_query->data : reset($member_query->data);
 			if (!$member)
 			{
-				if ($use_transaction) $this->oDB->rollback();
 				return -42;
 			}
 			$member_srl = $member->member_srl;
@@ -83,6 +81,52 @@ class Member_ExpireModel extends Member_Expire
 			return 2;
 		}
 		
+		// 정리 예정일을 계산한다.
+		
+		$default_date = time(); //strtotime('2015-08-18 12:00:00 +0900');
+		$base_date = $member->last_login ? $member->last_login : $member->regdate;
+		$base_date = $base_date ? ztime($base_date) : 0;
+		$expire_date = $base_date + (86400 * $config->expire_threshold);
+		if ($expire_date < $default_date) $expire_date = $default_date;
+		$member->expire_date = date('YmdHis', $expire_date) + zgap();
+		
+		// 매크로를 변환한다.
+		
+		$site_title = Context::getSiteTitle();
+		$macros = array(
+			'{SITE_NAME}' => htmlspecialchars($site_title, ENT_QUOTES, 'UTF-8', false),
+			'{USER_ID}' => htmlspecialchars($member->user_id, ENT_QUOTES, 'UTF-8', false),
+			'{USER_NAME}' => htmlspecialchars($member->user_name, ENT_QUOTES, 'UTF-8', false),
+			'{NICK_NAME}' => htmlspecialchars($member->nick_name, ENT_QUOTES, 'UTF-8', false),
+			'{EMAIL}' => htmlspecialchars($member->email_address, ENT_QUOTES, 'UTF-8', false),
+			'{LOGIN_DATE}' => date('Y년 n월 j일', $base_date),
+			'{EXPIRE_DATE}' => date('Y년 n월 j일', $expire_date),
+			'{TIME_LIMIT}' => $this->translateThreshold($config->expire_threshold),
+			'{CLEAN_METHOD}' => $config->expire_method === 'delete' ? '삭제' : '별도의 저장공간으로 이동',
+		);
+		
+		// 메일을 작성하여 발송한다.
+		
+		$subject = htmlspecialchars_decode(str_replace(array_keys($macros), array_values($macros), $config->email_subject));
+		$content = str_replace(array_keys($macros), array_values($macros), $config->email_content);
+		$recipient_name = $member->user_name ? $member->user_name : ($member->nick_name ? $member->nick_name : 'member');
+		
+		static $sender_name = null;
+		static $sender_email = null;
+		if ($sender_name === null)
+		{
+			$member_config = getModel('module')->getModuleConfig('member');
+			$sender_name = $member_config->webmaster_name ? $member_config->webmaster_name : ($site_title ? $site_title : 'webmaster');
+			$sender_email = $member_config->webmaster_email;
+		}
+		
+		$oMail = new Mail();
+		$oMail->setTitle($subject);
+		$oMail->setContent($content);
+		$oMail->setSender();
+		$oMail->setReceiptor($recipient_name, $member->email_address);
+		$oMail->send();
+		
 		// 트랜잭션을 시작한다.
 		if ($use_transaction)
 		{
@@ -93,11 +137,13 @@ class Member_ExpireModel extends Member_Expire
 		$output = executeQuery('member_expire.deleteNotifiedDate', $member);
 		if (!$output->toBool())
 		{
+			if ($use_transaction) $this->oDB->rollback();
 			return -44;
 		}
 		$output = executeQuery('member_expire.insertNotifiedDate', $member);
 		if (!$output->toBool())
 		{
+			if ($use_transaction) $this->oDB->rollback();
 			return -45;
 		}
 		

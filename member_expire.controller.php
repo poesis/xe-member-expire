@@ -95,41 +95,87 @@ class Member_ExpireController extends Member_Expire
 	 */
 	public function triggerAutoExpire()
 	{
-		// 자동 정리 옵션을 사용하지 않는다면 종료한다.
+		// 자동으로 처리할 일이 없다면 종료한다.
 		$config = $this->getConfig();
-		if ($config->auto_expire !== 'Y')
+		$tasks = 0;
+		if ($config->auto_expire !== 'Y' && $config->email_threshold <= 0)
 		{
 			return;
 		}
 		
-		// 정리할 휴면계정이 있는지 확인한다.
-		$obj = new stdClass();
-		$obj->is_admin = 'N';
-		$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + zgap());
-		$obj->list_count = $obj->page_count = $obj->page = 1;
-		$obj->orderby = 'asc';
-		$members_query = executeQuery('member_expire.getExpiredMembers', $obj);
-		
-		// 정리할 휴면계정이 있다면 지금 정리한다.
-		if ($members_query->toBool() && count($members_query->data))
+		// 이번에 처리할 일을 결정한다.
+		if ($config->auto_expire === 'Y' && $config->email_threshold <= 0)
 		{
-			$oDB = DB::getInstance();
-			$oDB->begin();
-			$oModel = getModel('member_expire');
+			$task = 'expire';
+		}
+		elseif ($config->auto_expire !== 'Y' && $config->email_threshold > 0)
+		{
+			$task = 'notify';
+		}
+		else
+		{
+			$task = mt_rand() % 2 ? 'expire' : 'notify';
+		}
+		
+		// 휴면계정을 자동 정리한다.
+		if ($task === 'expire')
+		{
+			// 정리할 휴면계정이 있는지 확인한다.
+			$obj = new stdClass();
+			$obj->is_admin = 'N';
+			$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + zgap());
+			$obj->list_count = $obj->page_count = $obj->page = 1;
+			$obj->orderby = 'asc';
+			$members_query = executeQuery('member_expire.getExpiredMembers', $obj);
 			
-			foreach ($members_query->data as $member)
+			// 정리할 휴면계정이 있다면 지금 정리한다.
+			if ($members_query->toBool() && count($members_query->data))
 			{
-				if ($config->expire_method === 'delete')
+				$oDB = DB::getInstance();
+				$oDB->begin();
+				$oModel = getModel('member_expire');
+				
+				foreach ($members_query->data as $member)
 				{
-					$oModel->deleteMember($member, true, false);
+					if ($config->expire_method === 'delete')
+					{
+						$oModel->deleteMember($member, true, false);
+					}
+					else
+					{
+						$oModel->moveMember($member, false);
+					}
 				}
-				else
-				{
-					$oModel->moveMember($member, false);
-				}
+				
+				$oDB->commit();
 			}
+		}
+		
+		// 휴면 안내메일을 자동 발송한다.
+		if ($task === 'notify')
+		{
+			// 안내할 회원이 있는지 확인한다.
+			$obj = new stdClass();
+			$obj->is_admin = 'N';
+			$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + ($config->email_threshold * 86400) + zgap());
+			$obj->list_count = $obj->page_count = $obj->page = 1;
+			$obj->orderby = 'asc';
+			$members_query = executeQuery('member_expire.getUnnotifiedMembers', $obj);
 			
-			$oDB->commit();
+			// 안내할 회원이 있다면 지금 안내메일을 발송한다.
+			if ($members_query->toBool() && count($members_query->data))
+			{
+				$oDB = DB::getInstance();
+				$oDB->begin();
+				$oModel = getModel('member_expire');
+				
+				foreach ($members_query->data as $member)
+				{
+					$oModel->sendEmail($member, $config, false, false);
+				}
+				
+				$oDB->commit();
+			}
 		}
 	}
 	
