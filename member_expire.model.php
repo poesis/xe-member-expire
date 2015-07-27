@@ -232,7 +232,10 @@ class Member_ExpireModel extends Member_Expire
 		$this->oMemberController->procMemberDeleteImageMark($member_srl);
 		$this->oMemberController->procMemberDeleteProfileImage($member_srl);
 		$this->oMemberController->delSignature($member_srl);
-		$this->oMemberController->_clearMemberCache($member_srl);
+		if (method_exists($this->oMemberController, '_clearMemberCache'))
+		{
+			$this->oMemberController->_clearMemberCache($member_srl);
+		}
 		
 		// 트랜잭션을 커밋한다.
 		if ($use_transaction)
@@ -308,7 +311,10 @@ class Member_ExpireModel extends Member_Expire
 		}
 		
 		// 회원정보 캐시를 비운다.
-		$this->oMemberController->_clearMemberCache($member->member_srl);
+		if (method_exists($this->oMemberController, '_clearMemberCache'))
+		{
+			$this->oMemberController->_clearMemberCache($member_srl);
+		}
 		
 		// 트랜잭션을 커밋한다.
 		if ($use_transaction)
