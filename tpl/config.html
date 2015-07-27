@@ -80,7 +80,7 @@
 			<label class="x_control-label" for="auto_notify">안내메일 자동 발송</label>
 			<div class="x_controls">
 				<select name="auto_notify" id="auto_notify">
-					<option value="7" selected="selected"|cond="!$mex_config->email_threshold">발송하지 않음</option>
+					<option value="0" selected="selected"|cond="!$mex_config->email_threshold">발송하지 않음</option>
 					<option value="7" selected="selected"|cond="$mex_config->email_threshold == 7">정리 예정일 7일 이내</option>
 					<option value="15" selected="selected"|cond="$mex_config->email_threshold == 15">정리 예정일 15일 이내</option>
 					<option value="30" selected="selected"|cond="$mex_config->email_threshold == 30">정리 예정일 30일 이내</option>
