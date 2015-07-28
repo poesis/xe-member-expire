@@ -123,11 +123,38 @@ class Member_Expire extends ModuleObject
 	}
 	
 	/**
+	 * 누락된 DB 인덱스가 있는지 확인하는 메소드.
+	 */
+	public function checkIndexes()
+	{
+		$oDB = DB::getInstance();
+		if (!$oDB->isIndexExists('member_expired', 'idx_user_name'))
+		{
+			return false;
+		}
+		return true;
+	}
+	
+	/**
+	 * 누락된 DB 인덱스를 생성하는 메소드.
+	 */
+	public function createIndexes()
+	{
+		$oDB = DB::getInstance();
+		if (!$oDB->isIndexExists('member_expired', 'idx_user_name'))
+		{
+			$oDB->addIndex('member_expired', 'idx_user_name', 'user_name', false);
+		}
+		return true;
+	}
+	
+	/**
 	 * 모듈 설치 메소드.
 	 */
 	public function moduleInstall()
 	{
 		$this->registerTriggers();
+		$this->createIndexes();
 		return new Object();
 	}
 	
@@ -136,7 +163,7 @@ class Member_Expire extends ModuleObject
 	 */
 	public function checkUpdate()
 	{
-		return !$this->checkTriggers();
+		return !$this->checkTriggers() || !$this->checkIndexes();
 	}
 	
 	/**
@@ -145,6 +172,7 @@ class Member_Expire extends ModuleObject
 	public function moduleUpdate()
 	{
 		$this->registerTriggers();
+		$this->createIndexes();
 		return new Object(0, 'success_updated');
 	}
 	
