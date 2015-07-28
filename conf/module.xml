@@ -16,6 +16,7 @@
 		<action name="procMember_expireAdminDoSendEmail" type="controller" />
 		<action name="procMember_expireAdminDoCleanup" type="controller" />
 		<action name="procMember_expireAdminRestoreMember" type="controller" />
+		<action name="procMember_expireAdminDeleteMember" type="controller" />
 	</actions>
 	<menus>
 		<menu name="member_expire" type="all">

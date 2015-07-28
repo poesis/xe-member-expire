@@ -19,6 +19,7 @@
 			<th scope="col" class="nowr">가입일</th>
 			<th scope="col" class="nowr">최근 로그인</th>
 			<th scope="col" class="nowr">복원</th>
+			<th scope="col" class="nowr">삭제</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -46,6 +47,9 @@
 			</td>
 			<td clas="nowr">
 				<a href="#{$member->member_srl}" id="do_restore_{$member->member_srl}" class="do_restore_member" data-member-srl="{$member->member_srl}">복원</a>
+			</td>
+			<td clas="nowr">
+				<a href="#{$member->member_srl}" id="do_delete_{$member->member_srl}" class="do_delete_member" data-member-srl="{$member->member_srl}">삭제</a>
 			</td>
 		</tr>
 		<tr cond="!$moved_members">

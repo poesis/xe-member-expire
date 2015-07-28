@@ -183,7 +183,7 @@
 						container.append("정리완료");
 						alert("정리되었습니다.");
 					} else {
-						alert("정리에 실패했습니다.");
+						alert("정리에 실패했습니다. (코드 " + response.count + ")");
 					}
 				},
 				function(response) {
@@ -211,11 +211,39 @@
 						container.append("복원완료");
 						alert("복원되었습니다.");
 					} else {
-						alert("복원에 실패했습니다.");
+						alert("복원에 실패했습니다. (코드 " + response.restored + ")");
 					}
 				},
 				function(response) {
 					alert("복원에 실패했습니다.");
+				}
+			);
+		});
+		
+		/**
+		 * 별도의 저장공간으로 이동된 개별 회원을 직접 삭제한다.
+		 */
+		$("a.do_delete_member").click(function(event) {
+			event.preventDefault();
+			var container = $(this).parent();
+			var member_srl = $(this).data("member-srl");
+			if (!member_srl) return;
+			$.exec_json(
+				"member_expire.procMember_expireAdminDeleteMember", {
+					"member_srl": member_srl,
+					"call_triggers": "Y"
+				},
+				function(response) {
+					if (response.deleted > 0) {
+						container.find("a.do_delete_member").remove();
+						container.append("삭제완료");
+						alert("삭제되었습니다.");
+					} else {
+						alert("삭제에 실패했습니다. (코드 " + response.deleted + ")");
+					}
+				},
+				function(response) {
+					alert("삭제에 실패했습니다.");
 				}
 			);
 		});

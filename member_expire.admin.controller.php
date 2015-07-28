@@ -340,4 +340,42 @@ class Member_ExpireAdminController extends Member_Expire
 		$this->add('restored', 1);
 		return true;
 	}
+	
+	/**
+	 * 개별 휴면계정을 삭제하는 메소드.
+	 */
+	public function procMember_ExpireAdminDeleteMember()
+	{
+		// 복원할 member_srl을 가져온다.
+		$member_srl = Context::get('member_srl');
+		if (!$member_srl)
+		{
+			$this->add('deleted', -1);
+			return;
+		}
+		
+		// 트랜잭션을 시작한다.
+		$oDB = DB::getInstance();
+		$oDB->begin();
+		
+		// 삭제한다.
+		$oModel = getModel('member_expire');
+		$result = $oModel->restoreMember($member_srl, false);
+		if ($result < 0)
+		{
+			$oDB->rollback(); $this->add('deleted', $result); return;
+		}
+		$result = $oModel->deleteMember($member_srl, true, false);
+		if ($result < 0)
+		{
+			$oDB->rollback(); $this->add('deleted', $result); return;
+		}
+		
+		// 트랜잭션을 커밋한다.
+		$oDB->commit();
+		
+		// 복원 완료 메시지를 반환한다.
+		$this->add('deleted', 1);
+		return true;
+	}
 }
