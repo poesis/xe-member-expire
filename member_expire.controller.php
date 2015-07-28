@@ -29,6 +29,7 @@ class Member_ExpireController extends Member_Expire
 	 */
 	protected static $_acts_to_intercept = array(
 		'procMemberLogin',
+		'procMemberCheckValue',
 		'procMemberFindAccount',
 		'procMemberFindAccountByQuestion',
 		'procMemberResendAuthMail',
@@ -189,16 +190,17 @@ class Member_ExpireController extends Member_Expire
 		// 처리가 필요하지 않은 act인 경우 즉시 실행을 종료한다.
 		if (!in_array($oModule->act, self::$_acts_to_intercept)) return;
 		
-		// 로그인 및 인증을 위해 입력된 아이디, 메일 주소 또는 member_srl을 파악한다.
+		// 로그인 및 인증을 위해 입력된 아이디, 메일 주소, 닉네임 또는 member_srl을 파악한다.
 		$user_id = Context::get('user_id');
 		$email_address = Context::get('email_address');
-		$member_srl = (!$user_id && !$email_address && Context::get('auth_key')) ? Context::get('member_srl') : null;
+		$nick_name = Context::get('name') === 'nick_name' ? Context::get('value') : null;
+		$member_srl = (!$user_id && !$email_address && !$nick_name && Context::get('auth_key')) ? Context::get('member_srl') : null;
 		if (strpos($user_id, '@') !== false)
 		{
 			$email_address = $user_id;
 			$user_id = null;
 		}
-		if (!$user_id && !$email_address && !$member_srl)
+		if (!$user_id && !$email_address && !$nick_name && !$member_srl)
 		{
 			return;
 		}
@@ -213,6 +215,11 @@ class Member_ExpireController extends Member_Expire
 		elseif ($email_address)
 		{
 			$obj->email_address = $email_address;
+			$output = executeQuery('member.getMemberSrl', $obj);
+		}
+		elseif ($nick_name)
+		{
+			$obj->nick_name = $nick_name;
 			$output = executeQuery('member.getMemberSrl', $obj);
 		}
 		else
