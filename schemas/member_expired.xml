@@ -5,7 +5,7 @@
     <column name="password" type="varchar" size="250" />
     <column name="email_id" type="varchar" size="80" />
     <column name="email_host" type="varchar" size="160" />
-    <column name="user_name" type="varchar" size="40" />
+    <column name="user_name" type="varchar" size="40" index="idx_user_name" />
     <column name="nick_name" type="varchar" size="40" index="idx_nick_name" />
     <column name="find_account_question" type="number" size="11" />
     <column name="find_account_answer" type="varchar" size="250" />

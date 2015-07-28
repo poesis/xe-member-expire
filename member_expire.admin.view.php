@@ -161,8 +161,18 @@ class Member_ExpireAdminView extends Member_Expire
 		$config = $this->getConfig();
 		Context::set('mex_config', $config);
 		
+		// 검색 조건을 불러온다.
+		$search_target = Context::get('search_target');
+		$search_keyword = Context::get('search_keyword');
+		if (!in_array($search_target, array('email_address', 'user_id', 'user_name', 'nick_name')) || !$search_keyword)
+		{
+			Context::set('search_target', $search_target = null);
+			Context::set('search_keyword', $search_keyword = null);
+		}
+		
 		// 휴면계정 목록을 불러온다.
 		$obj = new stdClass();
+		if ($search_target && $search_keyword) $obj->$search_target = trim($search_keyword);
 		$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + zgap());
 		$expired_members_count = executeQuery('member_expire.countExpiredMembers', $obj);
 		$expired_members_count = $expired_members_count->toBool() ? $expired_members_count->data->count : 0;
@@ -198,8 +208,18 @@ class Member_ExpireAdminView extends Member_Expire
 		$config = $this->getConfig();
 		Context::set('mex_config', $config);
 		
+		// 검색 조건을 불러온다.
+		$search_target = Context::get('search_target');
+		$search_keyword = Context::get('search_keyword');
+		if (!in_array($search_target, array('email_address', 'user_id', 'user_name', 'nick_name')) || !$search_keyword)
+		{
+			Context::set('search_target', $search_target = null);
+			Context::set('search_keyword', $search_keyword = null);
+		}
+		
 		// 휴면계정 목록을 불러온다.
 		$obj = new stdClass();
+		if ($search_target && $search_keyword) $obj->$search_target = trim($search_keyword);
 		$moved_members_count = executeQuery('member_expire.countMovedMembers', $obj);
 		$moved_members_count = $moved_members_count->toBool() ? $moved_members_count->data->count : 0;
 		$obj->page = $page = Context::get('page') ? Context::get('page') : 1;

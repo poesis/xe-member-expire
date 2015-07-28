@@ -8,6 +8,10 @@
     <conditions>
         <condition operation="equal" column="is_admin" var="is_admin" default="N" />
         <condition operation="equal" column="member_srl" var="member_srl" pipe="and" />
+    	<condition operation="equal" column="user_id" var="user_id" pipe="and" />
+    	<condition operation="equal" column="email_address" var="email_address" pipe="and" />
+    	<condition operation="equal" column="user_name" var="user_name" pipe="and" />
+    	<condition operation="equal" column="nick_name" var="nick_name" pipe="and" />
         <group pipe="and">
             <condition operation="less" column="regdate" var="threshold" />
             <condition operation="null" column="regdate" pipe="or" />
