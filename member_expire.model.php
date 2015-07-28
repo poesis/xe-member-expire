@@ -380,6 +380,12 @@ class Member_ExpireModel extends Member_Expire
 			return -33;
 		}
 		
+		// 회원정보 캐시를 비운다.
+		if (method_exists($this->oMemberController, '_clearMemberCache'))
+		{
+			$this->oMemberController->_clearMemberCache($member_srl);
+		}
+		
 		// 트랜잭션을 커밋한다.
 		if ($use_transaction)
 		{
