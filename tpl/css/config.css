@@ -1,5 +1,6 @@
 
 div.contains_full_width_input { margin-right: 14px !important; }
+div.xpress-editor #smart_content { top: -30px; margin-bottom: -30px; }
 input.full_width { width: 100% !important; }
 p.cleanup_notice { margin-bottom: 16px !important; margin-left: 12px !important; }
 span.email_macro { font-family: Consolas, monospace; }

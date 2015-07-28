@@ -100,7 +100,9 @@ class Member_ExpireAdminView extends Member_Expire
 		
 		// 에디터를 생성한다.
 		$oEditorModel = getModel('editor');
+		$oEditorConfig = getModel('module')->getModuleConfig('editor');
 		$option = new stdClass();
+		$option->skin = $oEditorConfig->editor_skin;
 		$option->primary_key_name = 'temp_srl';
 		$option->content_key_name = 'email_content';
 		$option->allow_fileupload = false;
