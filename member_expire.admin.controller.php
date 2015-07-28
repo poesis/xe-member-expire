@@ -38,7 +38,7 @@ class Member_ExpireAdminController extends Member_Expire
 		if ($new_config->auto_expire === 'Y' || $new_config->email_threshold)
 		{
 			$obj = new stdClass();
-			$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + zgap());
+			$obj->threshold = date('YmdHis', time() - ($new_config->expire_threshold * 86400) + zgap());
 			$expired_members_count = executeQuery('member_expire.countExpiredMembers', $obj);
 			$expired_members_count = $expired_members_count->toBool() ? $expired_members_count->data->count : 0;
 			if ($expired_members_count > 50)
