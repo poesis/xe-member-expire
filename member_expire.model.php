@@ -24,6 +24,7 @@ class Member_ExpireModel extends Member_Expire
 	 */
 	protected $oDB;
 	protected $oMemberController;
+	protected $oSites;
 	
 	/**
 	 * 처음 생성하면 DB 오브젝트와 member 컨트롤러를 로딩한다.
@@ -31,7 +32,6 @@ class Member_ExpireModel extends Member_Expire
 	public function __construct()
 	{
 		$this->oDB = DB::getInstance();
-		$this->oMemberController = getController('member');
 	}
 	
 	/**
@@ -228,21 +228,24 @@ class Member_ExpireModel extends Member_Expire
 		}
 		
 		// 회원과 관련된 나머지 정보를 삭제한다.
+		if (!$this->oMemberController)
+		{
+			$this->oMemberController = getController('member');
+		}
 		$this->oMemberController->procMemberDeleteImageName($member_srl);
 		$this->oMemberController->procMemberDeleteImageMark($member_srl);
 		$this->oMemberController->procMemberDeleteProfileImage($member_srl);
 		$this->oMemberController->delSignature($member_srl);
-		if (method_exists($this->oMemberController, '_clearMemberCache'))
-		{
-			$this->oMemberController->_clearMemberCache($member_srl);
-		}
 		
 		// 트랜잭션을 커밋한다.
 		if ($use_transaction)
 		{
 			$this->oDB->commit();
 		}
-		return true;
+		
+		// 회원정보 캐시를 비운다.
+		$this->clearMemberCache($member_srl);
+		return 1;
 	}
 	
 	/**
@@ -310,18 +313,15 @@ class Member_ExpireModel extends Member_Expire
 			return -25;
 		}
 		
-		// 회원정보 캐시를 비운다.
-		if (method_exists($this->oMemberController, '_clearMemberCache'))
-		{
-			$this->oMemberController->_clearMemberCache($member_srl);
-		}
-		
 		// 트랜잭션을 커밋한다.
 		if ($use_transaction)
 		{
 			$this->oDB->commit();
 		}
-		return true;
+		
+		// 회원정보 캐시를 비운다.
+		$this->clearMemberCache($member_srl);
+		return 1;
 	}
 	
 	/**
@@ -380,17 +380,55 @@ class Member_ExpireModel extends Member_Expire
 			return -33;
 		}
 		
-		// 회원정보 캐시를 비운다.
-		if (method_exists($this->oMemberController, '_clearMemberCache'))
-		{
-			$this->oMemberController->_clearMemberCache($member_srl);
-		}
-		
 		// 트랜잭션을 커밋한다.
 		if ($use_transaction)
 		{
 			$this->oDB->commit();
 		}
+		
+		// 회원정보 캐시를 비운다.
+		$this->clearMemberCache($member_srl);
 		return 1;
+	}
+	
+	/**
+	 * 회원 계정과 관련된 캐시를 모두 비운다.
+	 */
+	protected function clearMemberCache($member_srl)
+	{
+		// 가상 사이트 목록을 구한다.
+		if ($this->oSites === null)
+		{
+			$this->oSites = array();
+			$sites_query = executeQuery('member_expire.getVirtualSiteSrlOnly', new stdClass());
+			if ($sites_query->toBool())
+			{
+				foreach ($sites_query->data as $site_info)
+				{
+					$this->oSites[] = $site_info->site_srl;
+				}
+			}
+			if (!count($this->oSites))
+			{
+				$this->oSites = array(0);
+			}
+		}
+		
+		// 오브젝트 캐시를 비운다.
+		$oCacheHandler = CacheHandler::getInstance('object', null, true);
+		$cache_path = getNumberingPath($member_srl) . $member_srl;
+		if($oCacheHandler->isSupport())
+		{
+			// 회원정보 캐시를 비운다.
+			$cache_key = $oCacheHandler->getGroupKey('member', 'member_info:' . $cache_path);
+			$oCacheHandler->delete($cache_key);
+			
+			// 가상 사이트별 회원그룹 캐시를 비운다.
+			foreach ($this->oSites as $site_srl)
+			{
+				$cache_key = $oCacheHandler->getGroupKey('member', 'member_groups:' . $cache_path . '_' . $site_srl);
+				$oCacheHandler->delete($cache_key);
+			}
+		}
 	}
 }
