@@ -4,8 +4,8 @@
 	<description xml:lang="ko">
 		일정 기간 이상 로그인하지 않은 회원 계정을 삭제 또는 별도로 관리합니다.
 	</description>
-	<version>1.0.2</version>
-	<date>2015-07-28</date>
+	<version>1.1</version>
+	<date>2015-07-29</date>
 	<author email_address="kijin@kijinsung.com" link="https://github.com/kijin">
 		<name xml:lang="ko">Kijin Sung</name>
 	</author>
