@@ -126,8 +126,18 @@ class Member_ExpireAdminView extends Member_Expire
 		$config = $this->getConfig();
 		Context::set('mex_config', $config);
 		
+		// 검색 조건을 불러온다.
+		$search_target = Context::get('search_target');
+		$search_keyword = Context::get('search_keyword');
+		if (!in_array($search_target, array('email_address', 'user_id', 'user_name', 'nick_name')) || !$search_keyword)
+		{
+			Context::set('search_target', $search_target = null);
+			Context::set('search_keyword', $search_keyword = null);
+		}
+		
 		// 발송 내역을 불러온다.
 		$obj = new stdClass();
+		if ($search_target && $search_keyword) $obj->$search_target = trim($search_keyword);
 		$sent_email_count = executeQuery('member_expire.countNotifiedDates', $obj);
 		$sent_email_count = $sent_email_count->toBool() ? $sent_email_count->data->count : 0;
 		$obj->page = $page = Context::get('page') ? Context::get('page') : 1;

@@ -132,6 +132,14 @@ class Member_Expire extends ModuleObject
 		{
 			return false;
 		}
+		if (!$oDB->isIndexExists('member_expired_notified', 'idx_user_name'))
+		{
+			return false;
+		}
+		if (!$oDB->isIndexExists('member_expired_notified', 'idx_nick_name'))
+		{
+			return false;
+		}
 		return true;
 	}
 	
@@ -144,6 +152,14 @@ class Member_Expire extends ModuleObject
 		if (!$oDB->isIndexExists('member_expired', 'idx_user_name'))
 		{
 			$oDB->addIndex('member_expired', 'idx_user_name', 'user_name', false);
+		}
+		if (!$oDB->isIndexExists('member_expired_notified', 'idx_user_name'))
+		{
+			$oDB->addIndex('member_expired_notified', 'idx_user_name', 'user_name', false);
+		}
+		if (!$oDB->isIndexExists('member_expired_notified', 'idx_nick_name'))
+		{
+			$oDB->addIndex('member_expired_notified', 'idx_nick_name', 'nick_name', false);
 		}
 		return true;
 	}
