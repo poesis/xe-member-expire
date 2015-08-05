@@ -190,6 +190,9 @@ class Member_ExpireController extends Member_Expire
 		// 처리가 필요하지 않은 act인 경우 즉시 실행을 종료한다.
 		if (!in_array($oModule->act, self::$_acts_to_intercept)) return;
 		
+		// 이미 로그인했다면 실행을 종료한다.
+		if ($_SESSION['member_srl']) return;
+		
 		// 로그인 및 인증을 위해 입력된 아이디, 메일 주소, 닉네임 또는 member_srl을 파악한다.
 		$user_id = Context::get('user_id');
 		$email_address = Context::get('email_address');
