@@ -144,7 +144,7 @@ class Member_ExpireController extends Member_Expire
 					}
 					else
 					{
-						$oModel->moveMember($member, false);
+						$oModel->moveMember($member, true, false);
 					}
 				}
 				
@@ -256,7 +256,7 @@ class Member_ExpireController extends Member_Expire
 		
 		// 임시로 복원해 놓았음을 표시하여, 인증 실패시 되돌릴 수 있도록 한다.
 		self::$_temp_member = $member;
-		return;			
+		return;
 	}
 	
 	/**
@@ -272,6 +272,6 @@ class Member_ExpireController extends Member_Expire
 		if ($_SESSION['member_srl']) return;
 		
 		// 그 밖의 경우, 회원정보를 원위치시킨다.
-		getModel('member_expire')->moveMember(self::$_temp_member, true);
+		getModel('member_expire')->moveMember(self::$_temp_member, false, true);
 	}
 }

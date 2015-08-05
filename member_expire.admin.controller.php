@@ -292,7 +292,7 @@ class Member_ExpireAdminController extends Member_Expire
 				// 각 회원정보를 member_expired 테이블로 이동한다.
 				foreach ($members as $member)
 				{
-					$result = $oModel->moveMember($member, false);
+					$result = $oModel->moveMember($member, true, false);
 					if ($result < 0)
 					{
 						$oDB->rollback(); $this->add('count', $result); return;

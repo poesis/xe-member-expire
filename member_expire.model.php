@@ -251,7 +251,7 @@ class Member_ExpireModel extends Member_Expire
 	/**
 	 * 회원 계정을 별도의 테이블로 이동하는 메소드. 소속 그룹 정보, 이미지 등은 그대로 유지한다.
 	 */
-	public function moveMember($member_srl, $use_transaction = true)
+	public function moveMember($member_srl, $clear_metadata = true, $use_transaction = true)
 	{
 		// 회원 오브젝트를 통째로 받은 경우 member_srl을 추출한다.
 		if (is_object($member_srl) && isset($member_srl->member_srl))
@@ -298,11 +298,14 @@ class Member_ExpireModel extends Member_Expire
 		}
 		
 		// 이 회원과 관련된 인증 메일을 삭제한다.
-		$output = executeQuery('member.deleteAuthMail', $member);
-		if (!$output->toBool())
+		if ($clear_metadata)
 		{
-			if ($use_transaction) $this->oDB->rollback();
-			return -24;
+			$output = executeQuery('member.deleteAuthMail', $member);
+			if (!$output->toBool())
+			{
+				if ($use_transaction) $this->oDB->rollback();
+				return -24;
+			}
 		}
 		
 		// member 테이블에서 회원정보를 삭제한다.
