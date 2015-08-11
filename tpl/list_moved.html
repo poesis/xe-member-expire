@@ -2,12 +2,26 @@
 <load target="css/config.css" />
 <load target="js/config.js" />
 
-<p>
-	별도의 저장공간으로 이동된
-	<!--@if($search_target)--> 휴면회원 중 검색 조건에 해당하는<!--@end-->
-	휴면회원은 {number_format($paging->total_count)}명입니다.
-	최근 로그인순으로 표시합니다.
-</p>
+<div class="x_clearfix">
+	<div class="x_pull-left">
+		별도의 저장공간으로 이동된
+		<!--@if($search_target)--> 휴면회원 중 검색 조건에 해당하는<!--@end-->
+		휴면회원은 {number_format($paging->total_count)}명입니다.<br />
+		최근 로그인순으로 표시합니다.
+	</div>
+
+	<div class="x_pull-right" style="margin-top:4px">
+		<select name="list_count" id="list_count">
+			<option value="10" selected="selected"|cond="$list_count == 10 || !$list_count">10명씩</option>
+			<option value="20" selected="selected"|cond="$list_count == 20">20명씩</option>
+			<option value="30" selected="selected"|cond="$list_count == 30">30명씩</option>
+			<option value="50" selected="selected"|cond="$list_count == 50">50명씩</option>
+			<option value="100" selected="selected"|cond="$list_count == 100">100명씩</option>
+			<option value="200" selected="selected"|cond="$list_count == 200">200명씩</option>
+			<option value="300" selected="selected"|cond="$list_count == 300">300명씩</option>
+		</select>
+	</div>
+</div>
 
 <table id="member_expire_log" class="x_table x_table-striped x_table-hover">
 	<thead>

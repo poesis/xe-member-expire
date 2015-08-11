@@ -2,14 +2,28 @@
 <load target="css/config.css" />
 <load target="js/config.js" />
 
-<p>
-	<!--@if($search_target)-->
-	검색 조건에 해당하는 안내메일 발송 건수는 {number_format($paging->total_count)}건입니다.
-	<!--@else-->
-	총 {number_format($paging->total_count)}명의 회원에게 안내메일이 발송되었습니다.
-	<!--@end-->
-	최근 발송순으로 표시합니다.
-</p>
+<div class="x_clearfix">
+	<div class="x_pull-left">
+		<!--@if($search_target)-->
+		검색 조건에 해당하는 안내메일 발송 건수는 {number_format($paging->total_count)}건입니다.
+		<!--@else-->
+		총 {number_format($paging->total_count)}명의 회원에게 안내메일이 발송되었습니다.
+		<!--@end--><br />
+		최근 발송순으로 표시합니다.
+	</div>
+
+	<div class="x_pull-right" style="margin-top:4px">
+		<select name="list_count" id="list_count">
+			<option value="10" selected="selected"|cond="$list_count == 10 || !$list_count">10건씩</option>
+			<option value="20" selected="selected"|cond="$list_count == 20">20건씩</option>
+			<option value="30" selected="selected"|cond="$list_count == 30">30건씩</option>
+			<option value="50" selected="selected"|cond="$list_count == 50">50건씩</option>
+			<option value="100" selected="selected"|cond="$list_count == 100">100건씩</option>
+			<option value="200" selected="selected"|cond="$list_count == 200">200건씩</option>
+			<option value="300" selected="selected"|cond="$list_count == 300">300건씩</option>
+		</select>
+	</div>
+</div>
 
 <table id="member_expire_log" class="x_table x_table-striped x_table-hover">
 	<thead>
