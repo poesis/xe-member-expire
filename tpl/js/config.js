@@ -247,5 +247,9 @@
 				}
 			);
 		});
+
+		$('#list_count').change(function () {
+			location.href = location.href.setQuery('list_count', $(this).val());
+		});
 	});
 }(jQuery));

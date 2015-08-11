@@ -3,13 +3,33 @@
 <load target="js/config.js" />
 
 <p>
-	지난 {$expire_threshold} 동안 로그인하지 않은
-	<!--@if($search_target)--> 회원 중 검색 조건에 해당하는<!--@end-->
-	회원은 {number_format($paging->total_count)}명입니다.
-	최근 로그인순으로 표시합니다.
+	<div class="x_pull-left">
+		지난 {$expire_threshold} 동안 로그인하지 않은
+		<!--@if($search_target)--> 회원 중 검색 조건에 해당하는<!--@end-->
+		회원은 {number_format($paging->total_count)}명입니다.
+		최근 로그인순으로 표시합니다.
+	</div>
+
+	<div class="x_pull-right">
+		<select name="list_count" id="list_count">
+			<option value="10" selected="selected"|cond="$list_count == 15 || !$list_count">10개</option>
+			<option value="15" selected="selected"|cond="$list_count == 15">15개</option>
+			<option value="30" selected="selected"|cond="$list_count == 30">30개</option>
+			<option value="50" selected="selected"|cond="$list_count == 50">50개</option>
+			<option value="100" selected="selected"|cond="$list_count == 100">100개</option>
+			<option value="200" selected="selected"|cond="$list_count == 200">200개</option>
+			<option value="300" selected="selected"|cond="$list_count == 300">300개</option>
+		</select>
+		<script>
+			jQuery
+		</script>
+	</div>
 </p>
 
 <table id="member_expire_log" class="x_table x_table-striped x_table-hover">
+	<caption>
+
+	</caption>
 	<thead>
 		<tr>
 			<th scope="col" class="nowr">이메일</th>
