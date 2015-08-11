@@ -247,7 +247,10 @@
 				}
 			);
 		});
-
+		
+		/**
+		 * 한 화면에 표시할 레코드 수를 조정한다.
+		 */
 		$('#list_count').change(function () {
 			location.href = location.href.setQuery('list_count', $(this).val());
 		});

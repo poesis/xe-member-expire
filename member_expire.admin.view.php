@@ -20,7 +20,7 @@
 class Member_ExpireAdminView extends Member_Expire
 {
 	/**
-	 * 모듈 설정 화면을 표시하는 메소드.
+	 * 모듈 설정 화면을 표시하는 메소드.l
 	 */
 	public function dispMember_ExpireAdminConfig()
 	{
@@ -179,21 +179,20 @@ class Member_ExpireAdminView extends Member_Expire
 			Context::set('search_target', $search_target = null);
 			Context::set('search_keyword', $search_keyword = null);
 		}
-
-		$list_count_restricts = array(10, 15, 30, 50, 100, 200, 300);
+		$valid_list_counts = array(10, 20, 30, 50, 100, 200, 300);
 		$list_count = intval(Context::get('list_count'));
-		if(!in_array($list_count, $list_count_restricts))
-			$list_count = 10;
-
+		if (!in_array($list_count, $valid_list_counts)) $list_count = 10;
+		Context::set('list_count', $list_count);
+		
 		// 휴면계정 목록을 불러온다.
 		$obj = new stdClass();
 		if ($search_target && $search_keyword) $obj->$search_target = trim($search_keyword);
 		$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + zgap());
 		$expired_members_count = executeQuery('member_expire.countExpiredMembers', $obj);
 		$expired_members_count = $expired_members_count->toBool() ? $expired_members_count->data->count : 0;
+		$obj->list_count = $list_count;
 		$obj->page = $page = Context::get('page') ? Context::get('page') : 1;
 		$obj->orderby = 'desc';
-		$obj->list_count = $list_count;
 		$expired_members = executeQuery('member_expire.getExpiredMembers', $obj);
 		$expired_members = $expired_members->toBool() ? $expired_members->data : array();
 		Context::set('expire_threshold', $this->translateThreshold($config->expire_threshold));
@@ -203,7 +202,7 @@ class Member_ExpireAdminView extends Member_Expire
 		// 페이징을 처리한다.
 		$paging = new Object();
 		$paging->total_count = $expired_members_count;
-		$paging->total_page = max(1, ceil($expired_members_count / $obj->list_count));
+		$paging->total_page = max(1, ceil($expired_members_count / $list_count));
 		$paging->page = $page;
 		$paging->page_navigation = new PageHandler($paging->total_count, $paging->total_page, $page, $list_count);
 		Context::set('paging', $paging);
