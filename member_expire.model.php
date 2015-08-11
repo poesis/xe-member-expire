@@ -123,7 +123,7 @@ class Member_ExpireModel extends Member_Expire
 		$oMail = new Mail();
 		$oMail->setTitle($subject);
 		$oMail->setContent($content);
-		$oMail->setSender();
+		$oMail->setSender($sender_name, $sender_email);
 		$oMail->setReceiptor($recipient_name, $member->email_address);
 		$oMail->send();
 		
