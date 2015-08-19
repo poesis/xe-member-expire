@@ -1,0 +1,103 @@
+<include target="./header15.html" />
+<!--%load_js_plugin("ui.datepicker")-->
+<load target="css/config.css" />
+<load target="js/config.js" />
+
+<form class="x_form-horizontal" action="./" method="post">
+	<input type="hidden" name="module" value="member_expire" />
+	<input type="hidden" name="act" value="procMember_expireAdminInsertConfig" />
+	<input type="hidden" name="success_return_url" value="{getRequestUriByServerEnviroment()}" />
+	
+	<div cond="$XE_VALIDATOR_MESSAGE" class="message {$XE_VALIDATOR_MESSAGE_TYPE}">
+		<p>{$XE_VALIDATOR_MESSAGE}</p>
+	</div>
+
+	<table cellspacing="0" class="rowTable">
+	
+		<tr>
+			<th scope="row"><div>휴면계정 판단 조건</div></th>
+			<td>
+				<select name="expire_threshold" id="expire_threshold">
+					<option value="90" selected="selected"|cond="$mex_config->expire_threshold == 90">3개월</option>
+					<option value="180" selected="selected"|cond="$mex_config->expire_threshold == 180">6개월</option>
+					<option value="365" selected="selected"|cond="$mex_config->expire_threshold == 365">1년</option>
+					<option value="730" selected="selected"|cond="$mex_config->expire_threshold == 730">2년</option>
+					<option value="1095" selected="selected"|cond="$mex_config->expire_threshold == 1095">3년</option>
+					<option value="1460" selected="selected"|cond="$mex_config->expire_threshold == 1460">4년</option>
+					<option value="1825" selected="selected"|cond="$mex_config->expire_threshold == 1825">5년</option>
+				</select>
+				<p class="x_help-block">해당 기간 동안 로그인하지 않으면 휴면계정으로 판단합니다.</p>
+			</td>
+		</tr>
+		
+		<tr>
+			<th scope="row"><div>휴면계정 정리 방법</div></th>
+			<td>
+				<label for="expire_method_delete" class="x_inline"><input type="radio" name="expire_method" id="expire_method_delete" value="delete" checked="checked"|cond="$mex_config->expire_method != 'move'" /> 삭제</label>
+				<p class="x_help-block">휴면계정으로 판단된 회원정보를 모두 삭제합니다. 탈퇴한 것과 같은 효과입니다.</p>
+				<div style="clear:both; margin:8px"></div>
+				<label for="expire_method_move" class="x_inline"><input type="radio" name="expire_method" id="expire_method_move" value="move" checked="checked"|cond="$mex_config->expire_method == 'move'" /> 별도의 저장공간으로 이동</label>
+				<p class="x_help-block">휴면계정으로 판단된 회원정보를 다른 테이블로 이동합니다.<br />
+					이동된 회원은 회원 목록에 나타나지 않으며, 다른 회원들이 보기에는 마치 탈퇴한 것처럼 나타납니다.<br />
+					필요할 경우 <a href="{getUrl('', 'module', 'admin', 'act', 'dispMember_expireAdminListMoved')}">별도저장 회원 목록</a> 메뉴에서 조회 및 복원할 수 있습니다.</p>
+			</td>
+		</tr>
+		
+		<tr>
+			<th scope="row"><div>재인증시 자동 복원</div></th>
+			<td>
+				<label for="auto_restore_Y" class="x_inline"><input type="radio" name="auto_restore" id="auto_restore_Y" value="Y" checked="checked"|cond="$mex_config->auto_restore == 'Y'" /> 예</label>
+				<label for="auto_restore_N" class="x_inline"><input type="radio" name="auto_restore" id="auto_restore_N" value="N" checked="checked"|cond="$mex_config->auto_restore != 'Y'" /> 아니오</label>
+				<p class="x_help-block">별도의 저장공간으로 이동된 회원이 로그인, 아이디/비번찾기 등 다시 인증을 거치면 자동으로 복원합니다.<br />
+					이 옵션을 선택하지 않을 경우 휴면계정이라는 안내문만 출력하고 로그인을 허락하지 않습니다.<br />
+					서드파티 모듈을 사용하여 인증을 시도하는 경우에는 정상 작동하지 않을 수도 있습니다.<br />
+					<span style="color:red">휴면계정을 삭제하도록 설정한 경우에는 이 옵션을 사용할 수 없고, 삭제된 계정은 복원되지 않습니다.</span></p>
+			</td>
+		</tr>
+		
+		<tr>
+			<th scope="row"><div>앞으로도 자동 정리</div></th>
+			<td>
+				<label for="auto_expire_Y" class="x_inline"><input type="radio" name="auto_expire" id="auto_expire_Y" value="Y" checked="checked"|cond="$mex_config->auto_expire == 'Y'" /> 예</label>
+				<label for="auto_expire_N" class="x_inline"><input type="radio" name="auto_expire" id="auto_expire_N" value="N" checked="checked"|cond="$mex_config->auto_expire != 'Y'" /> 아니오</label>
+				<p class="x_help-block">관리자가 직접 정리하지 않아도 위의 조건에 해당하는 휴면계정을 그때그때 자동으로 정리합니다.<br />
+					반드시 대부분의 휴면계정을 먼저 정리한 후에 이 옵션을 사용하시기 바랍니다.<br />
+					정리할 계정이 많은 경우 사이트 로딩이 느려지거나 정리가 다소 지연될 수 있습니다.</p>
+			</td>
+		</tr>
+		
+		<tr>
+			<th scope="row"><div>자동 정리 시작일자</div></th>
+			<td>
+				<input type="hidden" name="auto_start" id="auto_start" value="{$mex_config->auto_start}" />
+				<input type="text" readonly placeholder="{date('Y-m-d', time() + zgap())}" id="auto_start_picker" value="{$mex_config->auto_start}" />
+				<input type="button" value="오늘" class="x_btn dateRemover" />
+				<p class="x_help-block">자동 정리 옵션을 선택한 경우, 위의 날짜까지는 자동 정리를 시작하지 않습니다.<br />
+					오랫동안 로그인하지 않은 회원이라도 안내메일 발송과 동시에 자동 정리되어 버리는 일을 막을 수 있습니다.</p>
+			</td>
+		</tr>
+			
+		<tr>
+			<th scope="row"><div>안내메일 자동 발송</div></th>
+			<td>
+				<select name="auto_notify" id="auto_notify">
+					<option value="0" selected="selected"|cond="!$mex_config->email_threshold">발송하지 않음</option>
+					<option value="7" selected="selected"|cond="$mex_config->email_threshold == 7">정리 예정일 7일 이내</option>
+					<option value="15" selected="selected"|cond="$mex_config->email_threshold == 15">정리 예정일 15일 이내</option>
+					<option value="30" selected="selected"|cond="$mex_config->email_threshold == 30">정리 예정일 30일 이내</option>
+					<option value="45" selected="selected"|cond="$mex_config->email_threshold == 45">정리 예정일 45일 이내</option>
+					<option value="60" selected="selected"|cond="$mex_config->email_threshold == 60">정리 예정일 60일 이내</option>
+					<option value="90" selected="selected"|cond="$mex_config->email_threshold == 90">정리 예정일 90일 이내</option>
+				</select>
+				<p class="x_help-block">정리 예정인 회원에게 안내메일을 발송합니다. 자동 정리 옵션과 별도로 이 기능만 사용할 수도 있습니다.<br />
+					발송할 메일의 내용은 <a href="{getUrl('', 'module', 'admin', 'act', 'dispMember_expireAdminEmailTemplate')}">안내메일 내용 편집</a> 메뉴에서 편집할 수 있습니다.</p>
+			</td>
+		</tr>
+		
+	</table>
+	
+	<div class="btnArea">
+		<span class="btn medium"><input type="submit" value="{$lang->cmd_save}" /></span>
+	</div>
+	
+</form>
