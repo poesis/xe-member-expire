@@ -33,6 +33,7 @@ class Member_ExpireAdminController extends Member_Expire
 		$new_config->auto_restore = $request_vars->auto_restore === 'Y' ? 'Y' : 'N';
 		$new_config->auto_start = $request_vars->auto_start ? $request_vars->auto_start : date('Y-m-d', time() + zgap());
 		$new_config->email_threshold = $request_vars->auto_notify ? $request_vars->auto_notify : 0;
+		$new_config->url_after_restore = $request_vars->url_after_restore ? $request_vars->url_after_restore : null;
 		
 		// 자동 정리 옵션을 선택한 경우, 현재 남아 있는 휴면계정 수를 구한다.
 		if ($new_config->auto_expire === 'Y' || $new_config->email_threshold)

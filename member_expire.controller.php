@@ -285,5 +285,12 @@ class Member_ExpireController extends Member_Expire
 		$obj = new stdClass();
 		$obj->member_srl = self::$_temp_member_srl;
 		executeQuery('member_expire.deleteException', $obj);
+		
+		// 로그인 후 전달할 페이지가 지정되어 있다면 redirect URL을 변경한다.
+		$config = $this->getConfig();
+		if ($oModule->act === 'procMemberLogin' && $_SESSION['member_srl'] && $config->url_after_restore)
+		{
+			$oModule->setRedirectUrl($config->url_after_restore);
+		}
 	}
 }
