@@ -22,7 +22,7 @@ class Member_ExpireController extends Member_Expire
 	/**
 	 * 임시 복원된 회원정보를 기억하는 변수.
 	 */
-	protected static $_temp_member = array();
+	protected static $_temp_member_srl = array();
 	
 	/**
 	 * 임시 복원 처리가 필요한 act 목록.
@@ -257,8 +257,13 @@ class Member_ExpireController extends Member_Expire
 			return;
 		}
 		
+		// 다시 정리되지 않도록 예외 처리한다.
+		$obj = new stdClass();
+		$obj->member_srl = $member->member_srl;
+		executeQuery('member_expire.insertException', $obj);
+		
 		// 임시로 복원해 놓았음을 표시하여, 인증 실패시 되돌릴 수 있도록 한다.
-		self::$_temp_member = $member;
+		self::$_temp_member_srl = $member->member_srl;
 		return;
 	}
 	
@@ -269,12 +274,15 @@ class Member_ExpireController extends Member_Expire
 	public function triggerAfterModuleProc($oModule)
 	{
 		// 실행 전 트리거에서 임시로 복원해 둔 회원이 없다면 여기서도 할 일이 없다.
-		if (!self::$_temp_member) return;
+		if (!self::$_temp_member_srl) return;
 		
 		// 로그인에 성공했다면 원래대로 돌려놓을 필요가 없다.
 		if ($_SESSION['member_srl']) return;
 		
-		// 그 밖의 경우, 회원정보를 원위치시킨다.
-		getModel('member_expire')->moveMember(self::$_temp_member, false, true);
+		// 그 밖의 경우, 회원정보를 원위치시키고 예외를 제거한다.
+		getModel('member_expire')->moveMember(self::$_temp_member_srl, false, true);
+		$obj = new stdClass();
+		$obj->member_srl = self::$_temp_member_srl;
+		executeQuery('member_expire.deleteException', $obj);
 	}
 }
