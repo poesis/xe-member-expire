@@ -1,18 +1,24 @@
 <query id="getExpiredMembers" action="select">
     <tables>
         <table name="member" />
+        <table name="member_expired_exceptions" alias="exc" type="left join">
+            <conditions>
+                <condition operation="equal" column="member.member_srl" default="exc.member_srl" />
+            </conditions>
+        </table>
     </tables>
     <columns>
-        <column name="*" />
+        <column name="member.*" />
     </columns>
     <conditions>
-        <condition operation="equal" column="is_admin" var="is_admin" default="N" />
+		<condition operation="null" column="exc.member_srl" />
+        <condition operation="equal" column="is_admin" var="is_admin" default="N" pipe="and" />
         <condition operation="equal" column="member_srl" var="member_srl" pipe="and" />
     	<condition operation="equal" column="user_id" var="user_id" pipe="and" />
     	<condition operation="equal" column="email_address" var="email_address" pipe="and" />
     	<condition operation="equal" column="user_name" var="user_name" pipe="and" />
     	<condition operation="equal" column="nick_name" var="nick_name" pipe="and" />
-        <group pipe="and">
+		<group pipe="and">
             <condition operation="less" column="regdate" var="threshold" />
             <condition operation="null" column="regdate" pipe="or" />
         </group>

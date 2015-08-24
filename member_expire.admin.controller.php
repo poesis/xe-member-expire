@@ -378,4 +378,90 @@ class Member_ExpireAdminController extends Member_Expire
 		$this->add('deleted', 1);
 		return true;
 	}
+	
+	/**
+	 * 예외 회원을 추가하는 메소드.
+	 */
+	public function procMember_ExpireAdminInsertException()
+	{
+		// 검색 조건을 가져온다.
+		$keyword = trim(Context::get('exc_keyword'));
+		$member_srls = array();
+		
+		// 회원을 찾는다.
+		if (ctype_digit($keyword))
+		{
+			$args = new stdClass();
+			$args->member_srl = intval($keyword);
+			$query = executeQuery('member.getMemberInfoByMemberSrl', $args);
+			if ($query->toBool() && $query->data)
+			{
+				$member_srls = array(is_array($query->data) ? reset($query->data)->member_srl : $query->data->member_srl);
+			}
+		}
+		else
+		{
+			$args = new stdClass();
+			$args->s_email_address = $keyword;
+			$args->s_user_id = $keyword;
+			$args->s_user_name = $keyword;
+			$args->s_nick_name = $keyword;
+			$query = executeQuery('member.getMemberList', $args);
+			if ($query->toBool() && $query->data)
+			{
+				foreach ($query->data as $member_info)
+				{
+					$member_srls[] = $member_info->member_srl;
+				}
+			}
+		}
+		
+		// 트랜잭션을 시작한다.
+		$oDB = DB::getInstance();
+		$oDB->begin();
+		
+		// 예외를 추가한다.
+		foreach ($member_srls as $member_srl)
+		{
+			$args = new stdClass();
+			$args->exc_member_srl = $member_srl;
+			$exists = executeQuery('member_expire.countExceptions', $args);
+			if ($exists->data->count < 1)
+			{
+				$args = new stdClass();
+				$args->member_srl = $member_srl;
+				executeQuery('member_expire.insertException', $args);
+			}
+		}
+		
+		// 트랜잭션을 커밋한다.
+		$oDB->commit();
+		
+		// 목록 페이지로 돌려보낸다.
+		$this->setRedirectUrl(getNotEncodedUrl('', 'module', 'admin', 'act', 'dispMember_expireAdminListExceptions'));
+		return;
+	}
+	
+	/**
+	 * 예외를 해제하는 메소드.
+	 */
+	public function procMember_ExpireAdminDeleteException()
+	{
+		// 예외 해제할 member_srl을 가져온다.
+		$member_srl = Context::get('member_srl');
+		if (!$member_srl)
+		{
+			$this->add('removed', -1);
+			return;
+		}
+		
+		// 삭제한다.
+		$args = new stdClass();
+		$args->member_srl = $member_srl;
+		executeQuery('member_expire.deleteException', $args);
+		
+		// 삭제 완료 메시지를 반환한다.
+		$this->add('removed', 1);
+		return true;
+	}
 }

@@ -249,6 +249,34 @@
 		});
 		
 		/**
+		 * 예외 회원을 해제한다.
+		 */
+		$("a.do_remove_exception").click(function(event) {
+			event.preventDefault();
+			var container = $(this).parent();
+			var member_srl = $(this).data("member-srl");
+			if (!member_srl) return;
+			$.exec_json(
+				"member_expire.procMember_expireAdminDeleteException", {
+					"member_srl": member_srl,
+					"call_triggers": "Y"
+				},
+				function(response) {
+					if (response.removed > 0) {
+						container.find("a.do_remove_exception").remove();
+						container.append("해제됨");
+						alert("예외 해제되었습니다.");
+					} else {
+						alert("예외 해제에 실패했습니다. (코드 " + response.removed + ")");
+					}
+				},
+				function(response) {
+					alert("예외 해제에 실패했습니다.");
+				}
+			);
+		});
+		
+		/**
 		 * 한 화면에 표시할 레코드 수를 조정한다.
 		 */
 		$('#list_count').change(function () {

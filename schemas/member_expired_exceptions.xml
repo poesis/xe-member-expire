@@ -1,0 +1,3 @@
+<table name="member_expired_exceptions">
+    <column name="member_srl" type="number" size="11" notnull="notnull" primary_key="primary_key" />
+</table>
