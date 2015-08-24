@@ -276,10 +276,12 @@ class Member_ExpireController extends Member_Expire
 		if (!self::$_temp_member_srl) return;
 		
 		// 로그인에 성공했다면 원래대로 돌려놓을 필요가 없다.
-		if ($_SESSION['member_srl']) return;
+		if (!$_SESSION['member_srl'])
+		{
+			getModel('member_expire')->moveMember(self::$_temp_member_srl, false, true);
+		}
 		
-		// 그 밖의 경우, 회원정보를 원위치시키고 예외를 제거한다.
-		getModel('member_expire')->moveMember(self::$_temp_member_srl, false, true);
+		// 임시로 예외 등록을 해두었다면 해제한다.
 		$obj = new stdClass();
 		$obj->member_srl = self::$_temp_member_srl;
 		executeQuery('member_expire.deleteException', $obj);
