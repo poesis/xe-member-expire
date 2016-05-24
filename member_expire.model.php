@@ -417,16 +417,19 @@ class Member_ExpireModel extends Member_Expire
 			}
 		}
 		
-		// 오브젝트 캐시를 비운다.
-		$oCacheHandler = CacheHandler::getInstance('object', null, true);
+		// 회원정보 캐시를 비운다.
 		$cache_path = getNumberingPath($member_srl) . $member_srl;
+		$oCacheHandler = CacheHandler::getInstance('object');
 		if($oCacheHandler->isSupport())
 		{
-			// 회원정보 캐시를 비운다.
 			$cache_key = $oCacheHandler->getGroupKey('member', 'member_info:' . $cache_path);
 			$oCacheHandler->delete($cache_key);
-			
-			// 가상 사이트별 회원그룹 캐시를 비운다.
+		}
+		
+		// 가상 사이트별 회원그룹 캐시를 비운다.
+		$oCacheHandler = CacheHandler::getInstance('object', null, true);
+		if($oCacheHandler->isSupport())
+		{
 			foreach ($this->oSites as $site_srl)
 			{
 				$cache_key = $oCacheHandler->getGroupKey('member', 'member_groups:' . $cache_path . '_' . $site_srl);
