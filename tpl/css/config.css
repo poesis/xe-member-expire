@@ -18,3 +18,5 @@ table.cleanup_table td { border: 1px solid #ccc; padding: 4px 12px; text-align: 
 #email_preview { padding: 12px; border: 1px solid #ccc; margin-bottom: 16px; min-height: 80px; box-shadow: 0 0 3px rgba(0, 0, 0, 0.15); }
 #email_preview p { margin: 0; }
 #email_preview p.email_subject { width: 100%; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #eee; font-weight: bold; }
+
+#extra_days { padding: 0; margin: 0 2px; width: 60px; height: 22px; position: relative; top: -1px; }

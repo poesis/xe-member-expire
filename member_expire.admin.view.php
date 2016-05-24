@@ -65,16 +65,27 @@ class Member_ExpireAdminView extends Member_Expire
 		$config = $this->getConfig();
 		Context::set('mex_config', $this->getConfig());
 		
+		// 미리 알리기 위한 추가 날짜 설정을 불러온다.
+		if (($extra_days = Context::get('extra_days')) && ctype_digit($extra_days))
+		{
+			$extra_days = intval($extra_days, 10);
+		}
+		else
+		{
+			$extra_days = $config->email_threshold;
+		}
+		Context::set('extra_days', $extra_days);
+		
 		// 휴면계정 수를 불러온다.
 		$obj = new stdClass();
-		$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + ($config->email_threshold * 86400) + zgap());
+		$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + ($extra_days * 86400) + zgap());
 		$expired_members_count = executeQuery('member_expire.countExpiredMembers', $obj);
 		$expired_members_count = $expired_members_count->toBool() ? $expired_members_count->data->count : 0;
 		Context::set('expired_members_count', $expired_members_count);
 		
 		// 아직 메일을 발송하지 않은 휴면계정 수를 불러온다.
 		$obj = new stdClass();
-		$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + ($config->email_threshold * 86400) + zgap());
+		$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + ($extra_days * 86400) + zgap());
 		$unnotified_members_count = executeQuery('member_expire.countUnnotifiedMembers', $obj);
 		$unnotified_members_count = $unnotified_members_count->toBool() ? $unnotified_members_count->data->count : 0;
 		Context::set('unnotified_members_count', $unnotified_members_count);

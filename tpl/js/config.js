@@ -90,6 +90,7 @@
 			if ($("#email_only100").is(":checked")) {
 				total_count = Math.min(100, total_count);
 			}
+			$("#extra_days").prop("disabled", "disabled");
 			$("#cleanup_button_area").hide();
 			$("#cleanup_progress_area").show();
 			$("#cleanup_progress_bar").css("width", "0%");
@@ -126,6 +127,13 @@
 				);
 			};
 			ajax_callback();
+		});
+		
+		/**
+		 * 안내메일 일괄 발송 기준 날짜 변경.
+		 */
+		$("#extra_days").on("change", function() {
+			window.location.href = window.location.href.setQuery("extra_days", $(this).val());
 		});
 		
 		/**

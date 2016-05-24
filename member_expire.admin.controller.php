@@ -36,7 +36,7 @@ class Member_ExpireAdminController extends Member_Expire
 		$new_config->url_after_restore = $request_vars->url_after_restore ? $request_vars->url_after_restore : null;
 		
 		// 자동 정리 옵션을 선택한 경우, 현재 남아 있는 휴면계정 수를 구한다.
-		if ($new_config->auto_expire === 'Y' || $new_config->email_threshold)
+		if ($new_config->auto_expire === 'Y')
 		{
 			$obj = new stdClass();
 			$obj->threshold = date('YmdHis', time() - ($new_config->expire_threshold * 86400) + zgap());
@@ -45,6 +45,17 @@ class Member_ExpireAdminController extends Member_Expire
 			if ($expired_members_count > 50)
 			{
 				return new Object(-1, 'msg_too_many_expired_members');
+			}
+		}
+		if ($new_config->email_threshold)
+		{
+			$obj = new stdClass();
+			$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + ($new_config->email_threshold * 86400) + zgap());
+			$unnotified_members_count = executeQuery('member_expire.countUnnotifiedMembers', $obj);
+			$unnotified_members_count = $unnotified_members_count->toBool() ? $unnotified_members_count->data->count : 0;
+			if ($unnotified_members_count > 50)
+			{
+				return new Object(-1, 'msg_too_many_unnotified_members');
 			}
 		}
 		
