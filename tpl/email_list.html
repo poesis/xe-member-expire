@@ -32,6 +32,7 @@
 			<th scope="col" class="nowr">아이디</th>
 			<th scope="col" class="nowr">이름</th>
 			<th scope="col" class="nowr">닉네임</th>
+			<th scope="col" class="nowr">소속 그룹</th>
 			<th scope="col" class="nowr">최근 로그인</th>
 			<th scope="col" class="nowr">정리 예정일</th>
 			<th scope="col" class="nowr">안내메일 발송일</th>
@@ -45,6 +46,7 @@
 			<td class="nowr">{$sent_email->user_id}</td>
 			<td class="nowr">{$sent_email->user_name}</td>
 			<td class="nowr">{$sent_email->nick_name}</td>
+			<td class="nowr">{implode(', ', $sent_emails_groups[$sent_email->member_srl])}</td>
 			<td class="nowr">
 				<!--@if($sent_email->last_login)-->
 					{zdate($sent_email->last_login, 'Y-m-d')}

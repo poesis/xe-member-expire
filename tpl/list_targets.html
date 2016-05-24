@@ -30,6 +30,7 @@
 			<th scope="col" class="nowr">아이디</th>
 			<th scope="col" class="nowr">이름</th>
 			<th scope="col" class="nowr">닉네임</th>
+			<th scope="col" class="nowr">소속 그룹</th>
 			<th scope="col" class="nowr">가입일</th>
 			<th scope="col" class="nowr">최근 로그인</th>
 			<th scope="col" class="nowr">정리</th>
@@ -43,6 +44,7 @@
 			<td class="nowr">{$member->user_id}</td>
 			<td class="nowr">{$member->user_name}</td>
 			<td class="nowr">{$member->nick_name}</td>
+			<td class="nowr">{implode(', ', $expired_members_groups[$member->member_srl])}</td>
 			<td class="nowr">
 				<!--@if($member->regdate)-->
 					{zdate($member->regdate, 'Y-m-d')}

@@ -160,8 +160,15 @@ class Member_ExpireAdminView extends Member_Expire
 		$obj->orderby = 'desc';
 		$sent_emails = executeQuery('member_expire.getNotifiedDates', $obj);
 		$sent_emails = $sent_emails->toBool() ? $sent_emails->data : array();
+		$member_srls = array();
+		foreach ($sent_emails as $member)
+		{
+			$member_srls[] = $member->member_srl;
+		}
+		$sent_emails_groups = getModel('member')->getMembersGroups($member_srls);
 		Context::set('sent_email_count', $sent_email_count);
 		Context::set('sent_emails', $sent_emails);
+		Context::set('sent_emails_groups', $sent_emails_groups);
 		
 		// 페이징을 처리한다.
 		$paging = new Object();
@@ -211,9 +218,16 @@ class Member_ExpireAdminView extends Member_Expire
 		$obj->orderby = 'desc';
 		$expired_members = executeQuery('member_expire.getExpiredMembers', $obj);
 		$expired_members = $expired_members->toBool() ? $expired_members->data : array();
+		$member_srls = array();
+		foreach ($expired_members as $member)
+		{
+			$member_srls[] = $member->member_srl;
+		}
+		$expired_members_groups = getModel('member')->getMembersGroups($member_srls);
 		Context::set('expire_threshold', $this->translateThreshold($config->expire_threshold));
 		Context::set('expired_members_count', $expired_members_count);
 		Context::set('expired_members', $expired_members);
+		Context::set('expired_members_groups', $expired_members_groups);
 		
 		// 페이징을 처리한다.
 		$paging = new Object();
@@ -262,9 +276,16 @@ class Member_ExpireAdminView extends Member_Expire
 		$obj->orderby = 'desc';
 		$moved_members = executeQuery('member_expire.getMovedMembers', $obj);
 		$moved_members = $moved_members->toBool() ? $moved_members->data : array();
+		$member_srls = array();
+		foreach ($moved_members as $member)
+		{
+			$member_srls[] = $member->member_srl;
+		}
+		$moved_members_groups = getModel('member')->getMembersGroups($member_srls);
 		Context::set('expire_threshold', $this->translateThreshold($config->expire_threshold));
 		Context::set('moved_members_count', $moved_members_count);
 		Context::set('moved_members', $moved_members);
+		Context::set('moved_members_groups', $moved_members_groups);
 		
 		// 페이징을 처리한다.
 		$paging = new Object();
@@ -313,8 +334,15 @@ class Member_ExpireAdminView extends Member_Expire
 		$obj->orderby = 'desc';
 		$exceptions = executeQuery('member_expire.getExceptions', $obj);
 		$exceptions = $exceptions->toBool() ? $exceptions->data : array();
+		$member_srls = array();
+		foreach ($exceptions as $member)
+		{
+			$member_srls[] = $member->member_srl;
+		}
+		$exceptions_groups = getModel('member')->getMembersGroups($member_srls);
 		Context::set('exception_count', $exception_count);
 		Context::set('exceptions', $exceptions);
+		Context::set('exceptions_groups', $exceptions_groups);
 		
 		// 페이징을 처리한다.
 		$paging = new Object();
