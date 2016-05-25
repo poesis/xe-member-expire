@@ -46,7 +46,7 @@
 			<td class="nowr">{$sent_email->user_id}</td>
 			<td class="nowr">{$sent_email->user_name}</td>
 			<td class="nowr">{$sent_email->nick_name}</td>
-			<td class="nowr">{implode(', ', $sent_emails_groups[$sent_email->member_srl])}</td>
+			<td class="nowr">{implode(', ', array_unique($sent_emails_groups[$sent_email->member_srl]))}</td>
 			<td class="nowr">
 				<!--@if($sent_email->last_login)-->
 					{zdate($sent_email->last_login, 'Y-m-d')}

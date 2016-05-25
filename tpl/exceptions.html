@@ -44,7 +44,7 @@
 			<td class="nowr">{$member->user_id}</td>
 			<td class="nowr">{$member->user_name}</td>
 			<td class="nowr">{$member->nick_name}</td>
-			<td class="nowr">{implode(', ', $exceptions_groups[$member->member_srl])}</td>
+			<td class="nowr">{implode(', ', array_unique($exceptions_groups[$member->member_srl]))}</td>
 			<td class="nowr">
 				<!--@if($member->regdate)-->
 					{zdate($member->regdate, 'Y-m-d')}
