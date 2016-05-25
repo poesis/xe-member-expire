@@ -236,6 +236,7 @@ class Member_ExpireModel extends Member_Expire
 		$this->oMemberController->procMemberDeleteImageMark($member_srl);
 		$this->oMemberController->procMemberDeleteProfileImage($member_srl);
 		$this->oMemberController->delSignature($member_srl);
+		$this->oMemberController->_clearMemberCache($member_srl);
 		
 		// 트랜잭션을 커밋한다.
 		if ($use_transaction)
