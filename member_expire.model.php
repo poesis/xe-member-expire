@@ -82,16 +82,15 @@ class Member_ExpireModel extends Member_Expire
 		}
 		
 		// 정리 예정일을 계산한다.
-		
 		$start_date = strtotime($config->auto_start) + zgap();
 		$base_date = $member->last_login ? $member->last_login : $member->regdate;
 		$base_date = $base_date ? ztime($base_date) : 0;
 		$expire_date = $base_date + (86400 * $config->expire_threshold);
 		if ($expire_date < $start_date) $expire_date = $start_date;
+		if ($expire_date < time()) $expire_date = time();
 		$member->expire_date = date('YmdHis', $expire_date);
 		
 		// 매크로를 변환한다.
-		
 		$site_title = Context::getSiteTitle();
 		$macros = array(
 			'{SITE_NAME}' => htmlspecialchars($site_title, ENT_QUOTES, 'UTF-8', false),
@@ -106,7 +105,6 @@ class Member_ExpireModel extends Member_Expire
 		);
 		
 		// 메일을 작성하여 발송한다.
-		
 		$subject = htmlspecialchars_decode(str_replace(array_keys($macros), array_values($macros), $config->email_subject));
 		$content = str_replace(array_keys($macros), array_values($macros), $config->email_content);
 		$recipient_name = $member->user_name ? $member->user_name : ($member->nick_name ? $member->nick_name : 'member');
