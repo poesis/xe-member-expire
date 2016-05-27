@@ -51,7 +51,7 @@
 	<button id="start_email_send" type="button" class="x_btn x_btn-primary x_pull-right">발송 시작</button>
 </div>
 
-<div id="cleanup_progress_area" data-threshold="{$mex_config->expire_threshold}" data-method="{$mex_config->expire_method}" data-count="{$unnotified_members_count}">
+<div id="cleanup_progress_area" data-threshold="{$mex_config->expire_threshold - $extra_days}" data-method="{$mex_config->expire_method}" data-count="{$unnotified_members_count}">
 	<div id="cleanup_progress_container">
 		<div id="cleanup_progress_bar"></div>
 	</div>
