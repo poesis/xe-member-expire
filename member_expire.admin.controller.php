@@ -174,12 +174,13 @@ class Member_ExpireAdminController extends Member_Expire
 		}
 		else
 		{
+			$query_id = $resend ? 'member_expire.getExpiredMembers' : 'member_expire.getUnnotifiedMembers';
 			$args = new stdClass();
 			$args->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + zgap());
 			$args->list_count = $batch_count;
 			$args->page = 1;
 			$args->orderby = 'asc';
-			$members_query = executeQuery('member_expire.getUnnotifiedMembers', $args);
+			$members_query = executeQuery($query_id, $args);
 			if (!$members_query->toBool())
 			{
 				$oDB->rollback(); $this->add('count', -4); return;
