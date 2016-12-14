@@ -18,6 +18,8 @@
 			<label class="x_control-label" for="expire_threshold">휴면계정 판단 조건</label>
 			<div class="x_controls">
 				<select name="expire_threshold" id="expire_threshold">
+					<option value="30" selected="selected"|cond="$mex_config->expire_threshold == 30">1개월</option>
+					<option value="60" selected="selected"|cond="$mex_config->expire_threshold == 60">2개월</option>
 					<option value="90" selected="selected"|cond="$mex_config->expire_threshold == 90">3개월</option>
 					<option value="180" selected="selected"|cond="$mex_config->expire_threshold == 180">6개월</option>
 					<option value="365" selected="selected"|cond="$mex_config->expire_threshold == 365">1년</option>
