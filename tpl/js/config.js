@@ -257,6 +257,30 @@
 		});
 		
 		/**
+		 * 별도의 저장공간으로 이동된 회원 중 현재 화면에 표시되는 화원들을 일괄 삭제한다.
+		 */
+		$("#delete_moved_on_this_page").click(function(event) {
+			event.preventDefault();
+			var member_srls = [];
+			$("a.do_delete_member").each(function() {
+				member_srls.push($(this).data("member-srl"));
+			});
+			if (!member_srls.length) return;
+			$.exec_json(
+				"member_expire.procMember_expireAdminDeleteMember", {
+					"member_srls": member_srls,
+					"call_triggers": "Y"
+				},
+				function(response) {
+					window.location.reload();
+				},
+				function(response) {
+					alert("일괄 삭제에 실패했습니다.");
+				}
+			);
+		});
+		
+		/**
 		 * 예외 회원을 해제한다.
 		 */
 		$("a.do_remove_exception").click(function(event) {

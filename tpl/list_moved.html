@@ -98,3 +98,13 @@
 		<button class="x_btn x_btn-inverse" type="submit">{$lang->cmd_search}</button>
 	</form>
 </div>
+
+<form action="{Context::getUrl('')}" method="post" no-error-return-url="true">
+	<section class="section">
+		<h2>일괄 삭제</h2>
+		<p class="x_help-block">현재 화면에 표시되는 휴면계정들을 모두 삭제합니다.</p>
+		<p>
+			<button class="x_btn" type="submit" id="delete_moved_on_this_page">삭제</button>
+		</p>
+	</section>
+</form>

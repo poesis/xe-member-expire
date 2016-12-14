@@ -361,7 +361,16 @@ class Member_ExpireAdminController extends Member_Expire
 	{
 		// 복원할 member_srl을 가져온다.
 		$member_srl = Context::get('member_srl');
-		if (!$member_srl)
+		$member_srls = Context::get('member_srls');
+		if (is_array($member_srls) && count($member_srls))
+		{
+			$member_srls = array_map('intval', $member_srls);
+		}
+		elseif ($member_srl)
+		{
+			$member_srls = array(intval($member_srl));
+		}
+		else
 		{
 			$this->add('deleted', -1);
 			return;
@@ -373,22 +382,31 @@ class Member_ExpireAdminController extends Member_Expire
 		
 		// 삭제한다.
 		$oModel = getModel('member_expire');
-		$result = $oModel->restoreMember($member_srl, false);
-		if ($result < 0)
+		$deleted_count = 0;
+		foreach ($member_srls as $member_srl)
 		{
-			$oDB->rollback(); $this->add('deleted', $result); return;
-		}
-		$result = $oModel->deleteMember($member_srl, true, false);
-		if ($result < 0)
-		{
-			$oDB->rollback(); $this->add('deleted', $result); return;
+			$result = $oModel->restoreMember($member_srl, false);
+			if ($result < 0)
+			{
+				$oDB->rollback();
+				$this->add('deleted', $result);
+				return;
+			}
+			$result = $oModel->deleteMember($member_srl, true, false);
+			if ($result < 0)
+			{
+				$oDB->rollback();
+				$this->add('deleted', $result);
+				return;
+			}
+			$deleted_count++;
 		}
 		
 		// 트랜잭션을 커밋한다.
 		$oDB->commit();
 		
 		// 복원 완료 메시지를 반환한다.
-		$this->add('deleted', 1);
+		$this->add('deleted', $deleted_count);
 		return true;
 	}
 	
