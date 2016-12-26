@@ -77,7 +77,17 @@
 					정리할 계정이 많은 경우 사이트 로딩이 느려지거나 정리가 다소 지연될 수 있습니다.</p>
 			</div>
 		</div>
-		
+
+		<div class="x_control-group">
+			<label class="x_control-label">자동정리 방식</label>
+			<div class="x_controls">
+				<label for="auto_expire_crontab_Y" class="x_inline"><input type="radio" name="auto_expire_crontab" id="auto_expire_crontab_Y" value="Y" checked="checked"|cond="$mex_config->auto_expire_crontab == 'Y'" /> 예</label>
+				<label for="auto_expire_crontab_N" class="x_inline"><input type="radio" name="auto_expire_crontab" id="auto_expire_crontab_N" value="N" checked="checked"|cond="$mex_config->auto_expire_crontab != 'Y'" /> 아니오</label>
+				<p class="x_help-block">자동정리 방법을 설정합니다.<br />
+					회원로그인시 자동으로 정리하거나 혹은 crontab 기능으로 사용할 수 있습니다.</p>
+			</div>
+		</div>
+
 		<div class="x_control-group">
 			<label class="x_control-label">자동 정리 시작일자</label>
 			<div class="x_controls">
@@ -88,7 +98,7 @@
 					오랫동안 로그인하지 않은 회원이라도 안내메일 발송과 동시에 자동 정리되어 버리는 일을 막을 수 있습니다.</p>
 			</div>
 		</div>
-			
+
 		<div class="x_control-group">
 			<label class="x_control-label" for="auto_notify">안내메일 자동 발송</label>
 			<div class="x_controls">

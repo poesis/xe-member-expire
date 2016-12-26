@@ -30,6 +30,7 @@ class Member_ExpireAdminController extends Member_Expire
 		$new_config->expire_threshold = $request_vars->expire_threshold;
 		$new_config->expire_method = $request_vars->expire_method;
 		$new_config->auto_expire = $request_vars->auto_expire === 'Y' ? 'Y' : 'N';
+		$new_config->auto_expire_crontab = $request_vars->auto_expire_crontab === 'Y' ? 'Y' : 'N';
 		$new_config->auto_restore = $request_vars->auto_restore === 'Y' ? 'Y' : 'N';
 		$new_config->auto_start = $request_vars->auto_start ? $request_vars->auto_start : date('Y-m-d', time() + zgap());
 		$new_config->email_threshold = $request_vars->auto_notify ? $request_vars->auto_notify : 0;
@@ -50,7 +51,7 @@ class Member_ExpireAdminController extends Member_Expire
 		if ($new_config->email_threshold)
 		{
 			$obj = new stdClass();
-			$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + ($new_config->email_threshold * 86400) + zgap());
+			$obj->threshold = date('YmdHis', time() - ($new_config->expire_threshold * 86400) + ($new_config->email_threshold * 86400) + zgap());
 			$unnotified_members_count = executeQuery('member_expire.countUnnotifiedMembers', $obj);
 			$unnotified_members_count = $unnotified_members_count->toBool() ? $unnotified_members_count->data->count : 0;
 			if ($unnotified_members_count > 50)
