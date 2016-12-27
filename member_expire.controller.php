@@ -184,7 +184,6 @@ class Member_ExpireController extends Member_Expire
 	 */
 	public function autoCrontabExpire()
 	{
-
 		// 자동으로 처리할 일이 없다면 종료한다.
 		$config = $this->getConfig();
 		$tasks = 0;
