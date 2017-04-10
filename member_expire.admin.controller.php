@@ -194,7 +194,7 @@ class Member_ExpireAdminController extends Member_Expire
 			$result = $oModel->sendEmail($member, $config, $resend, false);
 			if ($result < 0)
 			{
-				$oDB->rollback(); $this->add('count', $result); return;
+				$oDB->commit(); $this->add('count', $result); return;
 			}
 			$done_count++;
 		}

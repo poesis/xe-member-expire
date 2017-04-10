@@ -124,7 +124,11 @@ class Member_ExpireModel extends Member_Expire
 		$oMail->setContent($content);
 		$oMail->setSender($sender_name, $sender_email);
 		$oMail->setReceiptor($recipient_name, $member->email_address);
-		$oMail->send();
+		$result = $oMail->send();
+		if ($result === false)
+		{
+			return -49;
+		}
 		
 		// 트랜잭션을 시작한다.
 		if ($use_transaction)
