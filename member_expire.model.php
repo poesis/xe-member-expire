@@ -29,9 +29,10 @@ class Member_ExpireModel extends Member_Expire
 	/**
 	 * 처음 생성하면 DB 오브젝트와 member 컨트롤러를 로딩한다.
 	 */
-	public function __construct()
+	public function __construct($error = 0, $message = 'success')
 	{
 		$this->oDB = DB::getInstance();
+		parent::__construct();
 	}
 	
 	/**
