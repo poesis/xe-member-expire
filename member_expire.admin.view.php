@@ -163,9 +163,19 @@ class Member_ExpireAdminView extends Member_Expire
 		$member_srls = array();
 		foreach ($sent_emails as $member)
 		{
-			$member_srls[] = $member->member_srl;
+			if ($member->member_srl > 0)
+			{
+				$member_srls[] = $member->member_srl;
+			}
 		}
-		$sent_emails_groups = getModel('member')->getMembersGroups($member_srls);
+		if (count($member_srls))
+		{
+			$sent_emails_groups = getModel('member')->getMembersGroups($member_srls);
+		}
+		else
+		{
+			$sent_emails_groups = array();
+		}
 		Context::set('sent_email_count', $sent_email_count);
 		Context::set('sent_emails', $sent_emails);
 		Context::set('sent_emails_groups', $sent_emails_groups);
@@ -221,9 +231,19 @@ class Member_ExpireAdminView extends Member_Expire
 		$member_srls = array();
 		foreach ($expired_members as $member)
 		{
-			$member_srls[] = $member->member_srl;
+			if ($member->member_srl > 0)
+			{
+				$member_srls[] = $member->member_srl;
+			}
 		}
-		$expired_members_groups = getModel('member')->getMembersGroups($member_srls);
+		if (count($member_srls))
+		{
+			$expired_members_groups = getModel('member')->getMembersGroups($member_srls);
+		}
+		else
+		{
+			$expired_members_groups = array();
+		}
 		Context::set('expire_threshold', $this->translateThreshold($config->expire_threshold));
 		Context::set('expired_members_count', $expired_members_count);
 		Context::set('expired_members', $expired_members);
@@ -279,9 +299,19 @@ class Member_ExpireAdminView extends Member_Expire
 		$member_srls = array();
 		foreach ($moved_members as $member)
 		{
-			$member_srls[] = $member->member_srl;
+			if ($member->member_srl > 0)
+			{
+				$member_srls[] = $member->member_srl;
+			}
 		}
-		$moved_members_groups = getModel('member')->getMembersGroups($member_srls);
+		if (count($member_srls))
+		{
+			$moved_members_groups = getModel('member')->getMembersGroups($member_srls);
+		}
+		else
+		{
+			$moved_members_groups = array();
+		}
 		Context::set('expire_threshold', $this->translateThreshold($config->expire_threshold));
 		Context::set('moved_members_count', $moved_members_count);
 		Context::set('moved_members', $moved_members);
@@ -337,9 +367,19 @@ class Member_ExpireAdminView extends Member_Expire
 		$member_srls = array();
 		foreach ($exceptions as $member)
 		{
-			$member_srls[] = $member->member_srl;
+			if ($member->member_srl > 0)
+			{
+				$member_srls[] = $member->member_srl;
+			}
 		}
-		$exceptions_groups = getModel('member')->getMembersGroups($member_srls);
+		if (count($member_srls))
+		{
+			$exceptions_groups = getModel('member')->getMembersGroups($member_srls);
+		}
+		else
+		{
+			$exceptions_groups = array();
+		}
 		Context::set('exception_count', $exception_count);
 		Context::set('exceptions', $exceptions);
 		Context::set('exceptions_groups', $exceptions_groups);
