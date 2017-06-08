@@ -1,0 +1,7 @@
+.x .x_clearfix{*zoom:1}
+.x .x_clearfix:before,
+.x .x_clearfix:after{display:table;line-height:0;content:""}
+.x .x_clearfix:after{clear:both}
+.x .x_pull-left{float:left;}
+.x .x_pull-right{float:right;}
+.x .x_input-append{display:inline-block;}

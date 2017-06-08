@@ -1,0 +1,13 @@
+<h3 class="h1">{$lang->cmd_member_expire_module}</h3>
+
+<div class="cnb">
+	<ul>
+		<li class="active"|cond="$act == 'dispMember_expireAdminConfig'"><a href="{getUrl('', 'module', 'admin', 'act', 'dispMember_expireAdminConfig')}">기본 설정</a></li>
+		<li class="active"|cond="$act == 'dispMember_expireAdminCleanup'"><a href="{getUrl('', 'module', 'admin', 'act', 'dispMember_expireAdminCleanup')}">휴면계정 일괄 정리</a></li>
+		<li class="active"|cond="$act == 'dispMember_expireAdminEmailSend'"><a href="{getUrl('', 'module', 'admin', 'act', 'dispMember_expireAdminEmailSend')}">안내메일 일괄 발송</a></li>
+		<li class="active"|cond="$act == 'dispMember_expireAdminEmailTemplate'"><a href="{getUrl('', 'module', 'admin', 'act', 'dispMember_expireAdminEmailTemplate')}">안내메일 내용 편집</a></li>
+		<li class="active"|cond="$act == 'dispMember_expireAdminEmailList'"><a href="{getUrl('', 'module', 'admin', 'act', 'dispMember_expireAdminEmailList')}">안내메일 발송 내역</a></li>
+		<li class="active"|cond="$act == 'dispMember_expireAdminListTargets'"><a href="{getUrl('', 'module', 'admin', 'act', 'dispMember_expireAdminListTargets')}">정리대상 회원 목록</a></li>
+		<li class="active"|cond="$act == 'dispMember_expireAdminListMoved'"><a href="{getUrl('', 'module', 'admin', 'act', 'dispMember_expireAdminListMoved')}">별도저장 회원 목록</a></li>
+	</ul>
+</div>

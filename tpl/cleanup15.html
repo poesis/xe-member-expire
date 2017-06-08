@@ -1,0 +1,55 @@
+<include target="./header15.html" />
+<load target="css/config.css" />
+<load target="js/config.js" />
+
+<p class="cleanup_notice">
+	지난 {$expire_threshold} 동안 로그인하지 않은 회원은 {number_format($expired_members_count)}명입니다.<br />
+	정리 대상 회원 목록을 보려면 <a href="{getUrl('', 'module', 'admin', 'act', 'dispMember_expireAdminListTargets')}">여기</a>를 클릭하십시오.
+</p>
+
+<p class="cleanup_notice">
+	아래의 &quot;정리 시작&quot; 단추를 클릭하면 이 회원들을 모두
+	<!--@if($mex_config->expire_method == 'delete')-->
+		<strong>삭제</strong>
+	<!--@else-->
+		<strong>별도의 저장공간으로 이동</strong>
+	<!--@endif-->
+	조치합니다.<br />
+	정리 방법을 변경하려면 <a href="{getUrl('', 'module', 'admin', 'act', 'dispMember_expireAdminConfig')}">여기</a>를 클릭하십시오.
+</p>
+
+<p class="cleanup_notice">
+	정리할 데이터가 많은 경우, 서버 환경에 따라서는 한 번에 완료되지 않거나 중간에 오류가 발생할 수 있습니다.<br />
+	정리가 중단되었다면 이 페이지를 새로고침한 후 다시 시도하면 중단된 시점부터 다시 정리합니다.
+</p>
+
+<p class="cleanup_notice" style="font-size:12pt;color:red">
+	주의: 한 번 삭제한 회원정보는 복구할 수 없으며, 별도의 저장공간으로 이동하는 작업에도 상당한 위험이 동반됩니다.<br />
+	반드시 DB 백업 후 작업하시기 바랍니다. 작업을 성공적으로 마친 것을 확인하기 전에는 백업을 삭제하지 마십시오.<br />
+</p>
+<p class="cleanup_notice" style="font-size:12pt;color:red">
+	휴면계정 정리 모듈은 GPL 라이선스 하에 배포됩니다. GPL 라이선스는 어떠한 품질 보증도 제공하지 않으며,<br />
+	이 모듈의 사용으로 발생하는 어떠한 결과에 대해서도 제작자는 절대 책임지지 않습니다.
+</p>
+
+<p class="cleanup_notice">
+	<label for="notice_agree"><input id="notice_agree" type="checkbox" data-nocheck="동의하지 않으면 진행할 수 없습니다." /> 위의 내용을 읽고 숙지하였으며, 진행에 동의합니다.</label>
+</p>
+
+<div class="btnArea x_clearfix" id="cleanup_button_area" style="padding-top:10px; border-top:1px solid #CCC;">
+	<span class="btn medium">
+		<button id="start_cleanup" type="submit" class="x_btn x_btn-primary x_pull-right">정리 시작</button>
+	</span>
+</div>
+
+<div id="cleanup_progress_area" data-threshold="{$mex_config->expire_threshold}" data-method="{$mex_config->expire_method}" data-count="{$expired_members_count}">
+	<div id="cleanup_progress_container">
+		<div id="cleanup_progress_bar"></div>
+	</div>
+	<div id="cleanup_progress_number_area">
+		<span id="cleanup_progress_number">0.0</span>% 정리 중...
+	</div>
+	<div id="cleanup_progress_finish_area">
+		휴면계정 정리가 완료되었습니다.
+	</div>
+</div>

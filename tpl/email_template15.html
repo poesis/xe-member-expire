@@ -1,0 +1,110 @@
+<include target="./header15.html" />
+<load target="css/config.css" />
+<load target="js/config.js" />
+
+<p class="cleanup_notice">
+	<!--@if($mex_config->email_threshold)-->
+		지난 {$expire_threshold} 동안 로그인하지 않은 회원을 정리하기 {number_format($mex_config->email_threshold)}일 전에 아래의 메일을 보냅니다.<br />
+	<!--@else-->
+		지난 {$expire_threshold} 동안 로그인하지 않은 회원을 정리합니다. 안내메일 발송은 자동으로 하지 않도록 설정되어 있습니다.<br />
+	<!--@end-->
+	제목이나 내용에 아래의 매크로를 사용하면 실제 회원의 정보로 대체됩니다.
+</p>
+
+<table class="cleanup_table" id="cleanup_macro_table">
+	<tr>
+		<th><span class="email_macro">{SITE_NAME}</span></th>
+		<td>사이트 이름</td>
+		<td data-actual-value="{Context::getSiteTitle()}">
+			<a href="{getUrl('', 'module', 'admin', 'act', 'dispAdminConfigGeneral')}" target="_blank">일반 설정</a> 페이지에서 변경 가능
+		</td>
+	</tr>
+	<tr>
+		<th><span class="email_macro">{USER_ID}</span></th>
+		<td>아이디</td>
+		<td>예: honggildong</td>
+	</tr>
+	<tr>
+		<th><span class="email_macro">{USER_NAME}</span></th>
+		<td>이름</td>
+		<td>예: 홍길동</td>
+	</tr>
+	<tr>
+		<th><span class="email_macro">{NICK_NAME}</span></th>
+		<td>닉네임</td>
+		<td>예: 활빈당형님</td>
+	</tr>
+	<tr>
+		<th><span class="email_macro">{EMAIL}</span></th>
+		<td>메일 주소</td>
+		<td>예: honggildong@example.com</td>
+	</tr>
+	<tr>
+		<th><span class="email_macro">{LOGIN_DATE}</span></th>
+		<td>최근 로그인 날짜 (한국어)</td>
+		<td>예: 2014년 3월 29일</td>
+	</tr>
+	<tr>
+		<th><span class="email_macro">{EXPIRE_DATE}</span></th>
+		<td>정리 예정 날짜 (한국어)</td>
+		<td>예: {date('Y년 n월 j일', strtotime($mex_config->auto_start) + zgap())}</td>
+	</tr>
+	<tr>
+		<th><span class="email_macro">{TIME_LIMIT}</span></th>
+		<td>정리 기준 (한국어)</td>
+		<td data-actual-value="{$expire_threshold}">예: 1년</td>
+	</tr>
+	<tr>
+		<th><span class="email_macro">{CLEAN_METHOD}</span></th>
+		<td>정리 방법</td>
+		<td data-actual-value="{$mex_config->expire_method == 'delete' ? '삭제' : '별도의 저장공간으로 이동'}">
+			&quot;삭제&quot; 또는 &quot;별도의 저장공간으로 이동&quot;
+		</td>
+	</tr>
+</table>
+
+<hr />
+
+<form class="x_form-horizontal" action="./" method="post">
+	<input type="hidden" name="module" value="member_expire" />
+	<input type="hidden" name="act" value="procMember_expireAdminInsertEmailTemplate" />
+	<input type="hidden" name="success_return_url" value="{getRequestUriByServerEnviroment()}" />
+	
+	<div cond="$XE_VALIDATOR_MESSAGE" class="message {$XE_VALIDATOR_MESSAGE_TYPE}">
+		<p>{$XE_VALIDATOR_MESSAGE}</p>
+	</div>
+
+	<table cellspacing="0" class="rowTable">
+	
+		<tr>
+			<th scope="row"><div>안내메일 제목</div></th>
+			<td>
+				<input type="text" id="email_subject" name="email_subject" class="full_width" value="{htmlspecialchars($mex_config->email_subject, ENT_QUOTES, 'UTF-8')}" />
+			</td>
+		</tr>
+	
+		<tr>
+			<th scope="row"><div>안내메일 내용</div></th>
+			<td>
+				<input type="hidden" id="email_content" name="email_content" value="{htmlspecialchars($mex_config->email_content, ENT_QUOTES, 'UTF-8')}" />
+				{$editor}
+			</td>
+		</tr>
+		
+		<tr>
+			<th scope="row"><div>미리보기</div></th>
+			<td>
+				<div id="email_preview" data-editor-sequence="{$editor_sequence}"></div>
+				<p>받는이에게는 디자인이 전혀 다르게 보일 수도 있으니 유의하십시오.</p>
+			</td>
+		</tr>
+
+	</table>
+	
+	<div class="btnArea x_clearfix">
+		<span class="btn medium">
+			<button type="submit" class="x_btn x_btn-primary x_pull-right">{$lang->cmd_registration}</button>
+		</span>
+	</div>
+	
+</form>

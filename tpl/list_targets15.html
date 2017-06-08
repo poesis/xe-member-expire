@@ -1,0 +1,128 @@
+<include target="./header15.html" />
+<load target="css/config.css" />
+<load target="css/config15.css" />
+<load target="js/config.js" />
+
+<div class="x_clearfix">
+	<div class="x_pull-left">
+		지난 {$expire_threshold} 동안 로그인하지 않은
+		<!--@if($search_target)--> 회원 중 검색 조건에 해당하는<!--@end-->
+		회원은 {number_format($paging->total_count)}명입니다.<br />
+		최근 로그인순으로 표시합니다.
+	</div>
+
+	<div class="x_pull-right" style="margin-top:4px">
+		<select name="list_count" id="list_count">
+			<option value="10" selected="selected"|cond="$list_count == 10 || !$list_count">10명씩</option>
+			<option value="20" selected="selected"|cond="$list_count == 20">20명씩</option>
+			<option value="30" selected="selected"|cond="$list_count == 30">30명씩</option>
+			<option value="50" selected="selected"|cond="$list_count == 50">50명씩</option>
+			<option value="100" selected="selected"|cond="$list_count == 100">100명씩</option>
+			<option value="200" selected="selected"|cond="$list_count == 200">200명씩</option>
+			<option value="300" selected="selected"|cond="$list_count == 300">300명씩</option>
+		</select>
+	</div>
+</div>
+
+<div class="table even">
+	<table id="member_expire_log" border="1" cellspacing="0" width="100%">
+		<thead>
+			<tr>
+				<th scope="col" class="nowr">이메일</th>
+				<th scope="col" class="nowr">아이디</th>
+				<th scope="col" class="nowr">이름</th>
+				<th scope="col" class="nowr">닉네임</th>
+				<th scope="col" class="nowr">가입일</th>
+				<th scope="col" class="nowr">최근 로그인</th>
+				<th scope="col" class="nowr">정리</th>
+			</tr>
+		</thead>
+		<tfoot>
+			<tr>
+				<th scope="col" class="nowr">이메일</th>
+				<th scope="col" class="nowr">아이디</th>
+				<th scope="col" class="nowr">이름</th>
+				<th scope="col" class="nowr">닉네임</th>
+				<th scope="col" class="nowr">가입일</th>
+				<th scope="col" class="nowr">최근 로그인</th>
+				<th scope="col" class="nowr">정리</th>
+			</tr>
+		</tfoot>
+		<tbody>
+			<tr loop="$expired_members => $member">
+				<td class="nowr">
+					<a href="#popup_menu_area" class="member_{$member->member_srl}" title="Info">{getEncodeEmailAddress($member->email_address)}</a>
+				</td>
+				<td class="nowr">{$member->user_id}</td>
+				<td class="nowr">{$member->user_name}</td>
+				<td class="nowr">{$member->nick_name}</td>
+				<td class="nowr">
+					<!--@if($member->regdate)-->
+						{zdate($member->regdate, 'Y-m-d')}
+					<!--@else-->
+						<span class="graytext">가입 기록 없음</span>
+					<!--@endif-->
+				</td>
+				<td class="nowr">
+					<!--@if($member->last_login)-->
+						{zdate($member->last_login, 'Y-m-d')}&nbsp;
+						({round((time() - ztime($member->last_login)) / 86400)}일 전)
+					<!--@else-->
+						<span class="graytext">로그인 기록 없음</span>
+					<!--@endif-->
+				</td>
+				<td clas="nowr">
+					<a href="#{$member->member_srl}" id="do_expire_{$member->member_srl}" class="do_expire_member" data-member-srl="{$member->member_srl}">{$mex_config->expire_method === 'delete' ? '삭제' : '별도저장'}</a>
+				</td>
+			</tr>
+			<tr cond="!$expired_members">
+				<td>해당되는 회원이 없습니다.</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+
+
+<div class="x_clearfix">
+	<form action="./" class="pagination" style="float:left; margin:0;">
+		<input type="hidden" name="error_return_url" value="" />
+		<input type="hidden" name="module" value="{$module}" />
+		<input type="hidden" name="act" value="{$act}" />
+		<input cond="$search_keyword" type="hidden" name="search_keyword" value="{$search_keyword}" />
+		<input cond="$search_target" type="hidden" name="search_target" value="{$search_target}" />
+
+		<a href="{getUrl('page', '')}" class="direction">&laquo; {$lang->first_page}</a>
+		<block cond="$page_navigation->first_page + $page_navigation->page_count > $page_navigation->last_page && $page_navigation->page_count != $page_navigation->total_page">
+			{@$isGoTo = true}
+			<a href="{getUrl('page', '')}">1</a>
+			<a href="#goTo" class="tgAnchor" title="{$lang->cmd_go_to_page}">...</a>
+		</block>
+		<!--@while($page_no = $paging->page_navigation->getNextPage())-->
+			{@$last_page = $page_no}
+			<strong cond="$page_no == $page">{$page_no}</strong>
+			<a cond="$page_no != $page" href="{getUrl('page', $page_no)}">{$page_no}</a>
+		<!--@end-->
+		<block cond="$last_page != $page_navigation->last_page">
+			{@$isGoTo = true}
+			<a href="#goTo" class="tgAnchor" title="{$lang->cmd_go_to_page}">...</a>
+			<a href="{getUrl('page', $page_navigation->last_page)}">{$page_navigation->last_page}</a>
+		</block>
+		<a href="{getUrl('page', $page_navigation->last_page)}" class="direction">{$lang->last_page} &raquo;</a>
+		<span cond="$isGoTo" id="goTo" class="tgContent">
+			<input name="page" title="{$lang->cmd_go_to_page}" />
+			<button type="submit">Go</button>
+		</span>
+	</form>
+	<form class="x_pull-right x_input-append" style="margin-top:8px" action="{Context::getUrl('')}" method="get" no-error-return-url="true">
+		<input type="hidden" name="module" value="{$module}" />
+		<input type="hidden" name="act" value="{$act}" />
+		<select name="search_target" title="{$lang->search_target}" style="width: 100px; margin-right: 4px">
+			<option value="email_address" selected="selected"|cond="$search_target == 'email_address'">메일 주소</option>
+			<option value="user_id" selected="selected"|cond="$search_target == 'user_id'">아이디</option>
+			<option value="user_name" selected="selected"|cond="$search_target == 'user_name'">이름</option>
+			<option value="nick_name" selected="selected"|cond="$search_target == 'nick_name'">닉네임</option>
+		</select>
+		<input type="search" name="search_keyword" value="{htmlspecialchars($search_keyword, ENT_QUOTES, 'UTF-8')}" style="width: 160px">
+		<button class="x_btn x_btn-inverse" type="submit">{$lang->cmd_search}</button>
+	</form>
+</div>
