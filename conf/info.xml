@@ -4,8 +4,8 @@
 	<description xml:lang="ko">
 		일정 기간 이상 로그인하지 않은 회원 계정을 삭제 또는 별도로 관리합니다.
 	</description>
-	<version>1.2.5</version>
-	<date>2017-06-06</date>
+	<version>1.2.6</version>
+	<date>2017-06-09</date>
 	<author link="https://www.poesis.org">
 		<name xml:lang="ko">포에시스</name>
 	</author>
