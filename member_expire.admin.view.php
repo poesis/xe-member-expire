@@ -181,7 +181,7 @@ class Member_ExpireAdminView extends Member_Expire
 		Context::set('sent_emails_groups', $sent_emails_groups);
 		
 		// 페이징을 처리한다.
-		$paging = new Object();
+		$paging = $this->createObject();
 		$paging->total_count = $sent_email_count;
 		$paging->total_page = max(1, ceil($sent_email_count / $list_count));
 		$paging->page = $page;
@@ -250,7 +250,7 @@ class Member_ExpireAdminView extends Member_Expire
 		Context::set('expired_members_groups', $expired_members_groups);
 		
 		// 페이징을 처리한다.
-		$paging = new Object();
+		$paging = $this->createObject();
 		$paging->total_count = $expired_members_count;
 		$paging->total_page = max(1, ceil($expired_members_count / $list_count));
 		$paging->page = $page;
@@ -318,7 +318,7 @@ class Member_ExpireAdminView extends Member_Expire
 		Context::set('moved_members_groups', $moved_members_groups);
 		
 		// 페이징을 처리한다.
-		$paging = new Object();
+		$paging = $this->createObject();
 		$paging->total_count = $moved_members_count;
 		$paging->total_page = max(1, ceil($moved_members_count / $list_count));
 		$paging->page = $page;
@@ -385,7 +385,7 @@ class Member_ExpireAdminView extends Member_Expire
 		Context::set('exceptions_groups', $exceptions_groups);
 		
 		// 페이징을 처리한다.
-		$paging = new Object();
+		$paging = $this->createObject();
 		$paging->total_count = $exception_count;
 		$paging->total_page = max(1, ceil($exception_count / $list_count));
 		$paging->page = $page;

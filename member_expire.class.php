@@ -179,7 +179,7 @@ class Member_Expire extends ModuleObject
 	{
 		$this->registerTriggers();
 		$this->createIndexes();
-		return new Object();
+		return $this->createObject();
 	}
 	
 	/**
@@ -197,7 +197,7 @@ class Member_Expire extends ModuleObject
 	{
 		$this->registerTriggers();
 		$this->createIndexes();
-		return new Object(0, 'success_updated');
+		return $this->createObject(0, 'success_updated');
 	}
 	
 	/**
@@ -207,4 +207,12 @@ class Member_Expire extends ModuleObject
 	{
 		// no-op
 	}
+
+    protected function createObject($error = 0, $message = 'success') {
+        if(class_exists("BaseObject")) {
+            return new BaseObject($error, $message);
+        } else {
+            return new Object($error, $message);
+        }
+    }
 }
