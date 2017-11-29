@@ -1,0 +1,8 @@
+<query id="deleteException" action="delete">
+    <tables>
+        <table name="member_expired_exceptions" />
+    </tables>
+    <conditions>
+        <condition operation="equal" column="member_srl" var="member_srl" />
+    </conditions>
+</query>

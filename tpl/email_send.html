@@ -3,7 +3,17 @@
 <load target="js/config.js" />
 
 <p class="cleanup_notice">
-	이미 정리 대상이거나 앞으로 {$mex_config->email_threshold}일 안에 정리될 회원은 {number_format($expired_members_count)}명이며,
+	이미 정리 대상이거나 앞으로
+	<select id="extra_days">
+		<option value="0" selected="selected"|cond="!$extra_days">0일</option>
+		<option value="7" selected="selected"|cond="$extra_days == 7">7일</option>
+		<option value="15" selected="selected"|cond="$extra_days == 15">15일</option>
+		<option value="30" selected="selected"|cond="$extra_days == 30">30일</option>
+		<option value="45" selected="selected"|cond="$extra_days == 45">45일</option>
+		<option value="60" selected="selected"|cond="$extra_days == 60">60일</option>
+		<option value="90" selected="selected"|cond="$extra_days == 90">90일</option>
+	</select>
+	안에 정리될 회원은 {number_format($expired_members_count)}명이며,
 	그 중 아직 안내메일을 발송하지 않은 회원은 {number_format($unnotified_members_count)}명입니다.<br />
 	정리 대상 회원 목록을 보려면 <a href="{getUrl('', 'module', 'admin', 'act', 'dispMember_expireAdminListTargets')}">여기</a>를 클릭하십시오.
 </p>
@@ -41,7 +51,7 @@
 	<button id="start_email_send" type="button" class="x_btn x_btn-primary x_pull-right">발송 시작</button>
 </div>
 
-<div id="cleanup_progress_area" data-threshold="{$mex_config->expire_threshold}" data-method="{$mex_config->expire_method}" data-count="{$unnotified_members_count}">
+<div id="cleanup_progress_area" data-threshold="{$mex_config->expire_threshold - $extra_days}" data-method="{$mex_config->expire_method}" data-count="{$unnotified_members_count}">
 	<div id="cleanup_progress_container">
 		<div id="cleanup_progress_bar"></div>
 	</div>

@@ -4,9 +4,9 @@
 
 <div class="x_clearfix">
 	<div class="x_pull-left">
-		별도의 저장공간으로 이동된
-		<!--@if($search_target)--> 휴면회원 중 검색 조건에 해당하는<!--@end-->
-		휴면회원은 {number_format($paging->total_count)}명입니다.<br />
+		자동 정리되지 않도록 예외로 등록된
+		<!--@if($search_target)--> 회원 중 검색 조건에 해당하는<!--@end-->
+		회원은 {number_format($paging->total_count)}명입니다.<br />
 		최근 로그인순으로 표시합니다.
 	</div>
 
@@ -33,19 +33,18 @@
 			<th scope="col" class="nowr">소속 그룹</th>
 			<th scope="col" class="nowr">가입일</th>
 			<th scope="col" class="nowr">최근 로그인</th>
-			<th scope="col" class="nowr">복원</th>
-			<th scope="col" class="nowr">삭제</th>
+			<th scope="col" class="nowr">정리</th>
 		</tr>
 	</thead>
 	<tbody>
-		<tr loop="$moved_members => $member">
+		<tr loop="$exceptions => $member">
 			<td class="nowr">
-				{getEncodeEmailAddress($member->email_address)}
+				<a href="#popup_menu_area" class="member_{$member->member_srl}" title="Info">{getEncodeEmailAddress($member->email_address)}</a>
 			</td>
 			<td class="nowr">{$member->user_id}</td>
 			<td class="nowr">{$member->user_name}</td>
 			<td class="nowr">{$member->nick_name}</td>
-			<td class="nowr">{implode(', ', array_unique($moved_members_groups[$member->member_srl]))}</td>
+			<td class="nowr">{implode(', ', array_unique($exceptions_groups[$member->member_srl]))}</td>
 			<td class="nowr">
 				<!--@if($member->regdate)-->
 					{zdate($member->regdate, 'Y-m-d')}
@@ -62,20 +61,17 @@
 				<!--@endif-->
 			</td>
 			<td clas="nowr">
-				<a href="#{$member->member_srl}" id="do_restore_{$member->member_srl}" class="do_restore_member" data-member-srl="{$member->member_srl}">복원</a>
-			</td>
-			<td clas="nowr">
-				<a href="#{$member->member_srl}" id="do_delete_{$member->member_srl}" class="do_delete_member" data-member-srl="{$member->member_srl}">삭제</a>
+				<a href="#{$member->member_srl}" id="do_remove_exception_{$member->member_srl}" class="do_remove_exception" data-member-srl="{$member->member_srl}">예외 해제</a>
 			</td>
 		</tr>
-		<tr cond="!$moved_members">
+		<tr cond="!$exceptions">
 			<td>해당되는 회원이 없습니다.</td>
 		</tr>
 	</tbody>
 </table>
 
 <div class="x_clearfix">
-	<form class="x_pagination x_pull-left" style="margin-top:8px" action="{Context::getUrl('')}" method="get" no-error-return-url="true">
+	<form class="x_pagination x_pull-left" style="margin-top:8px" action="{Context::getUrl('')}" method="post" no-error-return-url="true">
 		<input loop="$param => $key, $val" cond="!in_array($key, array('mid', 'vid', 'act'))" type="hidden" name="{$key}" value="{$val}" />
 		<ul>
 			<li class="x_disabled"|cond="$page == 1"><a href="{getUrl('page', '')}">&laquo; {$lang->first_page}</a></li>
@@ -100,11 +96,14 @@
 </div>
 
 <form action="{Context::getUrl('')}" method="post" no-error-return-url="true">
+	<input type="hidden" name="module" value="{$module}" />
+	<input type="hidden" name="act" value="procMember_expireAdminInsertException" />
 	<section class="section">
-		<h2>일괄 삭제</h2>
-		<p class="x_help-block">현재 화면에 표시되는 휴면계정들을 모두 삭제합니다.</p>
+		<h2>예외 추가</h2>
 		<p>
-			<button class="x_btn" type="submit" id="delete_moved_on_this_page">삭제</button>
+			<input type="text" name="exc_keyword" value="" style="width: 200px;position:relative;top:5px">
+			<button class="x_btn" type="submit">등록</button>
 		</p>
+		<p class="x_help-block">예외로 등록할 회원의 member_srl, 아이디, 메일 주소, 이름, 닉네임 중 하나를 입력해 주십시오.</p>
 	</section>
 </form>

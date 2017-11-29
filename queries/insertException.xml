@@ -1,0 +1,8 @@
+<query id="insertException" action="insert">
+    <tables>
+        <table name="member_expired_exceptions" />
+    </tables>
+    <columns>
+        <column name="member_srl" var="member_srl" notnull="notnull" />
+    </columns>
+</query>

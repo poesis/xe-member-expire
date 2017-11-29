@@ -1,12 +1,18 @@
 <query id="getExpiredMemberSrlOnly" action="select">
     <tables>
         <table name="member" />
+        <table name="member_expired_exceptions" alias="exc" type="left join">
+            <conditions>
+                <condition operation="equal" column="member.member_srl" default="exc.member_srl" />
+            </conditions>
+        </table>
     </tables>
     <columns>
-        <column name="member_srl" />
+        <column name="member.member_srl" alias="member_srl" />
     </columns>
     <conditions>
-        <condition operation="equal" column="is_admin" var="is_admin" default="N" />
+    	<condition operation="null" column="exc.member_srl" />
+        <condition operation="equal" column="is_admin" var="is_admin" default="N" pipe="and" />
         <group pipe="and">
             <condition operation="less" column="regdate" var="threshold" />
             <condition operation="null" column="regdate" pipe="or" />

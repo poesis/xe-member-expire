@@ -90,6 +90,7 @@
 			if ($("#email_only100").is(":checked")) {
 				total_count = Math.min(100, total_count);
 			}
+			$("#extra_days").prop("disabled", "disabled");
 			$("#cleanup_button_area").hide();
 			$("#cleanup_progress_area").show();
 			$("#cleanup_progress_bar").css("width", "0%");
@@ -126,6 +127,13 @@
 				);
 			};
 			ajax_callback();
+		});
+		
+		/**
+		 * 안내메일 일괄 발송 기준 날짜 변경.
+		 */
+		$("#extra_days").on("change", function() {
+			window.location.href = window.location.href.setQuery("extra_days", $(this).val());
 		});
 		
 		/**
@@ -246,6 +254,65 @@
 					alert("삭제에 실패했습니다.");
 				}
 			);
+		});
+		
+		/**
+		 * 별도의 저장공간으로 이동된 회원 중 현재 화면에 표시되는 화원들을 일괄 삭제한다.
+		 */
+		$("#delete_moved_on_this_page").click(function(event) {
+			event.preventDefault();
+			var member_srls = [];
+			$("a.do_delete_member").each(function() {
+				member_srls.push($(this).data("member-srl"));
+			});
+			if (!member_srls.length) return;
+			$.exec_json(
+				"member_expire.procMember_expireAdminDeleteMember", {
+					"member_srls": member_srls,
+					"call_triggers": "Y"
+				},
+				function(response) {
+					window.location.reload();
+				},
+				function(response) {
+					alert("일괄 삭제에 실패했습니다.");
+				}
+			);
+		});
+		
+		/**
+		 * 예외 회원을 해제한다.
+		 */
+		$("a.do_remove_exception").click(function(event) {
+			event.preventDefault();
+			var container = $(this).parent();
+			var member_srl = $(this).data("member-srl");
+			if (!member_srl) return;
+			$.exec_json(
+				"member_expire.procMember_expireAdminDeleteException", {
+					"member_srl": member_srl,
+					"call_triggers": "Y"
+				},
+				function(response) {
+					if (response.removed > 0) {
+						container.find("a.do_remove_exception").remove();
+						container.append("해제됨");
+						alert("예외 해제되었습니다.");
+					} else {
+						alert("예외 해제에 실패했습니다. (코드 " + response.removed + ")");
+					}
+				},
+				function(response) {
+					alert("예외 해제에 실패했습니다.");
+				}
+			);
+		});
+		
+		/**
+		 * 한 화면에 표시할 레코드 수를 조정한다.
+		 */
+		$('#list_count').change(function () {
+			location.href = location.href.setQuery('list_count', $(this).val());
 		});
 	});
 }(jQuery));

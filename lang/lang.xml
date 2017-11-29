@@ -13,6 +13,9 @@
 		<value xml:lang="ko"><![CDATA[장기간 로그인하지 않아 휴면계정으로 전환되었습니다. 관리자에게 문의해 주시기 바랍니다.]]></value>
 	</item>
 	<item name="msg_too_many_expired_members">
-		<value xml:lang="ko"><![CDATA[현재 휴면계정 수가 너무 많습니다. 자동 정리 또는 안내메일 자동 발송 옵션을 사용하려면 우선 휴면계정을 일괄 정리해 주십시오.]]></value>
+		<value xml:lang="ko"><![CDATA[현재 휴면계정 수가 너무 많습니다. 자동 정리 기능을 사용하려면 우선 휴면계정을 일괄 정리해 주십시오.]]></value>
+	</item>
+	<item name="msg_too_many_unnotified_members">
+		<value xml:lang="ko"><![CDATA[현재 안내메일을 발송하지 않은 휴면계정 수가 너무 많습니다. 안내메일 자동 발송 기능을 사용하려면 우선 안내메일을 일괄 발송해 주십시오.]]></value>
 	</item>
 </lang>

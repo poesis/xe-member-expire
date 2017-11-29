@@ -1,6 +1,11 @@
 <query id="getUnnotifiedMembers" action="select">
     <tables>
         <table name="member" />
+        <table name="member_expired_exceptions" alias="exc" type="left join">
+            <conditions>
+                <condition operation="equal" column="member.member_srl" default="exc.member_srl" />
+            </conditions>
+        </table>
         <table name="member_expired_notified" alias="notified" type="left join">
             <conditions>
                 <condition operation="equal" column="member.member_srl" default="notified.member_srl" />
@@ -13,6 +18,7 @@
     <conditions>
         <condition operation="equal" column="member.is_admin" var="is_admin" default="N" />
         <condition operation="equal" column="member.member_srl" var="member_srl" pipe="and" />
+        <condition operation="null" column="exc.member_srl" pipe="and" />
         <condition operation="null" column="notified.notified_date" pipe="and" />
         <group pipe="and">
             <condition operation="less" column="member.regdate" var="threshold" />

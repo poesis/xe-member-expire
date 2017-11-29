@@ -10,6 +10,7 @@
 		<action name="dispMember_expireAdminEmailList" type="view" />
 		<action name="dispMember_expireAdminListTargets" type="view" />
 		<action name="dispMember_expireAdminListMoved" type="view" />
+		<action name="dispMember_expireAdminListExceptions" type="view" />
 		<action name="procMember_expireAdminInsertConfig" type="controller" />
 		<action name="procMember_expireAdminInsertEmailTemplate" type="controller" />
 		<action name="procMember_expireAdminClearSentEmail" type="controller" />
@@ -17,7 +18,9 @@
 		<action name="procMember_expireAdminDoCleanup" type="controller" />
 		<action name="procMember_expireAdminRestoreMember" type="controller" />
 		<action name="procMember_expireAdminDeleteMember" type="controller" />
-	</actions>
+		<action name="procMember_expireAdminInsertException" type="controller" />
+		<action name="procMember_expireAdminDeleteException" type="controller" />
+</actions>
 	<menus>
 		<menu name="member_expire" type="all">
 			<title xml:lang="ko">휴면계정 정리 모듈</title>

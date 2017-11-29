@@ -29,9 +29,10 @@ class Member_ExpireModel extends Member_Expire
 	/**
 	 * 처음 생성하면 DB 오브젝트와 member 컨트롤러를 로딩한다.
 	 */
-	public function __construct()
+	public function __construct($error = 0, $message = 'success')
 	{
 		$this->oDB = DB::getInstance();
+		parent::__construct();
 	}
 	
 	/**
@@ -82,16 +83,15 @@ class Member_ExpireModel extends Member_Expire
 		}
 		
 		// 정리 예정일을 계산한다.
-		
 		$start_date = strtotime($config->auto_start) + zgap();
 		$base_date = $member->last_login ? $member->last_login : $member->regdate;
 		$base_date = $base_date ? ztime($base_date) : 0;
 		$expire_date = $base_date + (86400 * $config->expire_threshold);
 		if ($expire_date < $start_date) $expire_date = $start_date;
+		if ($expire_date < time()) $expire_date = time();
 		$member->expire_date = date('YmdHis', $expire_date);
 		
 		// 매크로를 변환한다.
-		
 		$site_title = Context::getSiteTitle();
 		$macros = array(
 			'{SITE_NAME}' => htmlspecialchars($site_title, ENT_QUOTES, 'UTF-8', false),
@@ -106,7 +106,6 @@ class Member_ExpireModel extends Member_Expire
 		);
 		
 		// 메일을 작성하여 발송한다.
-		
 		$subject = htmlspecialchars_decode(str_replace(array_keys($macros), array_values($macros), $config->email_subject));
 		$content = str_replace(array_keys($macros), array_values($macros), $config->email_content);
 		$recipient_name = $member->user_name ? $member->user_name : ($member->nick_name ? $member->nick_name : 'member');
@@ -123,9 +122,13 @@ class Member_ExpireModel extends Member_Expire
 		$oMail = new Mail();
 		$oMail->setTitle($subject);
 		$oMail->setContent($content);
-		$oMail->setSender();
+		$oMail->setSender($sender_name, $sender_email);
 		$oMail->setReceiptor($recipient_name, $member->email_address);
-		$oMail->send();
+		$result = $oMail->send();
+		if ($result === false)
+		{
+			return -49;
+		}
 		
 		// 트랜잭션을 시작한다.
 		if ($use_transaction)
@@ -236,6 +239,7 @@ class Member_ExpireModel extends Member_Expire
 		$this->oMemberController->procMemberDeleteImageMark($member_srl);
 		$this->oMemberController->procMemberDeleteProfileImage($member_srl);
 		$this->oMemberController->delSignature($member_srl);
+		$this->oMemberController->_clearMemberCache($member_srl);
 		
 		// 트랜잭션을 커밋한다.
 		if ($use_transaction)
@@ -416,20 +420,29 @@ class Member_ExpireModel extends Member_Expire
 				$this->oSites = array(0);
 			}
 		}
+		if (!in_array(0, $this->oSites))
+		{
+			$this->oSites[] = 0;
+		}
 		
-		// 오브젝트 캐시를 비운다.
-		$oCacheHandler = CacheHandler::getInstance('object', null, true);
+		// 회원정보 캐시를 비운다.
 		$cache_path = getNumberingPath($member_srl) . $member_srl;
+		$oCacheHandler = CacheHandler::getInstance('object');
 		if($oCacheHandler->isSupport())
 		{
-			// 회원정보 캐시를 비운다.
 			$cache_key = $oCacheHandler->getGroupKey('member', 'member_info:' . $cache_path);
 			$oCacheHandler->delete($cache_key);
-			
-			// 가상 사이트별 회원그룹 캐시를 비운다.
+		}
+		
+		// 가상 사이트별 회원그룹 캐시를 비운다.
+		$oCacheHandler = CacheHandler::getInstance('object', null, true);
+		if($oCacheHandler->isSupport())
+		{
 			foreach ($this->oSites as $site_srl)
 			{
 				$cache_key = $oCacheHandler->getGroupKey('member', 'member_groups:' . $cache_path . '_' . $site_srl);
+				$oCacheHandler->delete($cache_key);
+				$cache_key = $oCacheHandler->getGroupKey('member', 'member_groups:' . $cache_path . ':site:' . $site_srl);
 				$oCacheHandler->delete($cache_key);
 			}
 		}
