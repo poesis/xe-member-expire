@@ -65,16 +65,27 @@ class Member_ExpireAdminView extends Member_Expire
 		$config = $this->getConfig();
 		Context::set('mex_config', $this->getConfig());
 		
+		// 미리 알리기 위한 추가 날짜 설정을 불러온다.
+		if (($extra_days = Context::get('extra_days')) && ctype_digit($extra_days))
+		{
+			$extra_days = intval($extra_days, 10);
+		}
+		else
+		{
+			$extra_days = $config->email_threshold;
+		}
+		Context::set('extra_days', $extra_days);
+		
 		// 휴면계정 수를 불러온다.
 		$obj = new stdClass();
-		$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + ($config->email_threshold * 86400) + zgap());
+		$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + ($extra_days * 86400) + zgap());
 		$expired_members_count = executeQuery('member_expire.countExpiredMembers', $obj);
 		$expired_members_count = $expired_members_count->toBool() ? $expired_members_count->data->count : 0;
 		Context::set('expired_members_count', $expired_members_count);
 		
 		// 아직 메일을 발송하지 않은 휴면계정 수를 불러온다.
 		$obj = new stdClass();
-		$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + ($config->email_threshold * 86400) + zgap());
+		$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + ($extra_days * 86400) + zgap());
 		$unnotified_members_count = executeQuery('member_expire.countUnnotifiedMembers', $obj);
 		$unnotified_members_count = $unnotified_members_count->toBool() ? $unnotified_members_count->data->count : 0;
 		Context::set('unnotified_members_count', $unnotified_members_count);
@@ -134,25 +145,47 @@ class Member_ExpireAdminView extends Member_Expire
 			Context::set('search_target', $search_target = null);
 			Context::set('search_keyword', $search_keyword = null);
 		}
+		$valid_list_counts = array(10, 20, 30, 50, 100, 200, 300);
+		$list_count = intval(Context::get('list_count'));
+		if (!in_array($list_count, $valid_list_counts)) $list_count = 10;
+		Context::set('list_count', $list_count);
 		
 		// 발송 내역을 불러온다.
 		$obj = new stdClass();
 		if ($search_target && $search_keyword) $obj->$search_target = trim($search_keyword);
 		$sent_email_count = executeQuery('member_expire.countNotifiedDates', $obj);
 		$sent_email_count = $sent_email_count->toBool() ? $sent_email_count->data->count : 0;
+		$obj->list_count = $list_count;
 		$obj->page = $page = Context::get('page') ? Context::get('page') : 1;
 		$obj->orderby = 'desc';
 		$sent_emails = executeQuery('member_expire.getNotifiedDates', $obj);
 		$sent_emails = $sent_emails->toBool() ? $sent_emails->data : array();
+		$member_srls = array();
+		foreach ($sent_emails as $member)
+		{
+			if ($member->member_srl > 0)
+			{
+				$member_srls[] = $member->member_srl;
+			}
+		}
+		if (count($member_srls))
+		{
+			$sent_emails_groups = getModel('member')->getMembersGroups($member_srls);
+		}
+		else
+		{
+			$sent_emails_groups = array();
+		}
 		Context::set('sent_email_count', $sent_email_count);
 		Context::set('sent_emails', $sent_emails);
+		Context::set('sent_emails_groups', $sent_emails_groups);
 		
 		// 페이징을 처리한다.
-		$paging = new Object();
+		$paging = $this->createObject();
 		$paging->total_count = $sent_email_count;
-		$paging->total_page = max(1, ceil($sent_email_count / 10));
+		$paging->total_page = max(1, ceil($sent_email_count / $list_count));
 		$paging->page = $page;
-		$paging->page_navigation = new PageHandler($paging->total_count, $paging->total_page, $page, 10);
+		$paging->page_navigation = new PageHandler($paging->total_count, $paging->total_page, $page, $list_count);
 		Context::set('paging', $paging);
 		Context::set('page', $page);
 		
@@ -179,6 +212,10 @@ class Member_ExpireAdminView extends Member_Expire
 			Context::set('search_target', $search_target = null);
 			Context::set('search_keyword', $search_keyword = null);
 		}
+		$valid_list_counts = array(10, 20, 30, 50, 100, 200, 300);
+		$list_count = intval(Context::get('list_count'));
+		if (!in_array($list_count, $valid_list_counts)) $list_count = 10;
+		Context::set('list_count', $list_count);
 		
 		// 휴면계정 목록을 불러온다.
 		$obj = new stdClass();
@@ -186,20 +223,38 @@ class Member_ExpireAdminView extends Member_Expire
 		$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + zgap());
 		$expired_members_count = executeQuery('member_expire.countExpiredMembers', $obj);
 		$expired_members_count = $expired_members_count->toBool() ? $expired_members_count->data->count : 0;
+		$obj->list_count = $list_count;
 		$obj->page = $page = Context::get('page') ? Context::get('page') : 1;
 		$obj->orderby = 'desc';
 		$expired_members = executeQuery('member_expire.getExpiredMembers', $obj);
 		$expired_members = $expired_members->toBool() ? $expired_members->data : array();
+		$member_srls = array();
+		foreach ($expired_members as $member)
+		{
+			if ($member->member_srl > 0)
+			{
+				$member_srls[] = $member->member_srl;
+			}
+		}
+		if (count($member_srls))
+		{
+			$expired_members_groups = getModel('member')->getMembersGroups($member_srls);
+		}
+		else
+		{
+			$expired_members_groups = array();
+		}
 		Context::set('expire_threshold', $this->translateThreshold($config->expire_threshold));
 		Context::set('expired_members_count', $expired_members_count);
 		Context::set('expired_members', $expired_members);
+		Context::set('expired_members_groups', $expired_members_groups);
 		
 		// 페이징을 처리한다.
-		$paging = new Object();
+		$paging = $this->createObject();
 		$paging->total_count = $expired_members_count;
-		$paging->total_page = max(1, ceil($expired_members_count / 10));
+		$paging->total_page = max(1, ceil($expired_members_count / $list_count));
 		$paging->page = $page;
-		$paging->page_navigation = new PageHandler($paging->total_count, $paging->total_page, $page, 10);
+		$paging->page_navigation = new PageHandler($paging->total_count, $paging->total_page, $page, $list_count);
 		Context::set('paging', $paging);
 		Context::set('page', $page);
 		
@@ -226,26 +281,48 @@ class Member_ExpireAdminView extends Member_Expire
 			Context::set('search_target', $search_target = null);
 			Context::set('search_keyword', $search_keyword = null);
 		}
+		$valid_list_counts = array(10, 20, 30, 50, 100, 200, 300);
+		$list_count = intval(Context::get('list_count'));
+		if (!in_array($list_count, $valid_list_counts)) $list_count = 10;
+		Context::set('list_count', $list_count);
 		
 		// 휴면계정 목록을 불러온다.
 		$obj = new stdClass();
 		if ($search_target && $search_keyword) $obj->$search_target = trim($search_keyword);
 		$moved_members_count = executeQuery('member_expire.countMovedMembers', $obj);
 		$moved_members_count = $moved_members_count->toBool() ? $moved_members_count->data->count : 0;
+		$obj->list_count = $list_count;
 		$obj->page = $page = Context::get('page') ? Context::get('page') : 1;
 		$obj->orderby = 'desc';
 		$moved_members = executeQuery('member_expire.getMovedMembers', $obj);
 		$moved_members = $moved_members->toBool() ? $moved_members->data : array();
+		$member_srls = array();
+		foreach ($moved_members as $member)
+		{
+			if ($member->member_srl > 0)
+			{
+				$member_srls[] = $member->member_srl;
+			}
+		}
+		if (count($member_srls))
+		{
+			$moved_members_groups = getModel('member')->getMembersGroups($member_srls);
+		}
+		else
+		{
+			$moved_members_groups = array();
+		}
 		Context::set('expire_threshold', $this->translateThreshold($config->expire_threshold));
 		Context::set('moved_members_count', $moved_members_count);
 		Context::set('moved_members', $moved_members);
+		Context::set('moved_members_groups', $moved_members_groups);
 		
 		// 페이징을 처리한다.
-		$paging = new Object();
+		$paging = $this->createObject();
 		$paging->total_count = $moved_members_count;
-		$paging->total_page = max(1, ceil($moved_members_count / 10));
+		$paging->total_page = max(1, ceil($moved_members_count / $list_count));
 		$paging->page = $page;
-		$paging->page_navigation = new PageHandler($paging->total_count, $paging->total_page, $page, 10);
+		$paging->page_navigation = new PageHandler($paging->total_count, $paging->total_page, $page, $list_count);
 		Context::set('paging', $paging);
 		Context::set('page', $page);
 		
@@ -253,5 +330,72 @@ class Member_ExpireAdminView extends Member_Expire
 		Context::setBrowserTitle('별도저장 회원 목록 - XE Admin');
 		$this->setTemplatePath($this->module_path.'tpl');
 		$this->setTemplateFile('list_moved');
+	}
+	
+	/**
+	 * 예외 목록 화면을 표시하는 메소드.
+	 */
+	public function dispMember_ExpireAdminListExceptions()
+	{
+		// 현재 설정을 불러온다.
+		$config = $this->getConfig();
+		Context::set('mex_config', $config);
+		
+		// 검색 조건을 불러온다.
+		$search_target = Context::get('search_target');
+		$search_keyword = Context::get('search_keyword');
+		if (!in_array($search_target, array('email_address', 'user_id', 'user_name', 'nick_name')) || !$search_keyword)
+		{
+			Context::set('search_target', $search_target = null);
+			Context::set('search_keyword', $search_keyword = null);
+		}
+		$valid_list_counts = array(10, 20, 30, 50, 100, 200, 300);
+		$list_count = intval(Context::get('list_count'));
+		if (!in_array($list_count, $valid_list_counts)) $list_count = 10;
+		Context::set('list_count', $list_count);
+		
+		// 발송 내역을 불러온다.
+		$obj = new stdClass();
+		if ($search_target && $search_keyword) $obj->$search_target = trim($search_keyword);
+		$exception_count = executeQuery('member_expire.countExceptions', $obj);
+		$exception_count = $exception_count->toBool() ? $exception_count->data->count : 0;
+		$obj->list_count = $list_count;
+		$obj->page = $page = Context::get('page') ? Context::get('page') : 1;
+		$obj->orderby = 'desc';
+		$exceptions = executeQuery('member_expire.getExceptions', $obj);
+		$exceptions = $exceptions->toBool() ? $exceptions->data : array();
+		$member_srls = array();
+		foreach ($exceptions as $member)
+		{
+			if ($member->member_srl > 0)
+			{
+				$member_srls[] = $member->member_srl;
+			}
+		}
+		if (count($member_srls))
+		{
+			$exceptions_groups = getModel('member')->getMembersGroups($member_srls);
+		}
+		else
+		{
+			$exceptions_groups = array();
+		}
+		Context::set('exception_count', $exception_count);
+		Context::set('exceptions', $exceptions);
+		Context::set('exceptions_groups', $exceptions_groups);
+		
+		// 페이징을 처리한다.
+		$paging = $this->createObject();
+		$paging->total_count = $exception_count;
+		$paging->total_page = max(1, ceil($exception_count / $list_count));
+		$paging->page = $page;
+		$paging->page_navigation = new PageHandler($paging->total_count, $paging->total_page, $page, $list_count);
+		Context::set('paging', $paging);
+		Context::set('page', $page);
+		
+		// 템플릿을 지정한다.
+		Context::setBrowserTitle('예외 목록 - XE Admin');
+		$this->setTemplatePath($this->module_path.'tpl');
+		$this->setTemplateFile('exceptions');
 	}
 }

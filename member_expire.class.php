@@ -77,6 +77,10 @@ class Member_Expire extends ModuleObject
 		{
 			return false;
 		}
+		if(!$oModuleModel->getTrigger('member.doLogin', 'member_expire', 'controller', 'triggerAutoExpire', 'after'))
+		{
+			return false;
+		}
 		if(!$oModuleModel->getTrigger('member.doLogout', 'member_expire', 'controller', 'triggerAutoExpire', 'after'))
 		{
 			return false;
@@ -106,6 +110,10 @@ class Member_Expire extends ModuleObject
 		if(!$oModuleModel->getTrigger('member.updateMember', 'member_expire', 'controller', 'triggerBlockDuplicates', 'before'))
 		{
 			$oModuleController->insertTrigger('member.updateMember', 'member_expire', 'controller', 'triggerBlockDuplicates', 'before');
+		}
+		if(!$oModuleModel->getTrigger('member.doLogin', 'member_expire', 'controller', 'triggerAutoExpire', 'after'))
+		{
+			$oModuleController->insertTrigger('member.doLogin', 'member_expire', 'controller', 'triggerAutoExpire', 'after');
 		}
 		if(!$oModuleModel->getTrigger('member.doLogout', 'member_expire', 'controller', 'triggerAutoExpire', 'after'))
 		{
@@ -171,7 +179,7 @@ class Member_Expire extends ModuleObject
 	{
 		$this->registerTriggers();
 		$this->createIndexes();
-		return new Object();
+		return $this->createObject();
 	}
 	
 	/**
@@ -189,7 +197,7 @@ class Member_Expire extends ModuleObject
 	{
 		$this->registerTriggers();
 		$this->createIndexes();
-		return new Object(0, 'success_updated');
+		return $this->createObject(0, 'success_updated');
 	}
 	
 	/**
@@ -199,4 +207,12 @@ class Member_Expire extends ModuleObject
 	{
 		// no-op
 	}
+
+    protected function createObject($error = 0, $message = 'success') {
+        if(class_exists("BaseObject")) {
+            return new BaseObject($error, $message);
+        } else {
+            return new Object($error, $message);
+        }
+    }
 }

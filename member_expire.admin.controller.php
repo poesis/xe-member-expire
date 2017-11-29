@@ -33,9 +33,10 @@ class Member_ExpireAdminController extends Member_Expire
 		$new_config->auto_restore = $request_vars->auto_restore === 'Y' ? 'Y' : 'N';
 		$new_config->auto_start = $request_vars->auto_start ? $request_vars->auto_start : date('Y-m-d', time() + zgap());
 		$new_config->email_threshold = $request_vars->auto_notify ? $request_vars->auto_notify : 0;
+		$new_config->url_after_restore = $request_vars->url_after_restore ? $request_vars->url_after_restore : null;
 		
 		// 자동 정리 옵션을 선택한 경우, 현재 남아 있는 휴면계정 수를 구한다.
-		if ($new_config->auto_expire === 'Y' || $new_config->email_threshold)
+		if ($new_config->auto_expire === 'Y')
 		{
 			$obj = new stdClass();
 			$obj->threshold = date('YmdHis', time() - ($new_config->expire_threshold * 86400) + zgap());
@@ -43,7 +44,18 @@ class Member_ExpireAdminController extends Member_Expire
 			$expired_members_count = $expired_members_count->toBool() ? $expired_members_count->data->count : 0;
 			if ($expired_members_count > 50)
 			{
-				return new Object(-1, 'msg_too_many_expired_members');
+			    return $this->createObject(-1, 'msg_too_many_expired_members');
+			}
+		}
+		if ($new_config->email_threshold)
+		{
+			$obj = new stdClass();
+			$obj->threshold = date('YmdHis', time() - ($new_config->expire_threshold * 86400) + ($new_config->email_threshold * 86400) + zgap());
+			$unnotified_members_count = executeQuery('member_expire.countUnnotifiedMembers', $obj);
+			$unnotified_members_count = $unnotified_members_count->toBool() ? $unnotified_members_count->data->count : 0;
+			if ($unnotified_members_count > 50)
+			{
+                return $this->createObject(-1, 'msg_too_many_unnotified_members');
 			}
 		}
 		
@@ -162,12 +174,13 @@ class Member_ExpireAdminController extends Member_Expire
 		}
 		else
 		{
+			$query_id = $resend ? 'member_expire.getExpiredMembers' : 'member_expire.getUnnotifiedMembers';
 			$args = new stdClass();
-			$args->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + ($config->email_threshold * 86400) + zgap());
+			$args->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + zgap());
 			$args->list_count = $batch_count;
 			$args->page = 1;
 			$args->orderby = 'asc';
-			$members_query = executeQuery('member_expire.getUnnotifiedMembers', $args);
+			$members_query = executeQuery($query_id, $args);
 			if (!$members_query->toBool())
 			{
 				$oDB->rollback(); $this->add('count', -4); return;
@@ -181,7 +194,7 @@ class Member_ExpireAdminController extends Member_Expire
 			$result = $oModel->sendEmail($member, $config, $resend, false);
 			if ($result < 0)
 			{
-				$oDB->rollback(); $this->add('count', $result); return;
+				$oDB->commit(); $this->add('count', $result); return;
 			}
 			$done_count++;
 		}
@@ -348,7 +361,16 @@ class Member_ExpireAdminController extends Member_Expire
 	{
 		// 복원할 member_srl을 가져온다.
 		$member_srl = Context::get('member_srl');
-		if (!$member_srl)
+		$member_srls = Context::get('member_srls');
+		if (is_array($member_srls) && count($member_srls))
+		{
+			$member_srls = array_map('intval', $member_srls);
+		}
+		elseif ($member_srl)
+		{
+			$member_srls = array(intval($member_srl));
+		}
+		else
 		{
 			$this->add('deleted', -1);
 			return;
@@ -360,22 +382,117 @@ class Member_ExpireAdminController extends Member_Expire
 		
 		// 삭제한다.
 		$oModel = getModel('member_expire');
-		$result = $oModel->restoreMember($member_srl, false);
-		if ($result < 0)
+		$deleted_count = 0;
+		foreach ($member_srls as $member_srl)
 		{
-			$oDB->rollback(); $this->add('deleted', $result); return;
-		}
-		$result = $oModel->deleteMember($member_srl, true, false);
-		if ($result < 0)
-		{
-			$oDB->rollback(); $this->add('deleted', $result); return;
+			$result = $oModel->restoreMember($member_srl, false);
+			if ($result < 0)
+			{
+				$oDB->rollback();
+				$this->add('deleted', $result);
+				return;
+			}
+			$result = $oModel->deleteMember($member_srl, true, false);
+			if ($result < 0)
+			{
+				$oDB->rollback();
+				$this->add('deleted', $result);
+				return;
+			}
+			$deleted_count++;
 		}
 		
 		// 트랜잭션을 커밋한다.
 		$oDB->commit();
 		
 		// 복원 완료 메시지를 반환한다.
-		$this->add('deleted', 1);
+		$this->add('deleted', $deleted_count);
+		return true;
+	}
+	
+	/**
+	 * 예외 회원을 추가하는 메소드.
+	 */
+	public function procMember_ExpireAdminInsertException()
+	{
+		// 검색 조건을 가져온다.
+		$keyword = trim(Context::get('exc_keyword'));
+		$member_srls = array();
+		
+		// 회원을 찾는다.
+		if (ctype_digit($keyword))
+		{
+			$args = new stdClass();
+			$args->member_srl = intval($keyword);
+			$query = executeQuery('member.getMemberInfoByMemberSrl', $args);
+			if ($query->toBool() && $query->data)
+			{
+				$member_srls = array(is_array($query->data) ? reset($query->data)->member_srl : $query->data->member_srl);
+			}
+		}
+		else
+		{
+			$args = new stdClass();
+			$args->s_email_address = $keyword;
+			$args->s_user_id = $keyword;
+			$args->s_user_name = $keyword;
+			$args->s_nick_name = $keyword;
+			$query = executeQuery('member.getMemberList', $args);
+			if ($query->toBool() && $query->data)
+			{
+				foreach ($query->data as $member_info)
+				{
+					$member_srls[] = $member_info->member_srl;
+				}
+			}
+		}
+		
+		// 트랜잭션을 시작한다.
+		$oDB = DB::getInstance();
+		$oDB->begin();
+		
+		// 예외를 추가한다.
+		foreach ($member_srls as $member_srl)
+		{
+			$args = new stdClass();
+			$args->exc_member_srl = $member_srl;
+			$exists = executeQuery('member_expire.countExceptions', $args);
+			if ($exists->data->count < 1)
+			{
+				$args = new stdClass();
+				$args->member_srl = $member_srl;
+				executeQuery('member_expire.insertException', $args);
+			}
+		}
+		
+		// 트랜잭션을 커밋한다.
+		$oDB->commit();
+		
+		// 목록 페이지로 돌려보낸다.
+		$this->setRedirectUrl(getNotEncodedUrl('', 'module', 'admin', 'act', 'dispMember_expireAdminListExceptions'));
+		return;
+	}
+	
+	/**
+	 * 예외를 해제하는 메소드.
+	 */
+	public function procMember_ExpireAdminDeleteException()
+	{
+		// 예외 해제할 member_srl을 가져온다.
+		$member_srl = Context::get('member_srl');
+		if (!$member_srl)
+		{
+			$this->add('removed', -1);
+			return;
+		}
+		
+		// 삭제한다.
+		$args = new stdClass();
+		$args->member_srl = $member_srl;
+		executeQuery('member_expire.deleteException', $args);
+		
+		// 삭제 완료 메시지를 반환한다.
+		$this->add('removed', 1);
 		return true;
 	}
 }

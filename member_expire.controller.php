@@ -22,7 +22,7 @@ class Member_ExpireController extends Member_Expire
 	/**
 	 * 임시 복원된 회원정보를 기억하는 변수.
 	 */
-	protected static $_temp_member = array();
+	protected static $_temp_member_srl = array();
 	
 	/**
 	 * 임시 복원 처리가 필요한 act 목록.
@@ -51,7 +51,7 @@ class Member_ExpireController extends Member_Expire
 			$output = executeQuery('member_expire.getMovedMembers', $obj);
 			if ($output->toBool() && count($output->data))
 			{
-				return new Object(-1,'msg_exists_user_id');
+				return $this->createObject(-1,'msg_exists_user_id');
 			}
 		}
 		
@@ -66,11 +66,11 @@ class Member_ExpireController extends Member_Expire
 				$config = $this->getConfig();
 				if ($config->auto_restore === 'Y')
 				{
-					return new Object(-1, 'msg_exists_expired_email_address_auto_restore');
+					return $this->createObject(-1, 'msg_exists_expired_email_address_auto_restore');
 				}
 				else
 				{
-					return new Object(-1,'msg_exists_expired_email_address');
+					return $this->createObject(-1,'msg_exists_expired_email_address');
 				}
 			}
 		}
@@ -83,16 +83,15 @@ class Member_ExpireController extends Member_Expire
 			$output = executeQuery('member_expire.getMovedMembers', $obj);
 			if ($output->toBool() && count($output->data))
 			{
-				return new Object(-1,'msg_exists_nick_name');
+				return $this->createObject(-1,'msg_exists_nick_name');
 			}
 		}
 	}
 	
 	/**
-	 * 회원 로그아웃 트리거.
-	 * 로그아웃과는 무관하고, 적당한 간격으로 자동 정리를 실행하는 데 쓰인다.
-	 * 로그아웃 트리거를 사용하는 이유는 그나마 다른 작업에 영향을 적게 미치면서
-	 * 호출 빈도가 실제 회원수에 비례할 가능성이 높기 때문이다.
+	 * 회원 로그인 및 로그아웃 트리거.
+	 * 실제 로그인 및 로그아웃과는 무관하고, 적당한 간격으로 자동 정리를 실행하는 데 쓰인다.
+	 * 이 트리거의 호출 빈도가 실제 회원수에 비례할 가능성이 높기 때문이다.
 	 */
 	public function triggerAutoExpire()
 	{
@@ -246,7 +245,7 @@ class Member_ExpireController extends Member_Expire
 		$config = $this->getConfig();
 		if ($config->auto_restore !== 'Y')
 		{
-			return new Object(-1, 'msg_your_membership_has_expired');
+			return $this->createObject(-1, 'msg_your_membership_has_expired');
 		}
 		
 		// 회원정보를 member 테이블로 복사한다.
@@ -257,8 +256,13 @@ class Member_ExpireController extends Member_Expire
 			return;
 		}
 		
+		// 다시 정리되지 않도록 예외 처리한다.
+		$obj = new stdClass();
+		$obj->member_srl = $member->member_srl;
+		executeQuery('member_expire.insertException', $obj);
+		
 		// 임시로 복원해 놓았음을 표시하여, 인증 실패시 되돌릴 수 있도록 한다.
-		self::$_temp_member = $member;
+		self::$_temp_member_srl = $member->member_srl;
 		return;
 	}
 	
@@ -269,12 +273,24 @@ class Member_ExpireController extends Member_Expire
 	public function triggerAfterModuleProc($oModule)
 	{
 		// 실행 전 트리거에서 임시로 복원해 둔 회원이 없다면 여기서도 할 일이 없다.
-		if (!self::$_temp_member) return;
+		if (!self::$_temp_member_srl) return;
 		
 		// 로그인에 성공했다면 원래대로 돌려놓을 필요가 없다.
-		if ($_SESSION['member_srl']) return;
+		if (!$_SESSION['member_srl'])
+		{
+			getModel('member_expire')->moveMember(self::$_temp_member_srl, false, true);
+		}
 		
-		// 그 밖의 경우, 회원정보를 원위치시킨다.
-		getModel('member_expire')->moveMember(self::$_temp_member, false, true);
+		// 임시로 예외 등록을 해두었다면 해제한다.
+		$obj = new stdClass();
+		$obj->member_srl = self::$_temp_member_srl;
+		executeQuery('member_expire.deleteException', $obj);
+		
+		// 로그인 후 전달할 페이지가 지정되어 있다면 redirect URL을 변경한다.
+		$config = $this->getConfig();
+		if ($oModule->act === 'procMemberLogin' && $_SESSION['member_srl'] && $config->url_after_restore)
+		{
+			$oModule->setRedirectUrl($config->url_after_restore);
+		}
 	}
 }
