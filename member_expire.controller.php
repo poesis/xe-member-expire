@@ -51,7 +51,7 @@ class Member_ExpireController extends Member_Expire
 			$output = executeQuery('member_expire.getMovedMembers', $obj);
 			if ($output->toBool() && count($output->data))
 			{
-				return new Object(-1,'msg_exists_user_id');
+				return $this->createObject(-1, 'msg_exists_user_id');
 			}
 		}
 		
@@ -66,11 +66,11 @@ class Member_ExpireController extends Member_Expire
 				$config = $this->getConfig();
 				if ($config->auto_restore === 'Y')
 				{
-					return new Object(-1, 'msg_exists_expired_email_address_auto_restore');
+					return $this->createObject(-1, 'msg_exists_expired_email_address_auto_restore');
 				}
 				else
 				{
-					return new Object(-1,'msg_exists_expired_email_address');
+					return $this->createObject(-1, 'msg_exists_expired_email_address');
 				}
 			}
 		}
@@ -83,7 +83,7 @@ class Member_ExpireController extends Member_Expire
 			$output = executeQuery('member_expire.getMovedMembers', $obj);
 			if ($output->toBool() && count($output->data))
 			{
-				return new Object(-1,'msg_exists_nick_name');
+				return $this->createObject(-1, 'msg_exists_nick_name');
 			}
 		}
 	}
@@ -245,7 +245,7 @@ class Member_ExpireController extends Member_Expire
 		$config = $this->getConfig();
 		if ($config->auto_restore !== 'Y')
 		{
-			return new Object(-1, 'msg_your_membership_has_expired');
+			return $this->createObject(-1, 'msg_your_membership_has_expired');
 		}
 		
 		// 회원정보를 member 테이블로 복사한다.

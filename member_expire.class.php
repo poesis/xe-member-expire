@@ -173,13 +173,21 @@ class Member_Expire extends ModuleObject
 	}
 	
 	/**
+	 * XE 버전에 따라 Object, BaseObject 클래스 호환성을 보장하기 위한 메소드.
+	 */
+	public function createObject($error = 0, $message = 'success')
+	{
+		return class_exists('BaseObject') ? new BaseObject($error, $message) : new Object($error, $message);
+	}
+	
+	/**
 	 * 모듈 설치 메소드.
 	 */
 	public function moduleInstall()
 	{
 		$this->registerTriggers();
 		$this->createIndexes();
-		return new Object();
+		return $this->createObject();
 	}
 	
 	/**
@@ -197,7 +205,7 @@ class Member_Expire extends ModuleObject
 	{
 		$this->registerTriggers();
 		$this->createIndexes();
-		return new Object(0, 'success_updated');
+		return $this->createObject(0, 'success_updated');
 	}
 	
 	/**

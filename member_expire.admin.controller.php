@@ -44,7 +44,7 @@ class Member_ExpireAdminController extends Member_Expire
 			$expired_members_count = $expired_members_count->toBool() ? $expired_members_count->data->count : 0;
 			if ($expired_members_count > 50)
 			{
-				return new Object(-1, 'msg_too_many_expired_members');
+				return $this->createObject(-1, 'msg_too_many_expired_members');
 			}
 		}
 		if ($new_config->email_threshold)
@@ -55,7 +55,7 @@ class Member_ExpireAdminController extends Member_Expire
 			$unnotified_members_count = $unnotified_members_count->toBool() ? $unnotified_members_count->data->count : 0;
 			if ($unnotified_members_count > 50)
 			{
-				return new Object(-1, 'msg_too_many_unnotified_members');
+				return $this->createObject(-1, 'msg_too_many_unnotified_members');
 			}
 		}
 		
