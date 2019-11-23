@@ -31,6 +31,7 @@
 			<th scope="col" class="nowr">이름</th>
 			<th scope="col" class="nowr">닉네임</th>
 			<th scope="col" class="nowr">소속 그룹</th>
+			<th scope="col" class="nowr">상태</th>
 			<th scope="col" class="nowr">가입일</th>
 			<th scope="col" class="nowr">최근 로그인</th>
 			<th scope="col" class="nowr">정리</th>
@@ -46,6 +47,13 @@
 			<td class="nowr">{$member->nick_name}</td>
 			<td class="nowr">{implode(', ', array_unique($expired_members_groups[$member->member_srl]))}</td>
 			<td class="nowr">
+				<!--@if($member->denied === 'N')-->
+					<span>정상</span>
+				<!--@else-->
+					<span style="color:red">거부</span>
+				<!--@endif-->
+			</td>
+			<td class="nowr">
 				<!--@if($member->regdate)-->
 					{zdate($member->regdate, 'Y-m-d')}
 				<!--@else-->
@@ -60,7 +68,7 @@
 					<span class="graytext">로그인 기록 없음</span>
 				<!--@endif-->
 			</td>
-			<td clas="nowr">
+			<td class="nowr">
 				<a href="#{$member->member_srl}" id="do_expire_{$member->member_srl}" class="do_expire_member" data-member-srl="{$member->member_srl}">{$mex_config->expire_method === 'delete' ? '삭제' : '별도저장'}</a>
 			</td>
 		</tr>

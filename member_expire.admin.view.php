@@ -90,6 +90,14 @@ class Member_ExpireAdminView extends Member_Expire
 		$unnotified_members_count = $unnotified_members_count->toBool() ? $unnotified_members_count->data->count : 0;
 		Context::set('unnotified_members_count', $unnotified_members_count);
 		
+		// 아직 메일을 발송하지 않았으나 정지 상태여서 메일 발송이 불가능한 휴면계정 수를 불러온다.
+		$obj = new stdClass();
+		$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + ($extra_days * 86400) + zgap());
+		$obj->denied = 'Y';
+		$denied_members_count = executeQuery('member_expire.countUnnotifiedMembers', $obj);
+		$denied_members_count = $denied_members_count->toBool() ? $denied_members_count->data->count : 0;
+		Context::set('denied_members_count', $denied_members_count);
+		
 		// 템플릿을 지정한다.
 		Context::setBrowserTitle('안내메일 일괄 발송 - XE Admin');
 		$this->setTemplatePath($this->module_path.'tpl');
