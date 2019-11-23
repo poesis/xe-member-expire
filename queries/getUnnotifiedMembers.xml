@@ -18,6 +18,7 @@
     <conditions>
         <condition operation="equal" column="member.is_admin" var="is_admin" default="N" />
         <condition operation="equal" column="member.member_srl" var="member_srl" pipe="and" />
+		<condition operation="equal" column="member.denied" var="denied" default="N" pipe="and" />
         <condition operation="null" column="exc.member_srl" pipe="and" />
         <condition operation="null" column="notified.notified_date" pipe="and" />
         <group pipe="and">
