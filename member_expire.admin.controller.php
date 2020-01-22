@@ -30,6 +30,7 @@ class Member_ExpireAdminController extends Member_Expire
 		$new_config->expire_threshold = $request_vars->expire_threshold;
 		$new_config->expire_method = $request_vars->expire_method;
 		$new_config->auto_expire = $request_vars->auto_expire === 'Y' ? 'Y' : 'N';
+		$new_config->auto_expire_crontab = $request_vars->auto_expire_crontab === 'crontab' ? 'crontab' : 'N';
 		$new_config->auto_restore = $request_vars->auto_restore === 'Y' ? 'Y' : 'N';
 		$new_config->auto_start = $request_vars->auto_start ? $request_vars->auto_start : date('Y-m-d', time() + zgap());
 		$new_config->email_threshold = $request_vars->auto_notify ? $request_vars->auto_notify : 0;
