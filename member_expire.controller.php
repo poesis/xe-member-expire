@@ -49,7 +49,7 @@ class Member_ExpireController extends Member_Expire
 			$obj = new stdClass();
 			$obj->user_id = $args->user_id;
 			$output = executeQuery('member_expire.getMovedMembers', $obj);
-			if ($output->toBool() && count($output->data))
+			if ($output->toBool() && $output->data)
 			{
 				return $this->createObject(-1, 'msg_exists_user_id');
 			}
@@ -61,7 +61,7 @@ class Member_ExpireController extends Member_Expire
 			$obj = new stdClass();
 			$obj->email_address = $args->email_address;
 			$output = executeQuery('member_expire.getMovedMembers', $obj);
-			if ($output->toBool() && count($output->data))
+			if ($output->toBool() && $output->data)
 			{
 				$config = $this->getConfig();
 				if ($config->auto_restore === 'Y')
@@ -81,7 +81,7 @@ class Member_ExpireController extends Member_Expire
 			$obj = new stdClass();
 			$obj->nick_name = $args->nick_name;
 			$output = executeQuery('member_expire.getMovedMembers', $obj);
-			if ($output->toBool() && count($output->data))
+			if ($output->toBool() && $output->data)
 			{
 				return $this->createObject(-1, 'msg_exists_nick_name');
 			}
@@ -129,7 +129,7 @@ class Member_ExpireController extends Member_Expire
 			$members_query = executeQuery('member_expire.getExpiredMembers', $obj);
 			
 			// 정리할 휴면계정이 있다면 지금 정리한다.
-			if ($members_query->toBool() && count($members_query->data))
+			if ($members_query->toBool() && $members_query->data)
 			{
 				$oDB = DB::getInstance();
 				$oDB->begin();
@@ -162,7 +162,7 @@ class Member_ExpireController extends Member_Expire
 			$members_query = executeQuery('member_expire.getUnnotifiedMembers', $obj);
 			
 			// 안내할 회원이 있다면 지금 안내메일을 발송한다.
-			if ($members_query->toBool() && count($members_query->data))
+			if ($members_query->toBool() && $members_query->data)
 			{
 				$oDB = DB::getInstance();
 				$oDB->begin();
@@ -229,14 +229,14 @@ class Member_ExpireController extends Member_Expire
 			$obj->member_srl = $member_srl;
 			$output = executeQuery('member.getMemberInfoByMemberSrl', $obj);
 		}
-		if ($output->toBool() && count($output->data))
+		if ($output->toBool() && $output->data)
 		{
 			return;
 		}
 		
 		// 별도의 저장공간으로 이동된 휴면회원 중 주어진 정보와 일치하는 경우가 있는지 확인한다.
 		$output = executeQuery('member_expire.getMovedMembers', $obj);
-		if (!$output->toBool() || !count($output->data))
+		if (!$output->toBool() || !$output->data)
 		{
 			return;
 		}

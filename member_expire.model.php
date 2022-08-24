@@ -77,7 +77,7 @@ class Member_ExpireModel extends Member_Expire
 		{
 			return -43;
 		}
-		if (count($output->data) && !$resend)
+		if ($output->data && !$resend)
 		{
 			return 2;
 		}
