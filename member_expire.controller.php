@@ -98,7 +98,7 @@ class Member_ExpireController extends Member_Expire
 		// 자동으로 처리할 일이 없다면 종료한다.
 		$config = $this->getConfig();
 		$tasks = 0;
-		if ($config->auto_expire !== 'Y' && $config->email_threshold <= 0)
+		if ($config->auto_expire !== 'Y' && $config->email_threshold <= 0 || $config->auto_expire_crontab === 'crontab')
 		{
 			return;
 		}
@@ -177,7 +177,97 @@ class Member_ExpireController extends Member_Expire
 			}
 		}
 	}
-	
+
+	/**
+	 * Do not use a login trigger, run crontab every set time.
+	 * @return bool
+	 */
+	public function autoCrontabExpire()
+	{
+		// 자동으로 처리할 일이 없다면 종료한다.
+		$config = $this->getConfig();
+		$tasks = 0;
+		if ($config->auto_expire !== 'Y' && $config->email_threshold <= 0 || $config->auto_expire_crontab !== 'crontab')
+		{
+			return false;
+		}
+
+		// 이번에 처리할 일을 결정한다.
+		$expire_enabled = $config->auto_expire === 'Y' && (time() > (strtotime($config->auto_start) + zgap()));
+		if ($expire_enabled && $config->email_threshold <= 0)
+		{
+			$task = 'expire';
+		}
+		elseif (!$expire_enabled && $config->email_threshold > 0)
+		{
+			$task = 'notify';
+		}
+		else
+		{
+			$task = mt_rand() % 2 ? 'expire' : 'notify';
+		}
+
+		// 휴면계정을 자동 정리한다.
+		if ($task === 'expire')
+		{
+			// 정리할 휴면계정이 있는지 확인한다.
+			$obj = new stdClass();
+			$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + zgap());
+			$obj->list_count = $obj->page_count = $obj->page = 1;
+			$obj->orderby = 'asc';
+			$members_query = executeQuery('member_expire.getExpiredMembers', $obj);
+
+			// 정리할 휴면계정이 있다면 지금 정리한다.
+			if ($members_query->toBool() && count($members_query->data))
+			{
+				$oDB = DB::getInstance();
+				$oDB->begin();
+				$oModel = getModel('member_expire');
+
+				foreach ($members_query->data as $member)
+				{
+					if ($config->expire_method === 'delete')
+					{
+						$oModel->deleteMember($member, true, false);
+					}
+					else
+					{
+						$oModel->moveMember($member, true, false);
+					}
+				}
+
+				$oDB->commit();
+			}
+		}
+
+		// 휴면 안내메일을 자동 발송한다.
+		if ($task === 'notify')
+		{
+			// 안내할 회원이 있는지 확인한다.
+			$obj = new stdClass();
+			$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + ($config->email_threshold * 86400) + zgap());
+			$obj->list_count = $obj->page_count = $obj->page = 1;
+			$obj->orderby = 'asc';
+			$members_query = executeQuery('member_expire.getUnnotifiedMembers', $obj);
+
+			// 안내할 회원이 있다면 지금 안내메일을 발송한다.
+			if ($members_query->toBool() && count($members_query->data))
+			{
+				$oDB = DB::getInstance();
+				$oDB->begin();
+				$oModel = getModel('member_expire');
+
+				foreach ($members_query->data as $member)
+				{
+					$oModel->sendEmail($member, $config, false, false);
+				}
+
+				$oDB->commit();
+			}
+		}
+		return true;
+	}
+
 	/**
 	 * 모듈 실행 전 트리거.
 	 * 로그인, 아이디/비번찾기 등 휴면계정을 다시 활성화시키기 위해 꼭 필요한 작업을 할 때
