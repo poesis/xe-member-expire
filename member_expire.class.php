@@ -32,6 +32,7 @@ class Member_Expire extends ModuleObject
 		if (!$config->expire_threshold) $config->expire_threshold = 365;
 		if (!$config->expire_method) $config->expire_method = 'delete';
 		if (!$config->auto_expire) $config->auto_expire = 'N';
+		if (!$config->auto_expire_crontab) $config->auto_expire_crontab = 'N';
 		if (!$config->auto_restore) $config->auto_restore = 'N';
 		if (!$config->auto_start) $config->auto_start = '2015-08-18';
 		if (!$config->email_threshold) $config->email_threshold = 0;
