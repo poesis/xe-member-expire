@@ -2,9 +2,9 @@
 
 /**
  * 휴면계정 정리 모듈
- * 
+ *
  * Copyright (c) 2015, Kijin Sung <kijin@kijinsung.com>
- * 
+ *
  * 이 프로그램은 자유 소프트웨어입니다. 소프트웨어의 피양도자는 자유 소프트웨어
  * 재단이 공표한 GNU 일반 공중 사용 허가서 2판 또는 그 이후 판을 임의로
  * 선택해서, 그 규정에 따라 프로그램을 개작하거나 재배포할 수 있습니다.
@@ -47,7 +47,7 @@ class Member_Expire extends ModuleObject
 		}
 		return $config;
 	}
-	
+
 	/**
 	 * 숫자로 지정된 기간을 사람이 이해하기 쉬운 표현으로 변경하는 메소드.
 	 */
@@ -62,7 +62,7 @@ class Member_Expire extends ModuleObject
 			return round($days / 365) . '년';
 		}
 	}
-	
+
 	/**
 	 * 트리거가 정상적으로 등록되어 있는지 확인하는 메소드.
 	 */
@@ -95,7 +95,7 @@ class Member_Expire extends ModuleObject
 		}
 		return true;
 	}
-	
+
 	/**
 	 * 모듈에서 사용하는 트리거를 등록하는 메소드.
 	 */
@@ -129,7 +129,7 @@ class Member_Expire extends ModuleObject
 		}
 		return true;
 	}
-	
+
 	/**
 	 * 누락된 DB 인덱스가 있는지 확인하는 메소드.
 	 */
@@ -150,7 +150,7 @@ class Member_Expire extends ModuleObject
 		}
 		return true;
 	}
-	
+
 	/**
 	 * 누락된 DB 인덱스를 생성하는 메소드.
 	 */
@@ -171,15 +171,15 @@ class Member_Expire extends ModuleObject
 		}
 		return true;
 	}
-	
+
 	/**
 	 * XE 버전에 따라 Object, BaseObject 클래스 호환성을 보장하기 위한 메소드.
 	 */
 	public function createObject($error = 0, $message = 'success')
 	{
-		return class_exists('BaseObject') ? new BaseObject($error, $message) : new Object($error, $message);
+		return new BaseObject($error, $message);
 	}
-	
+
 	/**
 	 * 모듈 설치 메소드.
 	 */
@@ -187,9 +187,9 @@ class Member_Expire extends ModuleObject
 	{
 		$this->registerTriggers();
 		$this->createIndexes();
-		return $this->createObject();
+		return new BaseObject();
 	}
-	
+
 	/**
 	 * 모듈 업데이트 필요 여부 체크 메소드.
 	 */
@@ -197,7 +197,7 @@ class Member_Expire extends ModuleObject
 	{
 		return !$this->checkTriggers() || !$this->checkIndexes();
 	}
-	
+
 	/**
 	 * 모듈 업데이트 메소드.
 	 */
@@ -205,9 +205,9 @@ class Member_Expire extends ModuleObject
 	{
 		$this->registerTriggers();
 		$this->createIndexes();
-		return $this->createObject(0, 'success_updated');
+		return new BaseObject(0, 'success_updated');
 	}
-	
+
 	/**
 	 * 캐시파일 재생성 메소드.
 	 */

@@ -2,9 +2,9 @@
 
 /**
  * 휴면계정 정리 모듈
- * 
+ *
  * Copyright (c) 2015, Kijin Sung <kijin@kijinsung.com>
- * 
+ *
  * 이 프로그램은 자유 소프트웨어입니다. 소프트웨어의 피양도자는 자유 소프트웨어
  * 재단이 공표한 GNU 일반 공중 사용 허가서 2판 또는 그 이후 판을 임의로
  * 선택해서, 그 규정에 따라 프로그램을 개작하거나 재배포할 수 있습니다.
@@ -23,7 +23,7 @@ class Member_ExpireController extends Member_Expire
 	 * 임시 복원된 회원정보를 기억하는 변수.
 	 */
 	protected static $_temp_member_srl = array();
-	
+
 	/**
 	 * 임시 복원 처리가 필요한 act 목록.
 	 */
@@ -35,7 +35,7 @@ class Member_ExpireController extends Member_Expire
 		'procMemberResendAuthMail',
 		'procMemberAuthAccount',
 	);
-	
+
 	/**
 	 * 회원 추가 및 수정 전 트리거.
 	 * 별도의 저장공간으로 이동된 회원과 같은 아이디 등을 사용하여 가입하거나
@@ -54,7 +54,7 @@ class Member_ExpireController extends Member_Expire
 				return $this->createObject(-1, 'msg_exists_user_id');
 			}
 		}
-		
+
 		// 별도 저장된 휴면회원과 같은 메일 주소로 가입하는 것을 금지한다.
 		if ($args->email_address)
 		{
@@ -74,7 +74,7 @@ class Member_ExpireController extends Member_Expire
 				}
 			}
 		}
-		
+
 		// 별도 저장된 휴면회원과 같은 닉네임으로 가입하는 것을 금지한다.
 		if ($args->nick_name)
 		{
@@ -87,7 +87,7 @@ class Member_ExpireController extends Member_Expire
 			}
 		}
 	}
-	
+
 	/**
 	 * 회원 로그인 및 로그아웃 트리거.
 	 * 실제 로그인 및 로그아웃과는 무관하고, 적당한 간격으로 자동 정리를 실행하는 데 쓰인다.
@@ -102,7 +102,7 @@ class Member_ExpireController extends Member_Expire
 		{
 			return;
 		}
-		
+
 		// 이번에 처리할 일을 결정한다.
 		$expire_enabled = $config->auto_expire === 'Y' && (time() > (strtotime($config->auto_start) + zgap()));
 		if ($expire_enabled && $config->email_threshold <= 0)
@@ -117,7 +117,7 @@ class Member_ExpireController extends Member_Expire
 		{
 			$task = mt_rand() % 2 ? 'expire' : 'notify';
 		}
-		
+
 		// 휴면계정을 자동 정리한다.
 		if ($task === 'expire')
 		{
@@ -126,15 +126,15 @@ class Member_ExpireController extends Member_Expire
 			$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + zgap());
 			$obj->list_count = $obj->page_count = $obj->page = 1;
 			$obj->orderby = 'asc';
-			$members_query = executeQuery('member_expire.getExpiredMembers', $obj);
-			
+			$members_query = executeQueryArray('member_expire.getExpiredMembers', $obj);
+
 			// 정리할 휴면계정이 있다면 지금 정리한다.
 			if ($members_query->toBool() && $members_query->data)
 			{
 				$oDB = DB::getInstance();
 				$oDB->begin();
 				$oModel = getModel('member_expire');
-				
+
 				foreach ($members_query->data as $member)
 				{
 					if ($config->expire_method === 'delete')
@@ -146,11 +146,11 @@ class Member_ExpireController extends Member_Expire
 						$oModel->moveMember($member, true, false);
 					}
 				}
-				
+
 				$oDB->commit();
 			}
 		}
-		
+
 		// 휴면 안내메일을 자동 발송한다.
 		if ($task === 'notify')
 		{
@@ -159,25 +159,25 @@ class Member_ExpireController extends Member_Expire
 			$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + ($config->email_threshold * 86400) + zgap());
 			$obj->list_count = $obj->page_count = $obj->page = 1;
 			$obj->orderby = 'asc';
-			$members_query = executeQuery('member_expire.getUnnotifiedMembers', $obj);
-			
+			$members_query = executeQueryArray('member_expire.getUnnotifiedMembers', $obj);
+
 			// 안내할 회원이 있다면 지금 안내메일을 발송한다.
 			if ($members_query->toBool() && $members_query->data)
 			{
 				$oDB = DB::getInstance();
 				$oDB->begin();
 				$oModel = getModel('member_expire');
-				
+
 				foreach ($members_query->data as $member)
 				{
 					$oModel->sendEmail($member, $config, false, false);
 				}
-				
+
 				$oDB->commit();
 			}
 		}
 	}
-	
+
 	/**
 	 * 모듈 실행 전 트리거.
 	 * 로그인, 아이디/비번찾기 등 휴면계정을 다시 활성화시키기 위해 꼭 필요한 작업을 할 때
@@ -188,10 +188,10 @@ class Member_ExpireController extends Member_Expire
 	{
 		// 처리가 필요하지 않은 act인 경우 즉시 실행을 종료한다.
 		if (!in_array($oModule->act, self::$_acts_to_intercept)) return;
-		
+
 		// 이미 로그인했다면 실행을 종료한다.
 		if ($_SESSION['member_srl']) return;
-		
+
 		// 로그인 및 인증을 위해 입력된 아이디, 메일 주소, 닉네임 또는 member_srl을 파악한다.
 		$user_id = Context::get('user_id');
 		$email_address = Context::get('email_address');
@@ -206,7 +206,7 @@ class Member_ExpireController extends Member_Expire
 		{
 			return;
 		}
-		
+
 		// 주어진 정보와 일치하는 회원이 있는지 확인한다.
 		$obj = new stdClass();
 		if ($user_id)
@@ -233,21 +233,21 @@ class Member_ExpireController extends Member_Expire
 		{
 			return;
 		}
-		
+
 		// 별도의 저장공간으로 이동된 휴면회원 중 주어진 정보와 일치하는 경우가 있는지 확인한다.
-		$output = executeQuery('member_expire.getMovedMembers', $obj);
+		$output = executeQueryArray('member_expire.getMovedMembers', $obj);
 		if (!$output->toBool() || !$output->data)
 		{
 			return;
 		}
-		
+
 		// 자동 복원 기능을 사용하지 않는 경우, 휴면 처리되었다는 메시지를 출력한다.
 		$config = $this->getConfig();
 		if ($config->auto_restore !== 'Y')
 		{
 			return $this->createObject(-1, 'msg_your_membership_has_expired');
 		}
-		
+
 		// 회원정보를 member 테이블로 복사한다.
 		$member = reset($output->data);
 		$output = getModel('member_expire')->restoreMember($member, true);
@@ -255,17 +255,17 @@ class Member_ExpireController extends Member_Expire
 		{
 			return;
 		}
-		
+
 		// 다시 정리되지 않도록 예외 처리한다.
 		$obj = new stdClass();
 		$obj->member_srl = $member->member_srl;
 		executeQuery('member_expire.insertException', $obj);
-		
+
 		// 임시로 복원해 놓았음을 표시하여, 인증 실패시 되돌릴 수 있도록 한다.
 		self::$_temp_member_srl = $member->member_srl;
 		return;
 	}
-	
+
 	/**
 	 * 모듈 실행 후 트리거.
 	 * 임시로 member 테이블에 옮겨놓은 레코드를 원위치시킨다.
@@ -274,18 +274,18 @@ class Member_ExpireController extends Member_Expire
 	{
 		// 실행 전 트리거에서 임시로 복원해 둔 회원이 없다면 여기서도 할 일이 없다.
 		if (!self::$_temp_member_srl) return;
-		
+
 		// 로그인에 성공했다면 원래대로 돌려놓을 필요가 없다.
 		if (!$_SESSION['member_srl'])
 		{
 			getModel('member_expire')->moveMember(self::$_temp_member_srl, false, true);
 		}
-		
+
 		// 임시로 예외 등록을 해두었다면 해제한다.
 		$obj = new stdClass();
 		$obj->member_srl = self::$_temp_member_srl;
 		executeQuery('member_expire.deleteException', $obj);
-		
+
 		// 로그인 후 전달할 페이지가 지정되어 있다면 redirect URL을 변경한다.
 		$config = $this->getConfig();
 		if ($oModule->act === 'procMemberLogin' && $_SESSION['member_srl'] && $config->url_after_restore)

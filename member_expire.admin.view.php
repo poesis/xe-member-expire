@@ -2,9 +2,9 @@
 
 /**
  * 휴면계정 정리 모듈
- * 
+ *
  * Copyright (c) 2015, Kijin Sung <kijin@kijinsung.com>
- * 
+ *
  * 이 프로그램은 자유 소프트웨어입니다. 소프트웨어의 피양도자는 자유 소프트웨어
  * 재단이 공표한 GNU 일반 공중 사용 허가서 2판 또는 그 이후 판을 임의로
  * 선택해서, 그 규정에 따라 프로그램을 개작하거나 재배포할 수 있습니다.
@@ -26,13 +26,13 @@ class Member_ExpireAdminView extends Member_Expire
 	{
 		// 현재 설정을 불러온다.
 		Context::set('mex_config', $this->getConfig());
-		
+
 		// 템플릿을 지정한다.
 		Context::setBrowserTitle('휴면계정 기본 설정 - XE Admin');
 		$this->setTemplatePath($this->module_path.'tpl');
 		$this->setTemplateFile('config');
 	}
-	
+
 	/**
 	 * 휴면계정 일괄 정리 화면을 표시하는 메소드.
 	 */
@@ -41,7 +41,7 @@ class Member_ExpireAdminView extends Member_Expire
 		// 현재 설정을 불러온다.
 		$config = $this->getConfig();
 		Context::set('mex_config', $this->getConfig());
-		
+
 		// 휴면계정 수를 불러온다.
 		$obj = new stdClass();
 		$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + zgap());
@@ -49,13 +49,13 @@ class Member_ExpireAdminView extends Member_Expire
 		$expired_members_count = $expired_members_count->toBool() ? $expired_members_count->data->count : 0;
 		Context::set('expire_threshold', $this->translateThreshold($config->expire_threshold));
 		Context::set('expired_members_count', $expired_members_count);
-		
+
 		// 템플릿을 지정한다.
 		Context::setBrowserTitle('휴면계정 일괄 정리 - XE Admin');
 		$this->setTemplatePath($this->module_path.'tpl');
 		$this->setTemplateFile('cleanup');
 	}
-	
+
 	/**
 	 * 안내메일 일괄 발송 화면을 표시하는 메소드.
 	 */
@@ -64,7 +64,7 @@ class Member_ExpireAdminView extends Member_Expire
 		// 현재 설정을 불러온다.
 		$config = $this->getConfig();
 		Context::set('mex_config', $this->getConfig());
-		
+
 		// 미리 알리기 위한 추가 날짜 설정을 불러온다.
 		if (($extra_days = Context::get('extra_days')) && ctype_digit($extra_days))
 		{
@@ -75,21 +75,21 @@ class Member_ExpireAdminView extends Member_Expire
 			$extra_days = $config->email_threshold;
 		}
 		Context::set('extra_days', $extra_days);
-		
+
 		// 휴면계정 수를 불러온다.
 		$obj = new stdClass();
 		$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + ($extra_days * 86400) + zgap());
 		$expired_members_count = executeQuery('member_expire.countExpiredMembers', $obj);
 		$expired_members_count = $expired_members_count->toBool() ? $expired_members_count->data->count : 0;
 		Context::set('expired_members_count', $expired_members_count);
-		
+
 		// 아직 메일을 발송하지 않은 휴면계정 수를 불러온다.
 		$obj = new stdClass();
 		$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + ($extra_days * 86400) + zgap());
 		$unnotified_members_count = executeQuery('member_expire.countUnnotifiedMembers', $obj);
 		$unnotified_members_count = $unnotified_members_count->toBool() ? $unnotified_members_count->data->count : 0;
 		Context::set('unnotified_members_count', $unnotified_members_count);
-		
+
 		// 아직 메일을 발송하지 않았으나 정지 상태여서 메일 발송이 불가능한 휴면계정 수를 불러온다.
 		$obj = new stdClass();
 		$obj->threshold = date('YmdHis', time() - ($config->expire_threshold * 86400) + ($extra_days * 86400) + zgap());
@@ -97,13 +97,13 @@ class Member_ExpireAdminView extends Member_Expire
 		$denied_members_count = executeQuery('member_expire.countUnnotifiedMembers', $obj);
 		$denied_members_count = $denied_members_count->toBool() ? $denied_members_count->data->count : 0;
 		Context::set('denied_members_count', $denied_members_count);
-		
+
 		// 템플릿을 지정한다.
 		Context::setBrowserTitle('안내메일 일괄 발송 - XE Admin');
 		$this->setTemplatePath($this->module_path.'tpl');
 		$this->setTemplateFile('email_send');
 	}
-	
+
 	/**
 	 * 안내메일 내용 편집 화면을 표시하는 메소드.
 	 */
@@ -113,7 +113,7 @@ class Member_ExpireAdminView extends Member_Expire
 		$config = $this->getConfig();
 		Context::set('mex_config', $this->getConfig());
 		Context::set('expire_threshold', $this->translateThreshold($config->expire_threshold));
-		
+
 		// 에디터를 생성한다.
 		$oEditorModel = getModel('editor');
 		$oEditorConfig = getModel('module')->getModuleConfig('editor');
@@ -129,13 +129,13 @@ class Member_ExpireAdminView extends Member_Expire
 		$option->height = 300;
 		Context::set('editor', $oEditorModel->getEditor(0, $option));
 		Context::set('editor_skin_list', $oEditorModel->getEditorSkinList());
-		
+
 		// 템플릿을 지정한다.
 		Context::setBrowserTitle('안내메일 내용 편집 - XE Admin');
 		$this->setTemplatePath($this->module_path.'tpl');
 		$this->setTemplateFile('email_template');
 	}
-	
+
 	/**
 	 * 안내메일 발송 내역 화면을 표시하는 메소드.
 	 */
@@ -144,7 +144,7 @@ class Member_ExpireAdminView extends Member_Expire
 		// 현재 설정을 불러온다.
 		$config = $this->getConfig();
 		Context::set('mex_config', $config);
-		
+
 		// 검색 조건을 불러온다.
 		$search_target = Context::get('search_target');
 		$search_keyword = Context::get('search_keyword');
@@ -157,7 +157,7 @@ class Member_ExpireAdminView extends Member_Expire
 		$list_count = intval(Context::get('list_count'));
 		if (!in_array($list_count, $valid_list_counts)) $list_count = 10;
 		Context::set('list_count', $list_count);
-		
+
 		// 발송 내역을 불러온다.
 		$obj = new stdClass();
 		if ($search_target && $search_keyword) $obj->$search_target = trim($search_keyword);
@@ -166,7 +166,7 @@ class Member_ExpireAdminView extends Member_Expire
 		$obj->list_count = $list_count;
 		$obj->page = $page = Context::get('page') ? Context::get('page') : 1;
 		$obj->orderby = 'desc';
-		$sent_emails = executeQuery('member_expire.getNotifiedDates', $obj);
+		$sent_emails = executeQueryArray('member_expire.getNotifiedDates', $obj);
 		$sent_emails = $sent_emails->toBool() ? $sent_emails->data : array();
 		$member_srls = array();
 		foreach ($sent_emails as $member)
@@ -187,7 +187,7 @@ class Member_ExpireAdminView extends Member_Expire
 		Context::set('sent_email_count', $sent_email_count);
 		Context::set('sent_emails', $sent_emails);
 		Context::set('sent_emails_groups', $sent_emails_groups);
-		
+
 		// 페이징을 처리한다.
 		$paging = $this->createObject();
 		$paging->total_count = $sent_email_count;
@@ -196,13 +196,13 @@ class Member_ExpireAdminView extends Member_Expire
 		$paging->page_navigation = new PageHandler($paging->total_count, $paging->total_page, $page, $list_count);
 		Context::set('paging', $paging);
 		Context::set('page', $page);
-		
+
 		// 템플릿을 지정한다.
 		Context::setBrowserTitle('안내메일 발송 내역 - XE Admin');
 		$this->setTemplatePath($this->module_path.'tpl');
 		$this->setTemplateFile('email_list');
 	}
-	
+
 	/**
 	 * 정리대상 회원 목록을 표시하는 메소드.
 	 */
@@ -211,7 +211,7 @@ class Member_ExpireAdminView extends Member_Expire
 		// 현재 설정을 불러온다.
 		$config = $this->getConfig();
 		Context::set('mex_config', $config);
-		
+
 		// 검색 조건을 불러온다.
 		$search_target = Context::get('search_target');
 		$search_keyword = Context::get('search_keyword');
@@ -224,7 +224,7 @@ class Member_ExpireAdminView extends Member_Expire
 		$list_count = intval(Context::get('list_count'));
 		if (!in_array($list_count, $valid_list_counts)) $list_count = 10;
 		Context::set('list_count', $list_count);
-		
+
 		// 휴면계정 목록을 불러온다.
 		$obj = new stdClass();
 		if ($search_target && $search_keyword) $obj->$search_target = trim($search_keyword);
@@ -234,7 +234,7 @@ class Member_ExpireAdminView extends Member_Expire
 		$obj->list_count = $list_count;
 		$obj->page = $page = Context::get('page') ? Context::get('page') : 1;
 		$obj->orderby = 'desc';
-		$expired_members = executeQuery('member_expire.getExpiredMembers', $obj);
+		$expired_members = executeQueryArray('member_expire.getExpiredMembers', $obj);
 		$expired_members = $expired_members->toBool() ? $expired_members->data : array();
 		$member_srls = array();
 		foreach ($expired_members as $member)
@@ -256,7 +256,7 @@ class Member_ExpireAdminView extends Member_Expire
 		Context::set('expired_members_count', $expired_members_count);
 		Context::set('expired_members', $expired_members);
 		Context::set('expired_members_groups', $expired_members_groups);
-		
+
 		// 페이징을 처리한다.
 		$paging = $this->createObject();
 		$paging->total_count = $expired_members_count;
@@ -265,13 +265,13 @@ class Member_ExpireAdminView extends Member_Expire
 		$paging->page_navigation = new PageHandler($paging->total_count, $paging->total_page, $page, $list_count);
 		Context::set('paging', $paging);
 		Context::set('page', $page);
-		
+
 		// 템플릿을 지정한다.
 		Context::setBrowserTitle('정리대상 회원 목록 - XE Admin');
 		$this->setTemplatePath($this->module_path.'tpl');
 		$this->setTemplateFile('list_targets');
 	}
-	
+
 	/**
 	 * 별도저장 회원 목록을 표시하는 메소드.
 	 */
@@ -280,7 +280,7 @@ class Member_ExpireAdminView extends Member_Expire
 		// 현재 설정을 불러온다.
 		$config = $this->getConfig();
 		Context::set('mex_config', $config);
-		
+
 		// 검색 조건을 불러온다.
 		$search_target = Context::get('search_target');
 		$search_keyword = Context::get('search_keyword');
@@ -293,7 +293,7 @@ class Member_ExpireAdminView extends Member_Expire
 		$list_count = intval(Context::get('list_count'));
 		if (!in_array($list_count, $valid_list_counts)) $list_count = 10;
 		Context::set('list_count', $list_count);
-		
+
 		// 휴면계정 목록을 불러온다.
 		$obj = new stdClass();
 		if ($search_target && $search_keyword) $obj->$search_target = trim($search_keyword);
@@ -302,7 +302,7 @@ class Member_ExpireAdminView extends Member_Expire
 		$obj->list_count = $list_count;
 		$obj->page = $page = Context::get('page') ? Context::get('page') : 1;
 		$obj->orderby = 'desc';
-		$moved_members = executeQuery('member_expire.getMovedMembers', $obj);
+		$moved_members = executeQueryArray('member_expire.getMovedMembers', $obj);
 		$moved_members = $moved_members->toBool() ? $moved_members->data : array();
 		$member_srls = array();
 		foreach ($moved_members as $member)
@@ -324,7 +324,7 @@ class Member_ExpireAdminView extends Member_Expire
 		Context::set('moved_members_count', $moved_members_count);
 		Context::set('moved_members', $moved_members);
 		Context::set('moved_members_groups', $moved_members_groups);
-		
+
 		// 페이징을 처리한다.
 		$paging = $this->createObject();
 		$paging->total_count = $moved_members_count;
@@ -333,13 +333,13 @@ class Member_ExpireAdminView extends Member_Expire
 		$paging->page_navigation = new PageHandler($paging->total_count, $paging->total_page, $page, $list_count);
 		Context::set('paging', $paging);
 		Context::set('page', $page);
-		
+
 		// 템플릿을 지정한다.
 		Context::setBrowserTitle('별도저장 회원 목록 - XE Admin');
 		$this->setTemplatePath($this->module_path.'tpl');
 		$this->setTemplateFile('list_moved');
 	}
-	
+
 	/**
 	 * 예외 목록 화면을 표시하는 메소드.
 	 */
@@ -348,7 +348,7 @@ class Member_ExpireAdminView extends Member_Expire
 		// 현재 설정을 불러온다.
 		$config = $this->getConfig();
 		Context::set('mex_config', $config);
-		
+
 		// 검색 조건을 불러온다.
 		$search_target = Context::get('search_target');
 		$search_keyword = Context::get('search_keyword');
@@ -361,7 +361,7 @@ class Member_ExpireAdminView extends Member_Expire
 		$list_count = intval(Context::get('list_count'));
 		if (!in_array($list_count, $valid_list_counts)) $list_count = 10;
 		Context::set('list_count', $list_count);
-		
+
 		// 발송 내역을 불러온다.
 		$obj = new stdClass();
 		if ($search_target && $search_keyword) $obj->$search_target = trim($search_keyword);
@@ -370,7 +370,7 @@ class Member_ExpireAdminView extends Member_Expire
 		$obj->list_count = $list_count;
 		$obj->page = $page = Context::get('page') ? Context::get('page') : 1;
 		$obj->orderby = 'desc';
-		$exceptions = executeQuery('member_expire.getExceptions', $obj);
+		$exceptions = executeQueryArray('member_expire.getExceptions', $obj);
 		$exceptions = $exceptions->toBool() ? $exceptions->data : array();
 		$member_srls = array();
 		foreach ($exceptions as $member)
@@ -391,7 +391,7 @@ class Member_ExpireAdminView extends Member_Expire
 		Context::set('exception_count', $exception_count);
 		Context::set('exceptions', $exceptions);
 		Context::set('exceptions_groups', $exceptions_groups);
-		
+
 		// 페이징을 처리한다.
 		$paging = $this->createObject();
 		$paging->total_count = $exception_count;
@@ -400,7 +400,7 @@ class Member_ExpireAdminView extends Member_Expire
 		$paging->page_navigation = new PageHandler($paging->total_count, $paging->total_page, $page, $list_count);
 		Context::set('paging', $paging);
 		Context::set('page', $page);
-		
+
 		// 템플릿을 지정한다.
 		Context::setBrowserTitle('예외 목록 - XE Admin');
 		$this->setTemplatePath($this->module_path.'tpl');

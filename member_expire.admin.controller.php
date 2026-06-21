@@ -2,9 +2,9 @@
 
 /**
  * 휴면계정 정리 모듈
- * 
+ *
  * Copyright (c) 2015, Kijin Sung <kijin@kijinsung.com>
- * 
+ *
  * 이 프로그램은 자유 소프트웨어입니다. 소프트웨어의 피양도자는 자유 소프트웨어
  * 재단이 공표한 GNU 일반 공중 사용 허가서 2판 또는 그 이후 판을 임의로
  * 선택해서, 그 규정에 따라 프로그램을 개작하거나 재배포할 수 있습니다.
@@ -34,7 +34,7 @@ class Member_ExpireAdminController extends Member_Expire
 		$new_config->auto_start = $request_vars->auto_start ? $request_vars->auto_start : date('Y-m-d', time() + zgap());
 		$new_config->email_threshold = $request_vars->auto_notify ? $request_vars->auto_notify : 0;
 		$new_config->url_after_restore = $request_vars->url_after_restore ? $request_vars->url_after_restore : null;
-		
+
 		// 자동 정리 옵션을 선택한 경우, 현재 남아 있는 휴면계정 수를 구한다.
 		if ($new_config->auto_expire === 'Y')
 		{
@@ -58,7 +58,7 @@ class Member_ExpireAdminController extends Member_Expire
 				return $this->createObject(-1, 'msg_too_many_unnotified_members');
 			}
 		}
-		
+
 		// 새 모듈 설정을 저장한다.
 		$output = getController('module')->insertModuleConfig('member_expire', $new_config);
 		if ($output->toBool())
@@ -69,7 +69,7 @@ class Member_ExpireAdminController extends Member_Expire
 		{
 			return $output;
 		}
-		
+
 		// 반환 URL로 돌려보낸다.
 		if (Context::get('success_return_url'))
 		{
@@ -80,7 +80,7 @@ class Member_ExpireAdminController extends Member_Expire
 			$this->setRedirectUrl(getNotEncodedUrl('', 'module', 'admin', 'act', 'dispMember_expireAdminConfig'));
 		}
 	}
-	
+
 	/**
 	 * 안내메일 내용 템플릿을 저장하는 메소드.
 	 */
@@ -91,7 +91,7 @@ class Member_ExpireAdminController extends Member_Expire
 		$new_config = $this->getConfig();
 		$new_config->email_subject = $request_vars->email_subject;
 		$new_config->email_content = $request_vars->email_content;
-		
+
 		// 새 모듈 설정을 저장한다.
 		$output = getController('module')->insertModuleConfig('member_expire', $new_config);
 		if ($output->toBool())
@@ -102,7 +102,7 @@ class Member_ExpireAdminController extends Member_Expire
 		{
 			return $output;
 		}
-		
+
 		// 반환 URL로 돌려보낸다.
 		if (Context::get('success_return_url'))
 		{
@@ -113,7 +113,7 @@ class Member_ExpireAdminController extends Member_Expire
 			$this->setRedirectUrl(getNotEncodedUrl('', 'module', 'admin', 'act', 'dispMember_expireAdminConfig'));
 		}
 	}
-	
+
 	/**
 	 * 안내메일 발송 내역을 정리하는 메소드.
 	 */
@@ -122,7 +122,7 @@ class Member_ExpireAdminController extends Member_Expire
 		// 정리 설정을 가져온다.
 		$request_vars = Context::getRequestVars();
 		$threshold = intval($request_vars->clear_threshold);
-		
+
 		// 정리한다.
 		if ($threshold >= 0)
 		{
@@ -130,12 +130,12 @@ class Member_ExpireAdminController extends Member_Expire
 			$args->threshold = date('YmdHis', time() - ($threshold * 86400) + zgap());
 			$output = executeQuery('member_expire.deleteNotifiedDate', $args);
 		}
-		
+
 		// 목록 페이지로 돌려보낸다.
 		$this->setRedirectUrl(getNotEncodedUrl('', 'module', 'admin', 'act', 'dispMember_expireAdminEmailList'));
 		return;
 	}
-	
+
 	/**
 	 * 안내메일을 실제 발송하는 메소드.
 	 */
@@ -151,14 +151,14 @@ class Member_ExpireAdminController extends Member_Expire
 		$total_count = $request_vars->total_count ? $request_vars->total_count : 3;
 		$batch_count = $request_vars->batch_count ? $request_vars->batch_count : 3;
 		$done_count = 0;
-		
+
 		// 트랜잭션을 시작한다.
 		$oDB = DB::getInstance();
 		$oDB->begin();
-		
+
 		// 모델을 불러온다.
 		$oModel = getModel('member_expire');
-		
+
 		// 발송 대상 회원정보 전체를 불러온다.
 		if ($member_srl)
 		{
@@ -180,14 +180,14 @@ class Member_ExpireAdminController extends Member_Expire
 			$args->list_count = $batch_count;
 			$args->page = 1;
 			$args->orderby = 'asc';
-			$members_query = executeQuery($query_id, $args);
+			$members_query = executeQueryArray($query_id, $args);
 			if (!$members_query->toBool())
 			{
 				$oDB->rollback(); $this->add('count', -4); return;
 			}
 			$members = $members_query->data ? $members_query->data : array();
 		}
-		
+
 		// 각 회원에게 메일을 발송한다.
 		foreach ($members as $member)
 		{
@@ -198,15 +198,15 @@ class Member_ExpireAdminController extends Member_Expire
 			}
 			$done_count++;
 		}
-		
+
 		// 트랜잭션을 커밋한다.
 		$oDB->commit();
-		
+
 		// 발송된 결과 수를 반환한다.
 		$this->add('count', $done_count);
 		return true;
 	}
-	
+
 	/**
 	 * 개별 휴면계정 또는 주어진 갯수만큼의 휴면계정을 정리하는 메소드.
 	 */
@@ -221,20 +221,20 @@ class Member_ExpireAdminController extends Member_Expire
 		$total_count = $request_vars->total_count ? $request_vars->total_count : 10;
 		$batch_count = $request_vars->batch_count ? $request_vars->batch_count : 10;
 		$done_count = 0;
-		
+
 		// 트랜잭션을 시작한다.
 		$oDB = DB::getInstance();
 		$oDB->begin();
-		
+
 		// 모델을 불러온다.
 		$oModel = getModel('member_expire');
-		
+
 		// 정리 방법에 따라 처리한다.
 		switch ($method)
 		{
 			// 삭제.
 			case 'delete':
-				
+
 				// 정리 대상 member_srl들을 불러온다.
 				if ($member_srl)
 				{
@@ -247,7 +247,7 @@ class Member_ExpireAdminController extends Member_Expire
 					$args->list_count = $batch_count;
 					$args->page = 1;
 					$args->orderby = 'asc';
-					$member_srls_query = executeQuery('member_expire.getExpiredMemberSrlOnly', $args);
+					$member_srls_query = executeQueryArray('member_expire.getExpiredMemberSrlOnly', $args);
 					if (!$member_srls_query->toBool())
 					{
 						$oDB->rollback(); $this->add('count', -1); return;
@@ -258,7 +258,7 @@ class Member_ExpireAdminController extends Member_Expire
 						$member_srls[] = $member_srls_item->member_srl;
 					}
 				}
-				
+
 				// 각각의 member_srl 및 관련정보를 삭제한다.
 				foreach ($member_srls as $member_srl)
 				{
@@ -270,10 +270,10 @@ class Member_ExpireAdminController extends Member_Expire
 					$done_count++;
 				}
 				break;
-			
+
 			// 이동.
 			case 'move':
-				
+
 				// 정리 대상 회원정보 전체를 불러온다.
 				if ($member_srl)
 				{
@@ -294,14 +294,14 @@ class Member_ExpireAdminController extends Member_Expire
 					$args->list_count = $batch_count;
 					$args->page = 1;
 					$args->orderby = 'asc';
-					$members_query = executeQuery('member_expire.getExpiredMembers', $args);
+					$members_query = executeQueryArray('member_expire.getExpiredMembers', $args);
 					if (!$members_query->toBool())
 					{
 						$oDB->rollback(); $this->add('count', -6); return;
 					}
 					$members = $members_query->data ? $members_query->data : array();
 				}
-				
+
 				// 각 회원정보를 member_expired 테이블로 이동한다.
 				foreach ($members as $member)
 				{
@@ -313,20 +313,20 @@ class Member_ExpireAdminController extends Member_Expire
 					$done_count++;
 				}
 				break;
-			
+
 			// 기타.
 			default:
 				$done_count = -10;
 		}
-		
+
 		// 트랜잭션을 커밋한다.
 		$oDB->commit();
-		
+
 		// 정리된 결과 수를 반환한다.
 		$this->add('count', $done_count);
 		return true;
 	}
-	
+
 	/**
 	 * 개별 휴면계정을 복원하는 메소드.
 	 */
@@ -339,7 +339,7 @@ class Member_ExpireAdminController extends Member_Expire
 			$this->add('restored', -1);
 			return;
 		}
-		
+
 		// 복원한다.
 		$oModel = getModel('member_expire');
 		$result = $oModel->restoreMember($member_srl, true);
@@ -348,12 +348,12 @@ class Member_ExpireAdminController extends Member_Expire
 			$this->add('restored', $result);
 			return;
 		}
-		
+
 		// 복원 완료 메시지를 반환한다.
 		$this->add('restored', 1);
 		return true;
 	}
-	
+
 	/**
 	 * 개별 휴면계정을 삭제하는 메소드.
 	 */
@@ -375,11 +375,11 @@ class Member_ExpireAdminController extends Member_Expire
 			$this->add('deleted', -1);
 			return;
 		}
-		
+
 		// 트랜잭션을 시작한다.
 		$oDB = DB::getInstance();
 		$oDB->begin();
-		
+
 		// 삭제한다.
 		$oModel = getModel('member_expire');
 		$deleted_count = 0;
@@ -401,15 +401,15 @@ class Member_ExpireAdminController extends Member_Expire
 			}
 			$deleted_count++;
 		}
-		
+
 		// 트랜잭션을 커밋한다.
 		$oDB->commit();
-		
+
 		// 복원 완료 메시지를 반환한다.
 		$this->add('deleted', $deleted_count);
 		return true;
 	}
-	
+
 	/**
 	 * 예외 회원을 추가하는 메소드.
 	 */
@@ -418,7 +418,7 @@ class Member_ExpireAdminController extends Member_Expire
 		// 검색 조건을 가져온다.
 		$keyword = trim(Context::get('exc_keyword'));
 		$member_srls = array();
-		
+
 		// 회원을 찾는다.
 		if (ctype_digit($keyword))
 		{
@@ -437,7 +437,7 @@ class Member_ExpireAdminController extends Member_Expire
 			$args->s_user_id = $keyword;
 			$args->s_user_name = $keyword;
 			$args->s_nick_name = $keyword;
-			$query = executeQuery('member.getMemberList', $args);
+			$query = executeQueryArray('member.getMemberList', $args);
 			if ($query->toBool() && $query->data)
 			{
 				foreach ($query->data as $member_info)
@@ -446,11 +446,11 @@ class Member_ExpireAdminController extends Member_Expire
 				}
 			}
 		}
-		
+
 		// 트랜잭션을 시작한다.
 		$oDB = DB::getInstance();
 		$oDB->begin();
-		
+
 		// 예외를 추가한다.
 		foreach ($member_srls as $member_srl)
 		{
@@ -464,15 +464,15 @@ class Member_ExpireAdminController extends Member_Expire
 				executeQuery('member_expire.insertException', $args);
 			}
 		}
-		
+
 		// 트랜잭션을 커밋한다.
 		$oDB->commit();
-		
+
 		// 목록 페이지로 돌려보낸다.
 		$this->setRedirectUrl(getNotEncodedUrl('', 'module', 'admin', 'act', 'dispMember_expireAdminListExceptions'));
 		return;
 	}
-	
+
 	/**
 	 * 예외를 해제하는 메소드.
 	 */
@@ -485,12 +485,12 @@ class Member_ExpireAdminController extends Member_Expire
 			$this->add('removed', -1);
 			return;
 		}
-		
+
 		// 삭제한다.
 		$args = new stdClass();
 		$args->member_srl = $member_srl;
 		executeQuery('member_expire.deleteException', $args);
-		
+
 		// 삭제 완료 메시지를 반환한다.
 		$this->add('removed', 1);
 		return true;

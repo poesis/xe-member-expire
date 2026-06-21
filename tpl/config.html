@@ -7,13 +7,13 @@
 	<input type="hidden" name="module" value="member_expire" />
 	<input type="hidden" name="act" value="procMember_expireAdminInsertConfig" />
 	<input type="hidden" name="success_return_url" value="{getRequestUriByServerEnviroment()}" />
-	
+
 	<div cond="$XE_VALIDATOR_MESSAGE" class="message {$XE_VALIDATOR_MESSAGE_TYPE}">
 		<p>{$XE_VALIDATOR_MESSAGE}</p>
 	</div>
 
 	<section class="section">
-	
+
 		<div class="x_control-group">
 			<label class="x_control-label" for="expire_threshold">휴면계정 판단 조건</label>
 			<div class="x_controls">
@@ -31,7 +31,7 @@
 				<p class="x_help-block">해당 기간 동안 로그인하지 않으면 휴면계정으로 판단합니다.</p>
 			</div>
 		</div>
-		
+
 		<div class="x_control-group">
 			<label class="x_control-label">휴면계정 정리 방법</label>
 			<div class="x_controls">
@@ -44,7 +44,7 @@
 					필요할 경우 <a href="{getUrl('', 'module', 'admin', 'act', 'dispMember_expireAdminListMoved')}">별도저장 회원 목록</a> 메뉴에서 조회 및 복원할 수 있습니다.</p>
 			</div>
 		</div>
-		
+
 		<div class="x_control-group">
 			<label class="x_control-label">재인증시 자동 복원</label>
 			<div class="x_controls">
@@ -56,17 +56,17 @@
 					<span style="color:red">휴면계정을 삭제하도록 설정한 경우에는 이 옵션을 사용할 수 없고, 삭제된 계정은 복원되지 않습니다.</span></p>
 			</div>
 		</div>
-		
+
 		<div class="x_control-group">
 			<label class="x_control-label" for="url_after_restore">로그인시 연결 주소</label>
 			<div class="x_controls">
-				<input type="text" name="url_after_restore" id="url_after_restore" value="{htmlspecialchars($mex_config->url_after_restore)}" />
+				<input type="text" name="url_after_restore" id="url_after_restore" value="{htmlspecialchars($mex_config->url_after_restore ?? '')}" />
 				<p class="x_help-block">별도의 저장공간으로 이동된 회원이 다시 로그인하여 복원된 경우, 위의 주소로 전달합니다.<br />
 					휴면 상태에서 복원되었다는 것을 안내하거나 그 밖의 조치가 필요한 경우 이 기능을 활용하십시오.<br />
 					<span style="color:red">반드시 http:나 https:로 시작하는 URL 전체를 입력해 주십시오.</span></p>
 			</div>
 		</div>
-		
+
 		<div class="x_control-group">
 			<label class="x_control-label">앞으로도 자동 정리</label>
 			<div class="x_controls">
@@ -77,7 +77,7 @@
 					정리할 계정이 많은 경우 사이트 로딩이 느려지거나 정리가 다소 지연될 수 있습니다.</p>
 			</div>
 		</div>
-		
+
 		<div class="x_control-group">
 			<label class="x_control-label">자동 정리 시작일자</label>
 			<div class="x_controls">
@@ -88,7 +88,7 @@
 					오랫동안 로그인하지 않은 회원이라도 안내메일 발송과 동시에 자동 정리되어 버리는 일을 막을 수 있습니다.</p>
 			</div>
 		</div>
-			
+
 		<div class="x_control-group">
 			<label class="x_control-label" for="auto_notify">안내메일 자동 발송</label>
 			<div class="x_controls">
@@ -105,11 +105,11 @@
 					발송할 메일의 내용은 <a href="{getUrl('', 'module', 'admin', 'act', 'dispMember_expireAdminEmailTemplate')}">안내메일 내용 편집</a> 메뉴에서 편집할 수 있습니다.</p>
 			</div>
 		</div>
-		
+
 	</section>
-	
+
 	<div class="btnArea x_clearfix">
 		<button type="submit" class="x_btn x_btn-primary x_pull-right">{$lang->cmd_registration}</button>
 	</div>
-	
+
 </form>
